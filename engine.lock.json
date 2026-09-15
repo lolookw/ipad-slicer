@@ -1,0 +1,36 @@
+{
+  "source": "https://github.com/Hiosdra/OrcaWasm",
+  "release": "wasm-v2.4.2-patch19",
+  "variants": {
+    "st": {
+      "tag": "wasm-v2.4.2-patch19",
+      "js": {
+        "name": "slicer.js",
+        "url": "https://github.com/Hiosdra/OrcaWasm/releases/download/wasm-v2.4.2-patch19/slicer.js",
+        "bytes": 228243,
+        "sha256": "90bc7746c4c4f430b3822928ac53a7ec50b576247141debe1d0c322966e68926"
+      },
+      "wasm": {
+        "name": "slicer.wasm",
+        "url": "https://github.com/Hiosdra/OrcaWasm/releases/download/wasm-v2.4.2-patch19/slicer.wasm",
+        "bytes": 38095772,
+        "sha256": "d51612e7ff865ca28a44100aa9d2d0033392f7cd7b08068078096e61bcc8d93f"
+      }
+    },
+    "mt": {
+      "tag": "wasm-v2.4.2-patch19-multithreaded",
+      "js": {
+        "name": "slicer-mt.js",
+        "url": "https://github.com/Hiosdra/OrcaWasm/releases/download/wasm-v2.4.2-patch19-multithreaded/slicer-mt.js",
+        "bytes": 249134,
+        "sha256": "b2338a4fae908828c114d9431639bcb6915416137e94e63b1f661a6fdca5e107"
+      },
+      "wasm": {
+        "name": "slicer-mt.wasm",
+        "url": "https://github.com/Hiosdra/OrcaWasm/releases/download/wasm-v2.4.2-patch19-multithreaded/slicer-mt.wasm",
+        "bytes": 37339730,
+        "sha256": "2459c9c48ba97de9f9f1638b80a90c6412182c165c055ed06deeeaa7e17d6a2a"
+      }
+    }
+  }
+}

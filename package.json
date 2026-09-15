@@ -11,6 +11,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "fetch-engine": "node scripts/fetch-engine.mjs",
+    "prebuild": "npm run fetch-engine",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
