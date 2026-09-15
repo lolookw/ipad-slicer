@@ -135,3 +135,44 @@ Status: done. The slice-check blocker is fixed and 3.1, 3.2, 3.4 and 3.5 are now
 
 - Delivery: authored lines are about 528 (127 tracked + 401 new, excluding the generated 402-line profile JSON), which is over the 400 budget. The maintainer authorized a ledger reset and chose a single PR 3 commit over the auto-chain split (3a profile/bridge ~228, 3b worker/page ~300).
 - Open risk: Blob-URL module import of the classic engine script, streaming instantiate, and cancel-by-terminate are not yet exercised in a real browser.
+
+## PR 4 Export/Panel - Tasks 4.1, 4.2 and 4.4
+
+Status: assigned tasks complete; browser smoke remains with Claude. Earlier sections are preserved verbatim.
+
+- Context: schema `spec-driven`, planning home `openspec`, hybrid persistence, applyState `ready` from proposal/design/specs/tasks and prior progress; repository edit root; standard mode, strict TDD off.
+- Delivery: auto-chain, stacked-to-main; PR 1 -> PR 2 -> PR 3 -> **PR 4 (current)** -> PR 5. No commits, branches, remote operations, network, installs or review actors (disabled/unmanaged).
+- Cumulative tasks: 1.1-3.6 remain checked; this batch checks only 4.1, 4.2 and 4.4. Task 4.3 and all other markers remain untouched.
+- Files: new `src/export/save-gcode.ts`, `src/export/save-gcode.test.ts`, `src/instrumentation/panel.ts`, `src/instrumentation/panel.test.ts`; only three checkboxes in `tasks.md` and this appendix. Claude owns `src/main.ts` and `index.html`; neither was edited here.
+
+### PR 4 Work Unit Evidence
+
+| Evidence | Observed result |
+|---|---|
+| Focused tests | `npx.cmd vitest run src/export/save-gcode.test.ts src/instrumentation/panel.test.ts`: exit 0; 2 files, 20 tests passed. Node fakes verify synchronous share, MIME selection, cancellation and download cleanup. |
+| Full suite | `npx.cmd vitest run`: exit 0; 6 files, 100 tests passed, including existing log reload-persistence coverage. |
+| Typecheck | `npm.cmd run typecheck`: exit 0; no diagnostics, including Claude's current wiring. |
+| Build | `npx.cmd vite build`: exit 0; 9 modules, 197 ms. Ignored `dist/` regenerated; no fetch/prebuild invoked. |
+| Runtime harness | Not run in this batch: user assigns WebKit DOM smoke to Claude. Node fakes are not browser evidence; actual iPad Files/PWA retrievability and 10/50/100 MB share remain unverified. |
+| Rollback boundary | Remove the four new export/panel files, revert only the three task checkboxes and this appendix; coordinate removal of dependent PR4 wiring with Claude, preserving PR1-PR3. |
+
+- Deviations: explicit handoff refines the older spec's blanket rejection fallback: AbortError returns cancelled without downloading. `PanelMetrics` has no error field; latest engine-error context is shown separately in the panel. Empty MIME candidates reject with TypeError. `.cmd` launchers avoid PowerShell policy restrictions; npm offline mode was enabled.
+- Budget: 236 new source/test lines + 6 checkbox additions/deletions + 24 appendix lines = 266 authored changed lines; observed concurrent wiring adds 72, totaling 338/400 at this snapshot.
+- Next: Claude's task 4.3/browser smoke, independent SDD verification, then PR5 probe/multithread. No design/spec/proposal or PR1-PR3 implementation files changed.
+
+### PR 4 Wiring and Browser Verification (Claude)
+
+Status: done. Task 4.3 is checked; 4.1, 4.2 and 4.4 were reviewed and verified by Claude.
+
+- 4.3: `src/main.ts` adds a Save G-code button that calls `saveGcode` synchronously inside the tap handler, a `record()` helper that appends to the log and re-renders the panel, an error state (`#engine-status.error`), and log export via `saveFile`. `index.html` adds the save button, the panel section and minimal touch-sized styles.
+- Review: `saveFile` invokes `navigator.share` before its first await; AbortError maps to cancelled; the download fallback revokes after 60 s. The panel renders with textContent only.
+
+| Evidence | Observed result |
+|---|---|
+| Full suite | `npx vitest run`: 6 files / 100 tests passed. |
+| Typecheck | `npm run typecheck`: exit 0. |
+| Build | `npm run build` (prebuild fetch-engine, cache hits): exit 0; index 7.83 kB, engine.worker 12.60 kB. |
+| Browser smoke (Playwright 1.55 WebKit, dist served from https://slicer.test with COOP/COEP/CORP) | 4 of 5 runs fully green: engine ready (st, streaming) ~540-620 ms, slice ~590-800 ms, G-code 292,819 B (G28, M109 220, M190 60, 100 layers); Save fell back to download (no Web Share in WebKit) with suggested name cube.gcode and identical byte length; panel rendered metrics, 8+ recent entries and Export/Clear buttons; cancel restarted the engine in ~0.6 s. One earlier run failed at the cancel step with "Target page, context or browser has been closed" and no crash event; it did not reproduce in 4 later runs. |
+
+- Open risks: the intermittent cancel failure should be watched on device; `crossOriginIsolated` stayed false under the Playwright route (verify on the Cloudflare deploy); real Web Share on iPad Safari and the PWA remains untested.
+- Changed lines (authored): about 308 (72 tracked in main/index + 236 new in export/panel and tests), within the 400 budget.

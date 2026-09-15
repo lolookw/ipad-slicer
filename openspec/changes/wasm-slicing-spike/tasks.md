@@ -53,10 +53,10 @@ Chain strategy: stacked-to-main
 
 ## Phase 4: Export and Panel (PR 4)
 
-- [ ] 4.1 Create `src/export/save-gcode.ts`: `canShare` probe, `share({files})` primary, `<a download>` Blob fallback (Codex)
-- [ ] 4.2 Create `src/instrumentation/panel.ts`: render log, `crossOriginIsolated`, peak heap/timing (Codex)
-- [ ] 4.3 Wire Save button and panel into `src/main.ts`; add error state UI (Claude)
-- [ ] 4.4 Vitest tests for `save-gcode.ts` fallback branching and log reload-persistence (Codex)
+- [x] 4.1 Create `src/export/save-gcode.ts`: `canShare` probe, `share({files})` primary, `<a download>` Blob fallback (Codex)
+- [x] 4.2 Create `src/instrumentation/panel.ts`: render log, `crossOriginIsolated`, peak heap/timing (Codex)
+- [x] 4.3 Wire Save button and panel into `src/main.ts`; add error state UI (Claude)
+- [x] 4.4 Vitest tests for `save-gcode.ts` fallback branching and log reload-persistence (Codex)
 
 ## Phase 5: Probe and Multithread (PR 5)
 

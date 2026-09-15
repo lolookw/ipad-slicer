@@ -8,6 +8,12 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon.svg" />
     <title>iPad Slicer Spike</title>
+    <style>
+      body { font-family: -apple-system, system-ui, sans-serif; margin: 0 auto; max-width: 48rem; padding: 1rem; }
+      button { font-size: 1.1rem; min-height: 44px; padding: 0 1.25rem; }
+      #engine-status.error { color: #b91c1c; font-weight: 600; }
+      #panel { border-top: 1px solid #d1d5db; margin-top: 1.5rem; font-size: 0.9rem; }
+    </style>
   </head>
   <body>
     <main id="app">
@@ -18,8 +24,10 @@
       <p>
         <button id="slice-button" type="button" disabled>Slice</button>
         <button id="cancel-button" type="button" disabled>Cancel</button>
+        <button id="save-button" type="button" disabled>Save G-code</button>
       </p>
       <progress id="slice-progress" max="100" value="0"></progress>
+      <section id="panel" aria-label="Spike instrumentation"></section>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
