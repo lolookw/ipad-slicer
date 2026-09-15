@@ -1,0 +1,38 @@
+schema: spec-driven
+
+context: |
+  Tech stack: undetected (greenfield repo, no source files yet)
+  Architecture: not yet established
+  Testing: no test runner present
+  Style: no conventions established
+
+strict_tdd: false
+
+testing:
+  projects: []
+  strict_tdd_reason: "Zero projects discovered; repo contains only an empty .git directory."
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - First proposal should establish the initial tech stack and architecture
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    guidelines:
+      - Follow existing code patterns once established
+    tdd: false
+    test_command: ""
+  verify:
+    test_command: ""
+    build_command: ""
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas

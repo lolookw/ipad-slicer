@@ -1,0 +1,101 @@
+# Design: WASM Slicing Spike on iPad Safari
+
+## Technical Approach
+
+A static Vite + vanilla TypeScript harness on Cloudflare Workers static assets (assets-only Worker, no Worker script), deployed through Workers Builds Git integration. OrcaWasm `wasm-v2.4.2-patch19` runs inside one dedicated Web Worker. The 25 MiB per-file limit is solved at build time: each `.wasm` is gzipped, and split into parts only if a part would exceed 20 MiB. The worker streams the parts in order, gunzips them with `DecompressionStream`, and compiles them with `WebAssembly.instantiateStreaming` through Emscripten's `Module.instantiateWasm` hook. Everything is same-origin and static, so `_headers` controls COOP/COEP and caching.
+
+## Architecture Decisions
+
+### Decision: Hosting platform
+
+| Option | Tradeoff | Decision |
+|---|---|---|
+| Cloudflare Workers static assets + Workers Builds | Cloudflare's recommended platform for new projects; `_headers` supported; static asset requests free; per-branch preview URLs and PR comments | **Chosen** (user decision 2026-09-15) |
+| Cloudflare Pages | Still works, but new features target Workers | Rejected |
+
+Sources: [migrate from Pages](https://developers.cloudflare.com/workers/static-assets/migration-guides/migrate-from-pages/), [static assets](https://developers.cloudflare.com/workers/static-assets/), [limits](https://developers.cloudflare.com/workers/platform/limits/) (25 MiB per file, 20,000 files on free plan), [GitHub integration](https://developers.cloudflare.com/workers/ci-cd/builds/git-integration/github-integration/).
+
+Build config: `wrangler.jsonc` with `assets.directory: "./dist"`. Workers Builds build command `npm run build` (runs `scripts/fetch-engine.mjs`, then `vite build`); deploy command `npx wrangler deploy`; non-production branch builds enabled for preview URLs.
+
+### Decision: Serving the >25 MiB wasm
+
+| Option | Tradeoff | Decision |
+|---|---|---|
+| D) Gzipped static parts, streamed back together | No R2, Worker script, or quotas. Same-origin. Keeps streaming compile and a smaller download. Needs `DecompressionStream` (Safari 16.4+) | **Primary** |
+| A) Worker script + R2 binding in front of `/engine/*` | Same-origin, but adds a bucket and a Worker invocation per load. `_headers` does not apply to Worker-script responses, so COOP/COEP/CORP and `Content-Type` must be set in code. Quotas, body limits, and edge caching are unverified | **Fallback** |
+| B) Public R2 bucket on a custom domain + CORS | Needs a domain we own. Cross-origin under COEP needs CORS and CORP | Rejected |
+| C) Chunks joined into an ArrayBuffer | Loses streaming compile. Holds about twice the bytes in memory at once | Rejected (D streams its chunks) |
+
+Degradation inside D: if the first bytes are already `\0asm` (the host decoded the gzip), skip decompression. If streaming throws, buffer the bytes, call `WebAssembly.instantiate`, and log `loadPath=buffered`. Switch to A only if static delivery still fails on the device.
+
+### Other decisions
+
+| Topic | Choice | Rejected | Rationale |
+|---|---|---|---|
+| Engine host | One worker. Engine JS stays unbundled in `public/engine/<release>/`, loaded with `import()` or `importScripts` | Main thread | Keeps the page responsive. Which loader depends on the `slicer.js` build format |
+| Caching | Versioned, `immutable` paths; browser HTTP cache only | Service worker | Measure cold vs warm first |
+| Cancel | `worker.terminate()`, then re-create the worker | SharedArrayBuffer flag | Works without isolation |
+| Variant | Worker checks `crossOriginIsolated`, then tries a fixed-size shared `WebAssembly.Memory`. Any failure selects single-thread | Growable-memory multithread | R2 crashes |
+| Multithread load | `slicer-mt.js` starts pthread workers; the compiled module goes to them by `postMessage` | — | Parts download once |
+| Profile | `profiles/ender3v2-020-pla.3mf` exported from desktop OrcaSlicer 2.4.2. PLA temperatures checked against the raw JSON | Flattening `inherits` with a script | Matches the engine's input |
+| G-code | Worker `FS.readFile` → transfer → a "Save" tap calls `share({files})`, else `<a download>` with a Blob URL | `data:` URLs | R1 |
+| Instrumentation | The main thread writes each worker event to a localStorage ring buffer (500 entries). Peak heap = `wasmMemory.buffer.byteLength`, sampled on progress. Log exports as JSON | Remote debugger | Survives a tab crash; no Mac |
+| Artifacts | Gitignored. `scripts/fetch-engine.mjs` checks SHA-256 against `engine.lock.json`, gzips, splits, writes `engine-manifest.json`. Build fails if a part exceeds 20 MiB | Committing binaries | Repo size, supply chain |
+
+## Data Flow
+
+```
+Page            EngineWorker                    Workers static assets
+ |--init------->|--GET engine-manifest.json--->|
+ |              |  probe isolation/shared memory
+ |              |--GET part0..N (streamed)---->|
+ |              |  concat -> gunzip -> instantiateStreaming
+ |<-ready{variant,loadPath,loadMs}             |
+ |--slice(stl)->|  MEMFS write, init_profile, slice
+ |<-progress{pct,heapBytes} (xN)               |
+ |<-done{gcode,sliceMs,peakHeapBytes}          |
+ |  tap Save -> share(File) | <a download>
+```
+
+## File Changes
+
+| File | Action | Description |
+|---|---|---|
+| `package.json`, `tsconfig.json`, `vite.config.ts`, `index.html`, `.gitignore` | Create | Scaffold (`wrangler` as devDependency) |
+| `wrangler.jsonc` | Create | Assets-only Worker: `name`, `compatibility_date`, `assets.directory: "./dist"` |
+| `public/_headers` | Create | COOP/COEP/CORP on `/*`; immutable `/engine/*` |
+| `public/manifest.webmanifest`, `LICENSE` | Create | PWA; AGPL-3.0 |
+| `scripts/fetch-engine.mjs`, `engine.lock.json` | Create | Pinned fetch, gzip, split |
+| `src/engine/manifest.ts`, `stream-loader.ts`, `probe.ts` | Create | Loader, variant probe |
+| `src/worker/engine.worker.ts`, `protocol.ts` | Create | Engine bridge |
+| `src/export/save-gcode.ts` | Create | Share/download |
+| `src/instrumentation/log.ts`, `panel.ts` | Create | Log and panel |
+| `src/main.ts` | Create | Wiring |
+| `profiles/ender3v2-020-pla.3mf`, `profiles/README.md` | Create | Profile and where it came from |
+| `edge/engine-proxy.ts` | Deferred | Fallback A Worker script; serves only keys listed in the manifest and sets headers in code |
+
+## Interfaces / Contracts
+
+```ts
+type Variant = 'st' | 'mt';
+type EngineManifest = { release: string; variants: Record<Variant,
+  { js: string; encoding: 'gzip' | 'identity'; parts: string[]; wasmBytes: number }> };
+type ToWorker = { t: 'init'; prefer: Variant } | { t: 'slice'; stl: ArrayBuffer; name: string };
+type FromWorker =
+  | { t: 'ready'; variant: Variant; loadPath: 'streaming' | 'buffered'; loadMs: number }
+  | { t: 'progress'; pct: number; heapBytes: number }
+  | { t: 'done'; gcode: ArrayBuffer; sliceMs: number; peakHeapBytes: number }
+  | { t: 'error'; stage: 'load' | 'probe' | 'profile' | 'slice' | 'export'; message: string };
+```
+
+## Testing Strategy
+
+| Layer | What to Test | Approach |
+|---|---|---|
+| Unit | Stream concat, sniff, gunzip, fallback, manifest, variant choice, ring buffer | Vitest (Node web streams) |
+| Integration | Headers, `crossOriginIsolated`, cube slice | Desktop Chrome on a Workers branch preview URL (or `wrangler dev` locally) |
+| Device | Tab and PWA, STL ladder, share at 10/50/100MB, cold/warm load | Manual; results from the exported log |
+
+## Threat Matrix
+
+N/A: no routing, shell, subprocess, VCS/PR automation, or executable-file classification boundary.
