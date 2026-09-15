@@ -1,0 +1,22 @@
+[
+  {"ts": 1789511845120, "type": "page-load", "data": {"crossOriginIsolated": true, "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.6.1 Safari/605.1.15"}},
+  {"ts": 1789511845123, "type": "engine-init", "data": {"prefer": "mt", "requested": "auto"}},
+  {"ts": 1789511847060, "type": "engine-ready", "data": {"t": "ready", "variant": "mt", "loadPath": "streaming", "loadMs": 1665.2800000000002, "probe": "fixed shared memory 1024 MiB"}},
+  {"ts": 1789511848021, "type": "test-model-generated", "data": {"megabytes": 50, "bytes": 52428684, "generateMs": 110.2199999999998}},
+  {"ts": 1789511848021, "type": "slice-start", "data": {"name": "test-sphere-50mb.stl", "bytes": 52428684}},
+  {"ts": 1789511848024, "type": "slice-progress", "data": {"t": "progress", "pct": 0, "heapBytes": 1073741824}},
+  {"ts": 1789511854576, "type": "slice-progress", "data": {"t": "progress", "pct": 100, "heapBytes": 1073741824}},
+  {"ts": 1789511854577, "type": "slice-done", "data": {"variant": "mt", "model": "test-sphere-50mb.stl", "gcodeBytes": 4785491, "sliceMs": 6554, "peakHeapBytes": 1073741824}},
+  {"ts": 1789511857799, "type": "gcode-save", "data": {"method": "cancelled", "mimeType": "text/x.gcode", "bytes": 4785491}},
+  {"ts": 1789512082875, "type": "test-model-generated", "data": {"megabytes": 20, "bytes": 20971584, "generateMs": 71.25999999998021}},
+  {"ts": 1789512082875, "type": "slice-start", "data": {"name": "test-sphere-20mb.stl", "bytes": 20971584}},
+  {"ts": 1789512082878, "type": "slice-progress", "data": {"t": "progress", "pct": 0, "heapBytes": 1073741824}},
+  {"ts": 1789512087013, "type": "slice-progress", "data": {"t": "progress", "pct": 100, "heapBytes": 1073741824}},
+  {"ts": 1789512087013, "type": "slice-done", "data": {"variant": "mt", "model": "test-sphere-20mb.stl", "gcodeBytes": 4742133, "sliceMs": 4137.959999999992, "peakHeapBytes": 1073741824}},
+  {"ts": 1789512089406, "type": "test-model-generated", "data": {"megabytes": 10, "bytes": 10485684, "generateMs": 38.179999999993015}},
+  {"ts": 1789512089406, "type": "slice-start", "data": {"name": "test-sphere-10mb.stl", "bytes": 10485684}},
+  {"ts": 1789512089409, "type": "slice-progress", "data": {"t": "progress", "pct": 0, "heapBytes": 1073741824}},
+  {"ts": 1789512092935, "type": "slice-progress", "data": {"t": "progress", "pct": 100, "heapBytes": 1073741824}},
+  {"ts": 1789512092936, "type": "slice-done", "data": {"variant": "mt", "model": "test-sphere-10mb.stl", "gcodeBytes": 4690653, "sliceMs": 3528.5599999999977, "peakHeapBytes": 1073741824}},
+  {"ts": 1789512101859, "type": "gcode-save", "data": {"method": "share", "mimeType": "text/x.gcode", "bytes": 4690653}}
+]

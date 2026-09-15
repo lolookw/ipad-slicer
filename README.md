@@ -2,7 +2,7 @@
 
 A free, touch-first 3D printing slicer for the iPad, built on the real OrcaSlicer engine compiled to WebAssembly and running entirely in Safari — no server, no account, no upload.
 
-> **Status: technical spike, verified in WebKit, not yet tested on a physical iPad.**
+> **Status: technical spike, verified on a physical iPad Air M2 (Safari, iPadOS 26.6.1).** A 50 MB model slices in 6.6 seconds on the device. The real touch UI is now being designed.
 > This repository is the feasibility phase. Before designing any UI, the goal was to prove the risky part first: that OrcaSlicer's C++ engine can slice a real model inside a browser tab on iPad-class constraints and hand the user a usable G-code file. The current page is a measurement harness, not the final app.
 
 ![Spike harness in WebKit after a multithread slice](docs/harness-webkit.png)
@@ -15,7 +15,7 @@ A free, touch-first 3D printing slicer for the iPad, built on the real OrcaSlice
 | --- | --- |
 | **What works today** | Load OrcaSlicer 2.4.2 (via OrcaWasm) in a Web Worker, slice an STL with a real Ender-3 V2 + PLA profile, save the G-code, measure load/slice/memory, cancel |
 | **Engine variants** | Single-thread, and multithread with a fixed 1 GiB shared memory |
-| **Verified in** | Node (headless engine check) and Playwright WebKit (Safari's engine) |
+| **Verified in** | iPad Air M2 (Safari 26.6.1), Playwright WebKit against the live deploy, and Node (headless engine check) |
 | **Stack** | TypeScript, Vite, Web Workers, WebAssembly, Vitest, Cloudflare Workers (static assets) |
 | **Tests** | 117 unit tests + a real-engine slice check in Node + WebKit end-to-end smoke and model-size ladder runs |
 | **License** | AGPL-3.0 (inherited from OrcaSlicer) |
@@ -47,7 +47,7 @@ That idea has an obvious risk: a slicer is heavy C++ code that assumes a desktop
 | Does it handle large models? | **Yes, on desktop WebKit** | A generated 50 MB STL slices in ~13 s (multithread) with no crash |
 | Can the user get the file out? | **Yes (download path)** | Web Share first, download fallback; the saved file matches the G-code byte for byte |
 | Is it safe to restart the engine? | **Not always** | Found a WebKit crash — see [What broke](#what-broke-and-what-we-learned) |
-| Does it hold up on a real iPad? | **Not tested yet** | Next step: deploy and run the measurement matrix on device |
+| Does it hold up on a real iPad? | **Yes** | iPad Air M2, Safari 26.6.1: cross-origin isolated, multithread engine, 10 / 20 / 50 MB models in 3.5 / 4.1 / **6.6 s**, no crashes, G-code shared through the iOS share sheet ([device log](openspec/changes/wasm-slicing-spike/evidence/ipad-air-m2-safari-26.6.1-2026-09-15.json)) |
 
 ---
 
@@ -197,7 +197,7 @@ openspec/                    Spec-driven development artifacts
 
 **Known limitations**
 
-- Not yet run on a physical iPad — every claim above is from Node or desktop WebKit.
+- Tested on one physical iPad (Air M2, iPadOS 26.6.1); older iPads and iPadOS 17/18 are untested.
 - One printer profile (Creality Ender-3 V2, 0.2 mm, PLA).
 - No progress percentage, no layer preview, no model placement.
 - Switching to the single-thread engine after another engine ran in the same page can crash WebKit.
@@ -205,9 +205,9 @@ openspec/                    Spec-driven development artifacts
 
 **Next**
 
-1. Deploy to Cloudflare and run the device matrix: memory ceiling, 20–50 MB models, single vs multithread, Web Share into the Files app, installed PWA.
-2. Decide go / no-go from real iPad numbers.
-3. If it's a go: design the touch-first interface — model import, printer and material presets, a simple settings surface, layer preview.
+1. ~~Deploy to Cloudflare and run the device matrix~~ — done: the spike passed on an iPad Air M2.
+2. Build the touch-first interface (in design): SolidJS app, English and Spanish, curated printer and filament catalog plus custom printers, simple and advanced settings, 3D model viewer with auto-orient and arrange, G-code toolpath preview, print time and cost estimates, offline PWA.
+3. Test on older iPads and iPadOS 17/18.
 4. Work upstream on the engine build: expose a progress callback and cap single-thread memory.
 
 ---

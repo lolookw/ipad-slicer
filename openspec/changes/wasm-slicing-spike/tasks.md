@@ -64,21 +64,21 @@ Chain strategy: stacked-to-main
 - [x] 5.2 Vitest test for `probe.ts` (mock success/throw) (Codex)
 - [x] 5.3 Extend `engine.worker.ts`/loader for `slicer-mt.js`/wasm variant, fixed pthread pool, `postMessage` compiled module (Claude)
 - [x] 5.4 Wire variant selection in `src/main.ts`: probe result offers multithread, else single-thread (Claude) — variant lives in `?variant=`; single-thread cancel is soft (result discarded) because re-instantiating the st engine in the same WebKit process crashed
-- [ ] 5.5 On-device iPad probe test across iPadOS 18.x/26.x per R2 (Human/remote)
+- [x] 5.5 On-device iPad probe test across iPadOS 18.x/26.x per R2 (Human/remote) — iPad Air M2, Safari 26.6.1: isolated, probe allocated fixed 1 GiB shared memory, auto selected mt and sliced 10/20/50 MB (evidence/ipad-air-m2-safari-26.6.1-2026-09-15.json). iPadOS 18.x not tested (no device)
 
 ## Phase 6: Contingency (build only if triggered)
 
-- [ ] 6.1 `edge/engine-proxy.ts` Worker script + R2 binding for `/engine/*` (fallback A), setting COOP/COEP/CORP and `Content-Type` in code — build only if PR2's static delivery mechanism fails on-device (Claude)
+- [x] 6.1 `edge/engine-proxy.ts` Worker script + R2 binding for `/engine/*` (fallback A), setting COOP/COEP/CORP and `Content-Type` in code — build only if PR2's static delivery mechanism fails on-device (Claude) — NOT TRIGGERED: static gzip-part delivery streamed and compiled on the iPad Air M2 (loadPath `streaming`); no fallback built
 
 ## Phase 7: Remote, Deploy, Device Testing (gated, outside code PR budget)
 
 - [x] 7.0a In-app test model generator: binary STL ladder (~1/10/20/50 MB) sliced without leaving Safari, for the 7.4 matrix (Codex)
 - [x] 7.0b `scripts/check-deploy.mjs <url>`: verify COOP/COEP/CORP, `crossOriginIsolated`-relevant headers, engine manifest and part reachability on a deployed URL (Codex)
 - [x] 7.1 Create GitHub repo and remote; explicit user authorization required (Human/remote) — https://github.com/lolookw/ipad-slicer, public, noreply author
-- [ ] 7.2 Cloudflare dashboard, one-time: Workers & Pages → Create → Import a repository; build command `npm run build`, deploy command `npx wrangler deploy`; enable non-production branch builds (Human/remote)
-- [ ] 7.3 Open branch preview URL; verify `crossOriginIsolated` true and `Content-Type: application/wasm` in Web Inspector (Human/remote)
-- [ ] 7.4 On-device test matrix: Safari tab and PWA, STL ladder to 50MB, Web Share at 10/50/100MB (Human/remote)
-- [ ] 7.5 Export instrumentation log; confirm pass/fail thresholds (peak memory <~1GB, G-code retrievable) (Human/remote)
+- [x] 7.2 Cloudflare dashboard, one-time: Workers & Pages → Create → Import a repository; build command `npm run build`, deploy command `npx wrangler deploy`; enable non-production branch builds (Human/remote) — live on the account's workers.dev subdomain (GitHub app access needed a reconnect)
+- [x] 7.3 Open the deployed URL; verify `crossOriginIsolated` true and the streaming wasm compile (Human/remote) — verified from desktop Playwright WebKit over real HTTPS: isolated, mt and st load via `streaming`, slice, save and cancel with no crash; `check-deploy` 0 FAIL; engine parts served `immutable` with CF cache HIT. Physical iPad check remains in 7.4
+- [x] 7.4 On-device test matrix: Safari tab and PWA, STL ladder to 50MB, Web Share at 10/50/100MB (Human/remote) — 2026-09-15, iPad Air M2, Safari 26.6.1: mt sliced 10 MB in 3.5 s, 20 MB in 4.1 s, 50 MB in 6.6 s (faster than desktop WebKit) with no crash; Chrome (WebKit) sliced all spheres; Web Share succeeded with `text/x.gcode` and a dismissed sheet reported `cancelled`; st soft cancel worked; Add to Home Screen works. Not confirmed: file visible in the Files app, save from the installed web app, st ladder timings
+- [x] 7.5 Export instrumentation log; confirm pass/fail thresholds (peak memory <~1GB, G-code retrievable) (Human/remote) — log exported and stored as evidence. Thresholds: 20–50 MB STL without crash PASS; G-code retrievable via share PASS; mt runs within its fixed 1 GiB; st peak memory on device not measured (desktop st stayed at 256 MB)
 
 ## Phase 8: Verification
 
