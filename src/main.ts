@@ -1,4 +1,5 @@
 import { gcodeFileName, saveFile, saveGcode } from './export/save-gcode';
+import type { Variant } from './engine/manifest';
 import { createLog } from './instrumentation/log';
 import { createPanel } from './instrumentation/panel';
 import { isFromWorker, type FromWorker, type ToWorker } from './worker/protocol';
@@ -6,6 +7,7 @@ import { isFromWorker, type FromWorker, type ToWorker } from './worker/protocol'
 const log = createLog();
 
 const isolationStatus = document.querySelector<HTMLParagraphElement>('#isolation-status');
+const variantSelect = document.querySelector<HTMLSelectElement>('#variant-select');
 const fileInput = document.querySelector<HTMLInputElement>('#stl-input');
 const sliceButton = document.querySelector<HTMLButtonElement>('#slice-button');
 const cancelButton = document.querySelector<HTMLButtonElement>('#cancel-button');
@@ -14,7 +16,7 @@ const engineStatus = document.querySelector<HTMLParagraphElement>('#engine-statu
 const progress = document.querySelector<HTMLProgressElement>('#slice-progress');
 const panelRoot = document.querySelector<HTMLElement>('#panel');
 
-if (!isolationStatus || !fileInput || !sliceButton || !cancelButton || !saveButton || !engineStatus || !progress || !panelRoot) {
+if (!isolationStatus || !variantSelect || !fileInput || !sliceButton || !cancelButton || !saveButton || !engineStatus || !progress || !panelRoot) {
   throw new Error('Spike harness markup is missing required elements');
 }
 
@@ -39,8 +41,23 @@ record('page-load', { crossOriginIsolated: self.crossOriginIsolated, userAgent: 
 let worker: Worker | undefined;
 let engineReady = false;
 let slicing = false;
+let cancelRequested = false;
+let loadedVariant: Variant | undefined;
 let lastGcode: ArrayBuffer | undefined;
 let lastStlName = 'model.stl';
+
+// The variant choice lives in the URL (?variant=auto|st|mt) and a switch reloads the page. Starting a
+// single-thread engine (growable memory up to 4 GiB) right after terminating another engine worker
+// crashed WebKit in local testing, so engine workers are never swapped in place across variants.
+const requestedChoice = new URLSearchParams(location.search).get('variant') ?? 'auto';
+variantSelect.value = ['auto', 'st', 'mt'].includes(requestedChoice) ? requestedChoice : 'auto';
+
+// "auto" asks for multithread only when the page is cross-origin isolated; the worker probe decides.
+function preferredVariant(): Variant {
+  const choice = variantSelect!.value;
+  if (choice === 'st' || choice === 'mt') return choice;
+  return self.crossOriginIsolated ? 'mt' : 'st';
+}
 
 function setStatus(text: string, isError = false): void {
   engineStatus!.textContent = text;
@@ -49,8 +66,9 @@ function setStatus(text: string, isError = false): void {
 
 function updateControls(): void {
   sliceButton!.disabled = !engineReady || slicing || !fileInput!.files?.length;
-  cancelButton!.disabled = !slicing;
+  cancelButton!.disabled = !slicing || cancelRequested;
   saveButton!.disabled = slicing || !lastGcode;
+  variantSelect!.disabled = slicing;
 }
 
 function post(message: ToWorker, transfer: Transferable[] = []): void {
@@ -61,16 +79,27 @@ function handleMessage(message: FromWorker): void {
   switch (message.t) {
     case 'ready':
       engineReady = true;
+      loadedVariant = message.variant;
       record('engine-ready', message);
-      setStatus(`Engine ready (${message.variant}, ${message.loadPath}, ${Math.round(message.loadMs)} ms)`);
+      setStatus(
+        `Engine ready (${message.variant}, ${message.loadPath}, ${Math.round(message.loadMs)} ms)` +
+          (message.probe ? ` — ${message.probe}` : ''),
+      );
       break;
     case 'progress':
       progress!.value = message.pct;
       record('slice-progress', message);
-      setStatus(`Slicing… ${message.pct}%${message.stage ? ` (${message.stage})` : ''}`);
+      if (!cancelRequested) setStatus(`Slicing… ${message.pct}%${message.stage ? ` (${message.stage})` : ''}`);
       break;
     case 'done':
       slicing = false;
+      if (cancelRequested) {
+        cancelRequested = false;
+        progress!.value = 0;
+        record('slice-discarded', { sliceMs: message.sliceMs });
+        setStatus('Slice cancelled (result discarded); engine ready');
+        break;
+      }
       lastGcode = message.gcode;
       progress!.value = 100;
       record('slice-done', {
@@ -85,7 +114,8 @@ function handleMessage(message: FromWorker): void {
       break;
     case 'error':
       slicing = false;
-      if (message.stage === 'load' || message.stage === 'profile') engineReady = false;
+      cancelRequested = false;
+      if (message.stage === 'load' || message.stage === 'probe' || message.stage === 'profile') engineReady = false;
       record('engine-error', message);
       setStatus(`Error during ${message.stage}: ${message.message}`, true);
       break;
@@ -97,7 +127,9 @@ function startWorker(): void {
   worker?.terminate();
   engineReady = false;
   slicing = false;
-  setStatus('Loading engine…');
+  cancelRequested = false;
+  const prefer = preferredVariant();
+  setStatus(`Loading engine (${prefer})…`);
   worker = new Worker(new URL('./worker/engine.worker.ts', import.meta.url), { type: 'module' });
   worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     if (isFromWorker(event.data)) handleMessage(event.data);
@@ -106,17 +138,24 @@ function startWorker(): void {
     record('worker-crash', { message: event.message });
     handleMessage({ t: 'error', stage: 'load', message: event.message || 'Worker crashed' });
   });
-  record('engine-init', { prefer: 'st' });
-  post({ t: 'init', prefer: 'st' });
+  record('engine-init', { prefer, requested: variantSelect!.value });
+  post({ t: 'init', prefer });
   updateControls();
 }
 
 fileInput.addEventListener('change', updateControls);
+variantSelect.addEventListener('change', () => {
+  record('variant-change', { requested: variantSelect.value });
+  const url = new URL(location.href);
+  url.searchParams.set('variant', variantSelect.value);
+  location.replace(url);
+});
 
 sliceButton.addEventListener('click', async () => {
   const file = fileInput.files?.[0];
   if (!file || !engineReady) return;
   slicing = true;
+  cancelRequested = false;
   lastGcode = undefined;
   lastStlName = file.name;
   progress.value = 0;
@@ -127,10 +166,17 @@ sliceButton.addEventListener('click', async () => {
   post({ t: 'slice', stl, name: file.name }, [stl]);
 });
 
-// A worker busy in a synchronous slice call cannot receive messages, so cancel restarts it.
+// A worker busy in a synchronous slice call cannot receive messages. Multithread (fixed memory)
+// restarts cleanly in place; single-thread cancels softly and discards the result when it arrives.
 cancelButton.addEventListener('click', () => {
-  record('slice-cancel');
-  startWorker();
+  record('slice-cancel', { variant: loadedVariant, mode: loadedVariant === 'mt' ? 'restart' : 'discard' });
+  if (loadedVariant === 'mt') {
+    startWorker();
+    return;
+  }
+  cancelRequested = true;
+  setStatus('Cancelling… the engine finishes this slice in the background and discards it');
+  updateControls();
 });
 
 // saveGcode must run synchronously inside the tap handler: Safari only shares with user activation.

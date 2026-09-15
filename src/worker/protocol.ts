@@ -2,7 +2,7 @@ import type { Variant } from '../engine/manifest';
 
 export type ToWorker = { t: 'init'; prefer: Variant } | { t: 'slice'; stl: ArrayBuffer; name: string };
 export type FromWorker =
-  | { t: 'ready'; variant: Variant; loadPath: 'streaming' | 'buffered'; loadMs: number }
+  | { t: 'ready'; variant: Variant; loadPath: 'streaming' | 'buffered'; loadMs: number; probe?: string }
   | { t: 'progress'; pct: number; heapBytes: number; stage?: string }
   | { t: 'done'; gcode: ArrayBuffer; sliceMs: number; peakHeapBytes: number }
   | { t: 'error'; stage: 'load' | 'probe' | 'profile' | 'slice' | 'export'; message: string };

@@ -60,10 +60,10 @@ Chain strategy: stacked-to-main
 
 ## Phase 5: Probe and Multithread (PR 5)
 
-- [ ] 5.1 Create `src/engine/probe.ts`: `crossOriginIsolated` check plus fixed-size shared `WebAssembly.Memory` probe (Codex)
-- [ ] 5.2 Vitest test for `probe.ts` (mock success/throw) (Codex)
-- [ ] 5.3 Extend `engine.worker.ts`/loader for `slicer-mt.js`/wasm variant, fixed pthread pool, `postMessage` compiled module (Claude)
-- [ ] 5.4 Wire variant selection in `src/main.ts`: probe result offers multithread, else single-thread (Claude)
+- [x] 5.1 Create `src/engine/probe.ts`: `crossOriginIsolated` check plus fixed-size shared `WebAssembly.Memory` probe (Codex)
+- [x] 5.2 Vitest test for `probe.ts` (mock success/throw) (Codex)
+- [x] 5.3 Extend `engine.worker.ts`/loader for `slicer-mt.js`/wasm variant, fixed pthread pool, `postMessage` compiled module (Claude)
+- [x] 5.4 Wire variant selection in `src/main.ts`: probe result offers multithread, else single-thread (Claude) — variant lives in `?variant=`; single-thread cancel is soft (result discarded) because re-instantiating the st engine in the same WebKit process crashed
 - [ ] 5.5 On-device iPad probe test across iPadOS 18.x/26.x per R2 (Human/remote)
 
 ## Phase 6: Contingency (build only if triggered)

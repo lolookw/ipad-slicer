@@ -13,6 +13,7 @@
     "build": "vite build",
     "fetch-engine": "node scripts/fetch-engine.mjs",
     "slice-check": "node scripts/slice-check.mjs",
+    "slice-check:mt": "node scripts/slice-check.mjs --variant mt",
     "prebuild": "npm run fetch-engine",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",

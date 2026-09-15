@@ -176,3 +176,49 @@ Status: done. Task 4.3 is checked; 4.1, 4.2 and 4.4 were reviewed and verified b
 
 - Open risks: the intermittent cancel failure should be watched on device; `crossOriginIsolated` stayed false under the Playwright route (verify on the Cloudflare deploy); real Web Share on iPad Safari and the PWA remains untested.
 - Changed lines (authored): about 308 (72 tracked in main/index + 236 new in export/panel and tests), within the 400 budget.
+
+## PR 5 Probe/Multithread - Codex Tasks 5.1 and 5.2
+
+Status: assigned tasks complete; Node harness supports 5.3. Prior sections are preserved verbatim.
+
+- Context: spec-driven, openspec/hybrid, applyState ready from proposal/design/spec/tasks/R2 and prior progress; standard mode, strict TDD off; repository edit root.
+- Delivery: auto-chain, stacked-to-main; PR 1 -> PR 2 -> PR 3 -> PR 4 -> **PR 5 (current)**. Review disabled/unmanaged; no Git mutations, network, installs or remote operations.
+- Cumulative state: 1.1-4.4 remain checked; only 5.1/5.2 checked here. Claude owns 5.3/5.4; device task 5.5 remains unverified.
+- Files: new src/engine/probe.ts and probe.test.ts; extended scripts/slice-check.mjs and package.json; two task markers and this appendix. Claude-owned files and engine-bridge exports are untouched.
+- Probe: ordered fallback checks, programming-error RangeError, one reusable fixed allocation (16384 pages / 1 GiB), MT_THREADS=4; 12 fake-based tests. Harness accepts --variant st|mt and --size, retains assertions and bounds the startup pthread pool to eight.
+
+### PR 5 Work Unit Evidence
+
+| Evidence | Observed result |
+|---|---|
+| Focused / full tests | npx.cmd vitest run src/engine/probe.test.ts: exit 0, 12 tests; npx.cmd vitest run: exit 0, 7 files / 112 tests. |
+| Typecheck | npm.cmd run typecheck: exit 0, no diagnostics, including concurrent wiring. |
+| Default st | npm.cmd run slice-check: exit 0; sliceMs=753.2101, gcodeBytes=292819, memoryBytes=268435456, 100 layers. |
+| Fixed-memory mt | npm.cmd run slice-check:mt: exit 0; sliceMs=811.0413, gcodeBytes=292819, memoryBytes=1073741824, 100 layers; clean exit. |
+| Larger st | node scripts/slice-check.mjs --variant st --size 60: exit 0; sliceMs=2169.6921, gcodeBytes=3733909, memoryBytes=268435456, 300 layers. |
+| Larger mt | node scripts/slice-check.mjs --variant mt --size 60: exit 0; sliceMs=1869.8623, gcodeBytes=3733909, memoryBytes=1073741824, 300 layers; clean exit. |
+| Rollback boundary | Remove both probe files and only this harness/package delta, 5.1/5.2 markers and appendix; coordinate dependent Claude wiring separately. Preserve PR1-PR4. |
+
+- Initial mt failure: ReferenceError [Error]: require is not defined in ES module scope, you can use import instead (slicer-mt.js:25:13). Root type=module classified the cached CommonJS pthread script as ESM. Harness-only scoped Worker bootstrap compiles that exact file as CommonJS; absolute mainScriptUrlOrBlob and fixed wasmMemory remain unchanged. No cache edits.
+- Diagnostic: INITIAL_MEMORY=1073741824 without wasmMemory passed once after the bootstrap fix (937.913 ms); never retained. Two earlier stdin diagnostic-launch attempts failed with ERR_INPUT_TYPE_NOT_ALLOWED before slicing because workers inherited --input-type; corrected by using plain Node stdin.
+- Budget: 158 implementation/test/package changed lines + 4 checkbox lines + 27 appendix lines = 189 authored additions plus deletions, excluding concurrent Claude changes. No source compression or unrelated edits.
+- Risks / next: Node timings are single-run observations, not device performance evidence; fixed 1 GiB allocation and Safari pthread startup still require task 5.5. Bootstrap uses Node internal Module._compile/_nodeModulePaths. Independent SDD verification remains with the orchestrator; no review actors launched.
+
+### PR 5 Multithread Wiring and Browser Verification (Claude)
+
+Status: done. Tasks 5.3 and 5.4 are checked; 5.1, 5.2 and the Node multithread harness were reviewed and re-verified by Claude. Task 5.5 (on-device iPad) remains human/remote.
+
+- 5.3 `engine.worker.ts`: `probeThreading()` chooses the variant. For mt it passes `Module.wasmMemory` = the probe fixed shared memory (16384 pages, 1 GiB, initial === maximum), `mainScriptUrlOrBlob` = absolute `slicer-mt.js` URL (pthreads load the raw classic script), and overrides `navigator.hardwareConcurrency` to `MT_THREADS` = 4 (pool 8). `ready` carries the probe reason.
+- 5.4 `main.ts`/`index.html`: a variant select (auto/st/mt). The choice lives in `?variant=` and a change reloads the page. Auto prefers mt when cross-origin isolated. Cancel restarts the worker for mt; for st it is a soft cancel that discards the result when it arrives.
+
+| Evidence | Observed result |
+|---|---|
+| Full suite | `npx vitest run`: 7 files / 112 tests passed. |
+| Typecheck / build | `npm run typecheck` exit 0; `npx vite build` exit 0 (engine.worker 13.70 kB). |
+| Node harness (Codex, re-read by Claude) | mt with fixed 1 GiB shared memory slices byte-identical G-code to st: 20 mm cube 292,819 B; 60 mm cube 3,733,909 B, st 2170 ms vs mt 1870 ms (single runs). |
+| WebKit isolation (real Node server with COOP/COEP) | crossOriginIsolated true; a 16384-page shared WebAssembly.Memory allocates 1,073,741,824 B. Playwright route.fulfill had reported false (harness artifact). |
+| WebKit smoke, mt (4 runs) | Engine ready (mt, streaming) ~300-350 ms; slice ~800-840 ms; identical 292,819 B G-code; save download matches; cancel restart ready ~300-440 ms; no crash. |
+| WebKit smoke, st soft cancel (3 runs) | Slice ~590 ms; save matches; cancel discards the in-flight result and returns "engine ready"; no crash. |
+| WebKit crash diagnosis | Terminate + new st worker: 3/3 crash. Page reload to st after st: crash, also after a 3 s delay; mt -> st reload: crash; st -> mt reload: ok. The st build defines non-shared growable memory (256 MiB min, 4 GiB max), so a second st engine instance in the same WebKit process crashes. |
+
+- Open risks: switching the select to st after any engine already loaded in the page process can still crash WebKit (the first st load in a fresh process works); confirm on iPad Safari. A durable fix needs an OrcaWasm st build with a lower MAXIMUM_MEMORY or imported memory. Node slice-check mt relies on internal Node module APIs (test-only).

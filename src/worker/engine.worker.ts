@@ -1,5 +1,6 @@
 import profile from '../../profiles/ender3v2-020-pla.json';
-import { fetchEngineManifest } from '../engine/manifest';
+import { fetchEngineManifest, type Variant } from '../engine/manifest';
+import { MT_THREADS, probeThreading, type ProbeResult } from '../engine/probe';
 import { createInstantiateWasm } from '../engine/stream-loader';
 import { checkStatus, initSession, sliceStl, type OrcaModule } from './engine-bridge.mjs';
 import { isToWorker, type FromWorker } from './protocol';
@@ -10,9 +11,18 @@ let engine: OrcaModule | undefined;
 let session = 0;
 let loading = false;
 
-async function initialize(setStage: (stage: Stage) => void) {
-  const variant = (await fetchEngineManifest()).variants.st;
-  const response = await fetch(variant.js);
+function chooseVariant(prefer: Variant): ProbeResult {
+  return prefer === 'mt' ? probeThreading() : { variant: 'st', reason: 'single-thread requested' };
+}
+
+async function initialize(prefer: Variant, setStage: (stage: Stage) => void) {
+  const manifest = await fetchEngineManifest();
+  setStage('probe');
+  const probe = chooseVariant(prefer);
+  setStage('load');
+  const variant = manifest.variants[probe.variant];
+  const jsUrl = new URL(variant.js, self.location.href).href;
+  const response = await fetch(jsUrl);
   if (!response.ok) throw new Error(`Engine JavaScript request failed (${response.status})`);
   const url = URL.createObjectURL(new Blob([await response.text(), '\nexport default OrcaModule;'], { type: 'text/javascript' }));
   try {
@@ -21,15 +31,24 @@ async function initialize(setStage: (stage: Stage) => void) {
     const hook = createInstantiateWasm(variant, { onLoaded: loaded => { info = loaded; } });
     let rejectAbort!: (reason: Error) => void;
     const aborted = new Promise<never>((_, reject) => { rejectAbort = reject; });
-    const modulePromise = Promise.resolve().then(() => factory({
+    const options: Record<string, unknown> = {
       instantiateWasm: hook, print: console.log, printErr: console.error,
       onAbort: (reason: unknown) => rejectAbort(new Error(`OrcaWasm aborted: ${String(reason)}`)),
-    })) as Promise<OrcaModule>;
+    };
+    if (probe.variant === 'mt') {
+      // Fixed shared memory avoids the growable-shared-memory crash on iPadOS 26.2 (research R2).
+      options.wasmMemory = probe.memory;
+      // Pthread workers load the raw classic script, not the Blob module wrapper.
+      options.mainScriptUrlOrBlob = jsUrl;
+      // The build sizes its pthread pool as hardwareConcurrency + 4; cap it for iPad memory.
+      Object.defineProperty(self.navigator, 'hardwareConcurrency', { value: MT_THREADS, configurable: true });
+    }
+    const modulePromise = Promise.resolve().then(() => factory(options)) as Promise<OrcaModule>;
     const [module] = await Promise.race([Promise.all([modulePromise, hook.completion]), aborted]);
     setStage('profile');
     session = initSession(module, JSON.stringify(profile));
     engine = module;
-    post({ t: 'ready', variant: 'st', ...info });
+    post({ t: 'ready', variant: probe.variant, ...info, probe: probe.reason });
   } finally { URL.revokeObjectURL(url); }
 }
 
@@ -69,7 +88,7 @@ self.addEventListener('message', async (event: MessageEvent<unknown>) => {
     if (event.data.t === 'init') {
       if (loading || engine) throw new Error('Engine already initialized or loading');
       loading = true;
-      try { await initialize(setStage); } finally { loading = false; }
+      try { await initialize(event.data.prefer, setStage); } finally { loading = false; }
     } else {
       stage = 'slice';
       if (!engine) throw new Error('Engine is not ready');

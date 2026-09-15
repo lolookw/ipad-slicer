@@ -19,6 +19,14 @@
     <main id="app">
       <h1>iPad Slicer Spike</h1>
       <p id="isolation-status">Checking cross-origin isolation…</p>
+      <p>
+        <label for="variant-select">Engine</label>
+        <select id="variant-select">
+          <option value="auto" selected>Auto (multithread if isolated)</option>
+          <option value="st">Single-thread</option>
+          <option value="mt">Multithread</option>
+        </select>
+      </p>
       <p id="engine-status">Loading engine…</p>
       <input id="stl-input" type="file" accept=".stl,model/stl,application/sla,application/octet-stream" />
       <p>
