@@ -13,6 +13,13 @@
     <main id="app">
       <h1>iPad Slicer Spike</h1>
       <p id="isolation-status">Checking cross-origin isolation…</p>
+      <p id="engine-status">Loading engine…</p>
+      <input id="stl-input" type="file" accept=".stl,model/stl,application/sla,application/octet-stream" />
+      <p>
+        <button id="slice-button" type="button" disabled>Slice</button>
+        <button id="cancel-button" type="button" disabled>Cancel</button>
+      </p>
+      <progress id="slice-progress" max="100" value="0"></progress>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>

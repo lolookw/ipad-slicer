@@ -44,12 +44,12 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Worker, Profile, Single-Thread Slice (PR 3)
 
-- [ ] 3.1 Create `scripts/resolve-profile.mjs` (merge pinned OrcaSlicer v2.4.2 preset `inherits` chains) and commit its output `profiles/ender3v2-020-pla.json` plus `profiles/README.md` provenance (Claude)
-- [ ] 3.2 Node slice check: load cached `slicer.js`/`slicer.wasm`, `onewasm_init` with the profile JSON, slice a generated calibration cube, assert G-code has Marlin start sequence and PLA temperatures (Codex)
-- [ ] 3.3 Create `src/worker/protocol.ts` (`ToWorker`/`FromWorker` types) (Codex)
-- [ ] 3.4 Create `src/worker/engine.worker.ts`: load via stream-loader, init profile, slice with progress, cancel via `terminate()` (Codex)
-- [ ] 3.5 Wire `src/main.ts`: file input, spawn worker, handle progress/done/error (single-thread only) (Claude)
-- [ ] 3.6 Vitest test for `protocol.ts` message-shape guards (Codex)
+- [x] 3.1 Create `scripts/resolve-profile.mjs` (merge pinned OrcaSlicer v2.4.2 preset `inherits` chains) and commit its output `profiles/ender3v2-020-pla.json` plus `profiles/README.md` provenance (Claude)
+- [x] 3.2 Node slice check: load cached `slicer.js`/`slicer.wasm`, `onewasm_init` with the profile JSON, slice a generated calibration cube, assert G-code has Marlin start sequence and PLA temperatures (Codex)
+- [x] 3.3 Create `src/worker/protocol.ts` (`ToWorker`/`FromWorker` types) (Codex)
+- [x] 3.4 Create `src/worker/engine.worker.ts`: load via stream-loader, init profile, slice with progress, cancel via `terminate()` (Codex) — progress is start/end only: the release exports no `addFunction` and its function table cannot grow
+- [x] 3.5 Wire `src/main.ts`: file input, spawn worker, handle progress/done/error (single-thread only) (Claude)
+- [x] 3.6 Vitest test for `protocol.ts` message-shape guards (Codex)
 
 ## Phase 4: Export and Panel (PR 4)
 
