@@ -1,4 +1,3 @@
-// @ts-expect-error Node runtime is available, but this browser project has no @types/node dependency.
 import { gzipSync } from 'node:zlib';
 import { afterEach, expect, it, vi } from 'vitest';
 import type { EngineManifest } from './manifest';

@@ -1,0 +1,61 @@
+:root {
+  --touch-target-min: 44px;
+  --app-gap: 1rem;
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, system-ui, sans-serif;
+}
+
+.layout {
+  display: grid;
+  min-height: 100dvh;
+  gap: var(--app-gap);
+  padding: calc(env(safe-area-inset-top) + var(--app-gap)) calc(env(safe-area-inset-right) + var(--app-gap))
+    calc(env(safe-area-inset-bottom) + var(--app-gap)) calc(env(safe-area-inset-left) + var(--app-gap));
+  box-sizing: border-box;
+}
+
+.layout[data-layout='regular'] {
+  grid-template-columns: minmax(16rem, 22rem) 1fr;
+}
+
+.layout[data-layout='compact'] {
+  grid-template-rows: auto 1fr;
+}
+
+.title {
+  font-size: 1.25rem;
+  margin: 0 0 var(--app-gap);
+}
+
+.step-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.step {
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  padding: 0 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid currentColor;
+  background: transparent;
+  font: inherit;
+}
+
+.step[aria-current='step'] {
+  font-weight: 600;
+  border-width: 2px;
+}
+
+.step:disabled {
+  opacity: 0.45;
+}
+
+.pane {
+  min-height: 12rem;
+}

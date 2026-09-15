@@ -7,46 +7,10 @@
     <meta name="theme-color" content="#111827" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon.svg" />
-    <title>iPad Slicer Spike</title>
-    <style>
-      body { font-family: -apple-system, system-ui, sans-serif; margin: 0 auto; max-width: 48rem; padding: 1rem; }
-      button { font-size: 1.1rem; min-height: 44px; padding: 0 1.25rem; }
-      #engine-status.error { color: #b91c1c; font-weight: 600; }
-      #panel { border-top: 1px solid #d1d5db; margin-top: 1.5rem; font-size: 0.9rem; }
-    </style>
+    <title>iPad Slicer</title>
   </head>
   <body>
-    <main id="app">
-      <h1>iPad Slicer Spike</h1>
-      <p id="isolation-status">Checking cross-origin isolation…</p>
-      <p>
-        <label for="variant-select">Engine</label>
-        <select id="variant-select">
-          <option value="auto" selected>Auto (multithread if isolated)</option>
-          <option value="st">Single-thread</option>
-          <option value="mt">Multithread</option>
-        </select>
-      </p>
-      <p id="engine-status">Loading engine…</p>
-      <p>
-        <label for="test-model">Model</label>
-        <select id="test-model">
-          <option value="file" selected>My STL file</option>
-          <option value="1">Test sphere ~1 MB</option>
-          <option value="10">Test sphere ~10 MB</option>
-          <option value="20">Test sphere ~20 MB</option>
-          <option value="50">Test sphere ~50 MB</option>
-        </select>
-      </p>
-      <input id="stl-input" type="file" accept=".stl,model/stl,application/sla,application/octet-stream" />
-      <p>
-        <button id="slice-button" type="button" disabled>Slice</button>
-        <button id="cancel-button" type="button" disabled>Cancel</button>
-        <button id="save-button" type="button" disabled>Save G-code</button>
-      </p>
-      <progress id="slice-progress" max="100" value="0"></progress>
-      <section id="panel" aria-label="Spike instrumentation"></section>
-    </main>
-    <script type="module" src="/src/main.ts"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/app/index.tsx"></script>
   </body>
 </html>

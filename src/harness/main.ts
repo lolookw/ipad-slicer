@@ -1,9 +1,9 @@
-import { gcodeFileName, saveFile, saveGcode } from './export/save-gcode';
-import type { Variant } from './engine/manifest';
-import { createLog } from './instrumentation/log';
-import { createPanel } from './instrumentation/panel';
-import { generateTestStl } from './testing/test-model';
-import { isFromWorker, type FromWorker, type ToWorker } from './worker/protocol';
+import { gcodeFileName, saveFile, saveGcode } from '../export/save-gcode';
+import type { Variant } from '../engine/manifest';
+import { createLog } from '../instrumentation/log';
+import { createPanel } from '../instrumentation/panel';
+import { generateTestStl } from '../testing/test-model';
+import { isFromWorker, type FromWorker, type ToWorker } from '../worker/protocol';
 
 const log = createLog();
 
@@ -139,7 +139,7 @@ function startWorker(): void {
   cancelRequested = false;
   const prefer = preferredVariant();
   setStatus(`Loading engine (${prefer})…`);
-  worker = new Worker(new URL('./worker/engine.worker.ts', import.meta.url), { type: 'module' });
+  worker = new Worker(new URL('../worker/engine.worker.ts', import.meta.url), { type: 'module' });
   worker.addEventListener('message', (event: MessageEvent<unknown>) => {
     if (isFromWorker(event.data)) handleMessage(event.data);
   });
