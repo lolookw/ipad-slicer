@@ -11,7 +11,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "node -e \"require('node:fs').copyFileSync('LICENSE', 'dist/LICENSE')\"",
     "fetch-engine": "node scripts/fetch-engine.mjs",
+    "check-deploy": "node scripts/check-deploy.mjs",
     "slice-check": "node scripts/slice-check.mjs",
     "slice-check:mt": "node scripts/slice-check.mjs --variant mt",
     "prebuild": "npm run fetch-engine",

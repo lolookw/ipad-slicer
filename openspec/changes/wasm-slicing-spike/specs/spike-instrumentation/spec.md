@@ -30,11 +30,17 @@ The system MUST persist captured metrics and errors on-device so they survive a 
 
 The system MUST record errors (probe failure, share rejection, load failure, slice crash) with a timestamp and context, and MUST NOT silently swallow them.
 
-#### Scenario: Probe failure is logged
+#### Scenario: Probe fallback is logged
 
-- GIVEN the shared-memory probe throws
-- WHEN thread-variant selection runs
-- THEN an error entry with timestamp and context is added to the log
+- GIVEN multithread was preferred and the shared-memory probe fell back (isolation absent, allocation failed, or memory not shared)
+- WHEN the engine reports ready on single-thread
+- THEN a `probe-fallback` entry with timestamp and the probe reason is added to the log
+
+#### Scenario: Share rejection is logged
+
+- GIVEN Web Share rejects for a reason other than the user dismissing the sheet
+- WHEN the save falls back to a download
+- THEN an error entry with timestamp, stage `export`, and the rejection reason is added to the log
 
 ### Requirement: Cross-Origin Isolation Assertion
 

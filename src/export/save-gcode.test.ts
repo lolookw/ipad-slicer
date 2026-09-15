@@ -50,8 +50,9 @@ it.each(['NotAllowedError', 'missing share', 'missing canShare', 'unshareable'])
   else if (reason === 'missing canShare') deps.navigator = { share: vi.fn() };
   else if (reason === 'unshareable') vi.mocked(deps.navigator!.canShare!).mockReturnValue(false);
   else vi.mocked(deps.navigator!.share!).mockRejectedValue({ name: reason });
+  const expected = { method: 'download', mimeType: 'text/x.gcode', bytes: 2 };
   expect(await saveFile('é', 'cube.gcode', ['text/x.gcode', 'text/plain'], deps))
-    .toEqual({ method: 'download', mimeType: 'text/x.gcode', bytes: 2 });
+    .toEqual(reason === 'NotAllowedError' ? { ...expected, shareError: 'NotAllowedError' } : expected);
   expect(document.createElement).toHaveBeenCalledWith('a');
   expect(anchor).toMatchObject({ download: 'cube.gcode', href: 'blob:test', rel: 'noopener' });
   expect(document.body.appendChild).toHaveBeenCalledWith(anchor);

@@ -7,11 +7,14 @@ export interface SaveDeps {
   setTimeout?: (fn: () => void, ms: number) => unknown;
 }
 
-export async function saveFile(data: ArrayBuffer | string, fileName: string, mimeTypes: string[], deps: SaveDeps = {}): Promise<{ method: SaveMethod; mimeType: string; bytes: number }> {
+export interface SaveResult { method: SaveMethod; mimeType: string; bytes: number; shareError?: string }
+
+export async function saveFile(data: ArrayBuffer | string, fileName: string, mimeTypes: string[], deps: SaveDeps = {}): Promise<SaveResult> {
   const firstMime = mimeTypes[0];
   if (!firstMime) throw new TypeError('At least one MIME type is required');
   const bytes = typeof data === 'string' ? new TextEncoder().encode(data).byteLength : data.byteLength;
   const navigator = deps.navigator ?? globalThis.navigator;
+  let shareError: string | undefined;
   if (navigator?.share && navigator.canShare) {
     for (const mimeType of mimeTypes) {
       try {
@@ -24,6 +27,10 @@ export async function saveFile(data: ArrayBuffer | string, fileName: string, mim
         if (typeof error === 'object' && error !== null && 'name' in error && error.name === 'AbortError') {
           return { method: 'cancelled', mimeType, bytes };
         }
+        // Keep the reason so callers can log why sharing fell back to a download.
+        const details = typeof error === 'object' && error !== null ? error as { name?: unknown; message?: unknown } : undefined;
+        const name = details?.name ? String(details.name) : String(error);
+        shareError = details?.message ? `${name}: ${String(details.message)}` : name;
         break;
       }
     }
@@ -43,10 +50,10 @@ export async function saveFile(data: ArrayBuffer | string, fileName: string, mim
     anchor.remove();
     (deps.setTimeout ?? globalThis.setTimeout)(() => revoke(url), 60_000);
   }
-  return { method: 'download', mimeType: firstMime, bytes };
+  return shareError ? { method: 'download', mimeType: firstMime, bytes, shareError } : { method: 'download', mimeType: firstMime, bytes };
 }
 
-export function saveGcode(gcode: ArrayBuffer, fileName: string, deps?: SaveDeps): Promise<{ method: SaveMethod; mimeType: string; bytes: number }> {
+export function saveGcode(gcode: ArrayBuffer, fileName: string, deps?: SaveDeps): Promise<SaveResult> {
   return saveFile(gcode, fileName, ['text/x.gcode', 'application/octet-stream', 'text/plain'], deps);
 }
 

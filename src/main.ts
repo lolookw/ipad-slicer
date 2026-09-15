@@ -2,12 +2,14 @@ import { gcodeFileName, saveFile, saveGcode } from './export/save-gcode';
 import type { Variant } from './engine/manifest';
 import { createLog } from './instrumentation/log';
 import { createPanel } from './instrumentation/panel';
+import { generateTestStl } from './testing/test-model';
 import { isFromWorker, type FromWorker, type ToWorker } from './worker/protocol';
 
 const log = createLog();
 
 const isolationStatus = document.querySelector<HTMLParagraphElement>('#isolation-status');
 const variantSelect = document.querySelector<HTMLSelectElement>('#variant-select');
+const testModelSelect = document.querySelector<HTMLSelectElement>('#test-model');
 const fileInput = document.querySelector<HTMLInputElement>('#stl-input');
 const sliceButton = document.querySelector<HTMLButtonElement>('#slice-button');
 const cancelButton = document.querySelector<HTMLButtonElement>('#cancel-button');
@@ -65,7 +67,9 @@ function setStatus(text: string, isError = false): void {
 }
 
 function updateControls(): void {
-  sliceButton!.disabled = !engineReady || slicing || !fileInput!.files?.length;
+  const hasModel = testModelSelect?.value !== 'file' || Boolean(fileInput!.files?.length);
+  sliceButton!.disabled = !engineReady || slicing || !hasModel;
+  fileInput!.disabled = testModelSelect?.value !== 'file';
   cancelButton!.disabled = !slicing || cancelRequested;
   saveButton!.disabled = slicing || !lastGcode;
   variantSelect!.disabled = slicing;
@@ -81,6 +85,9 @@ function handleMessage(message: FromWorker): void {
       engineReady = true;
       loadedVariant = message.variant;
       record('engine-ready', message);
+      if (preferredVariant() === 'mt' && message.variant === 'st') {
+        record('probe-fallback', { reason: message.probe ?? 'unknown' });
+      }
       setStatus(
         `Engine ready (${message.variant}, ${message.loadPath}, ${Math.round(message.loadMs)} ms)` +
           (message.probe ? ` — ${message.probe}` : ''),
@@ -96,13 +103,15 @@ function handleMessage(message: FromWorker): void {
       if (cancelRequested) {
         cancelRequested = false;
         progress!.value = 0;
-        record('slice-discarded', { sliceMs: message.sliceMs });
+        record('slice-discarded', { variant: loadedVariant, sliceMs: message.sliceMs });
         setStatus('Slice cancelled (result discarded); engine ready');
         break;
       }
       lastGcode = message.gcode;
       progress!.value = 100;
       record('slice-done', {
+        variant: loadedVariant,
+        model: lastStlName,
         gcodeBytes: message.gcode.byteLength,
         sliceMs: message.sliceMs,
         peakHeapBytes: message.peakHeapBytes,
@@ -151,19 +160,40 @@ variantSelect.addEventListener('change', () => {
   location.replace(url);
 });
 
+testModelSelect?.addEventListener('change', updateControls);
+
+// Loads the STL to slice: the user's file, or a generated test sphere for the device size ladder.
+async function readModel(): Promise<{ stl: ArrayBuffer; name: string } | undefined> {
+  const choice = testModelSelect?.value ?? 'file';
+  if (choice === 'file') {
+    const file = fileInput!.files?.[0];
+    return file ? { stl: await file.arrayBuffer(), name: file.name } : undefined;
+  }
+  const megabytes = Number(choice);
+  setStatus(`Generating ~${megabytes} MB test sphere…`);
+  const start = performance.now();
+  const stl = generateTestStl(megabytes * 1024 * 1024);
+  record('test-model-generated', { megabytes, bytes: stl.byteLength, generateMs: performance.now() - start });
+  return { stl, name: `test-sphere-${megabytes}mb.stl` };
+}
+
 sliceButton.addEventListener('click', async () => {
-  const file = fileInput.files?.[0];
-  if (!file || !engineReady) return;
+  if (!engineReady) return;
   slicing = true;
   cancelRequested = false;
   lastGcode = undefined;
-  lastStlName = file.name;
   progress.value = 0;
   updateControls();
-  const stl = await file.arrayBuffer();
-  record('slice-start', { name: file.name, bytes: stl.byteLength });
-  setStatus(`Slicing ${file.name}…`);
-  post({ t: 'slice', stl, name: file.name }, [stl]);
+  const model = await readModel();
+  if (!model) {
+    slicing = false;
+    updateControls();
+    return;
+  }
+  lastStlName = model.name;
+  record('slice-start', { name: model.name, bytes: model.stl.byteLength });
+  setStatus(`Slicing ${model.name}…`);
+  post({ t: 'slice', stl: model.stl, name: model.name }, [model.stl]);
 });
 
 // A worker busy in a synchronous slice call cannot receive messages. Multithread (fixed memory)
@@ -186,6 +216,7 @@ saveButton.addEventListener('click', () => {
   saveGcode(lastGcode, fileName).then(
     (result) => {
       record('gcode-save', result);
+      if (result.shareError) record('engine-error', { stage: 'export', message: `Share failed, used download: ${result.shareError}` });
       setStatus(result.method === 'cancelled' ? 'Save cancelled' : `Saved ${fileName} via ${result.method}`);
     },
     (error: unknown) => {

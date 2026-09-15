@@ -222,3 +222,81 @@ Status: done. Tasks 5.3 and 5.4 are checked; 5.1, 5.2 and the Node multithread h
 | WebKit crash diagnosis | Terminate + new st worker: 3/3 crash. Page reload to st after st: crash, also after a 3 s delay; mt -> st reload: crash; st -> mt reload: ok. The st build defines non-shared growable memory (256 MiB min, 4 GiB max), so a second st engine instance in the same WebKit process crashes. |
 
 - Open risks: switching the select to st after any engine already loaded in the page process can still crash WebKit (the first st load in a fresh process works); confirm on iPad Safari. A durable fix needs an OrcaWasm st build with a lower MAXIMUM_MEMORY or imported memory. Node slice-check mt relies on internal Node module APIs (test-only).
+
+## Device test tooling
+
+Status: complete for assigned tasks 7.0a and 7.0b only; previous sections and other task markers are preserved.
+
+- Context: spec-driven, openspec/hybrid, applyState ready from proposal/specs/design/tasks and prior progress; repository edit root; standard mode, strict TDD off.
+- Delivery: auto-chain, stacked-to-main follow-up: PR1 -> PR2 -> PR3 -> PR4 -> PR5 -> **device tooling (current)**. No commits, branches, pushes, installs, remote operations or external HTTP requests. Review disabled/unmanaged.
+- Files: new src/testing/test-model.ts, src/testing/test-model.test.ts and scripts/check-deploy.mjs; one package script; only 7.0a/7.0b markers and this appendix. Claude-owned main.ts/index.html are untouched.
+- Generator: one ArrayBuffer/DataView, canonical seam/pole coordinates, outward facet normals from serialized vertices, even latitude divisions including equator, count-selected UV sphere. Default bounds fit the bed with z=0..50.
+- CLI: manifest shape matches src/engine/manifest.ts; reports HTTP status, MIME, isolation headers, decoded byte sizes, encoding, cache policy, magic and redirects. Subsequent compressed parts need no magic.
+
+### Work Unit Evidence
+
+| Evidence | Observed result |
+|---|---|
+| Focused tests | npx.cmd vitest run src/testing/test-model.test.ts: exit 0; 5 tests. |
+| Full suite | npx.cmd vitest run: exit 0; 8 files / 117 tests. |
+| Typecheck | npm.cmd run typecheck: exit 0; no diagnostics, including concurrent wiring. |
+| Runtime harness | One-off foreground Node http server served existing dist, applying public/_headers; spawned node scripts/check-deploy.mjs http://127.0.0.1:<ephemeral-port> and closed afterward. Exit 0: 22 PASS, 1 WARN, 0 FAIL. Both variants HTTP 200; st 9,010,325 B, mt 9,370,936 B; gzip magic, immutable, no Content-Encoding, application/octet-stream for part0. |
+| CLI failure/redirect harness | One-off loopback fixtures: bad COOP, invalid manifest, invalid JS MIME, missing part and invalid magic each exited 1; same-origin redirect (reported) and multipart continuation each exited 0. All seven assertions passed; server closed. |
+| Large ladder | Node --experimental-strip-types one-off: 20 MB -> 19,999,884 B / 399,996 triangles / 96 ms; 50 MB -> 49,999,884 B / 999,996 triangles / 247 ms. Count/length and 5% tolerance assertions passed. Not device performance evidence. |
+| Rollback boundary | Remove the three new files and package check-deploy script, revert only 7.0a/7.0b and this appendix; coordinate removal of dependent UI imports with Claude. Preserve prior slices. |
+
+- Deviations/risks: Node cannot observe Service Worker interception or window.crossOriginIsolated; the CLI prints this limitation. Fetch bytes are HTTP-decoded, not wire bytes. Missing immutable is WARN. Safari/PWA, hosted headers and real slicing remain unverified.
+- An optional large-ladder diagnostic initially failed because the installed TypeScript package did not expose ModuleKind; rerunning via Node type stripping passed. No source fix or dependency change was needed. Git inspection used only command-scoped safe.directory.
+- Budget: 180 new source/test/CLI lines + 1 package addition + 4 checkbox additions/deletions + 27 appendix lines = 212 authored changed lines, excluding Claude's concurrent changes.
+- Next: independent SDD verification and authorized deploy/device testing; no review actors launched.
+
+### Final concurrent-work verification
+
+- Final npx.cmd vitest run: exit 0, 8 files / 117 tests. Final npm.cmd run typecheck: exit 1, vite.config.ts(1,30) TS2591 Cannot find name 'node:fs'. This supersedes the earlier clean typecheck; the concurrently modified Vite config is outside this batch and was not edited. Delivery status is partial pending that integration fix; assigned focused/runtime evidence remains green.
+- Final authored line count: 217 (212 above + 5 appended lines). No additional source changes.
+
+### Spec Cross-Check (8.2) and Follow-up Fixes (Claude)
+
+Status: done. A read-only reviewer classified all 22 spec scenarios; Claude verified the findings against the code before acting.
+
+| Classification | Count |
+|---|---|
+| Compliant | 7 |
+| Partial | 6 |
+| Deviation (documented) | 1 |
+| Pending device / deployment | 7 |
+| Missing | 1 |
+
+Fixes applied without a device:
+
+- Missing: `LICENSE` was never copied to `dist/`, so `/LICENSE` would 404 (AGPL source offer). A `postbuild` npm script now copies it; the local server returns HTTP 200, 34,523 bytes. (A Vite plugin importing `node:fs` was tried first and reverted: the project has no Node type definitions, so typecheck failed.)
+- Partial: a non-AbortError Web Share rejection was swallowed. `saveFile` now returns `shareError` on the download fallback and `main.ts` logs an `engine-error` entry with stage `export`.
+- Partial: probe downgrades now emit a distinct `probe-fallback` log entry with the reason.
+- Partial: `slice-done` and `slice-discarded` entries now carry `variant` (and `model` on done).
+- Stale text updated: engine spec (profile via `onewasm_init` + native JSON), instrumentation spec (probe fallback and share rejection scenarios replace "probe throws"), isolated-hosting spec (the `application/wasm` header belongs on the Response passed to `instantiateStreaming`; the gzip parts must not claim it), design G-code row (ABI output pointers, not `FS.readFile`).
+- Rejected suggestion: adding `Content-Type: application/wasm` to `/engine/*` in `_headers` would mislabel gzip bytes.
+
+Device test tooling (7.0a, 7.0b) reviewed by Claude: the generated sphere uses exact pole and seam coordinates (watertight), writes through one DataView, and the page wires it through a Model select (file or ~1/10/20/50 MB spheres). `npm run check-deploy -- <url>` against the local server with production headers: 0 FAIL (cache WARNs expected because the local server sends no-store).
+
+| Evidence | Observed result |
+|---|---|
+| Full suite | `npx vitest run`: 117 tests passed. |
+| Typecheck / build | `npm run typecheck` exit 0; `npm run build` exit 0 with postbuild LICENSE copy. |
+
+Remaining partials that need a real browser session or device: log survival across a real reload, the multi-part (>20 MiB) path with real engine bytes (the pinned release compresses to one part), and every pending-device scenario.
+
+### Desktop WebKit STL Ladder (Claude)
+
+Playwright 1.55 WebKit, local server with production isolation headers, one fresh browser per size, generated UV-sphere STL (radius 25 mm, same geometry at every size; only triangle count changes). Single runs on the Windows development PC, not an iPad.
+
+| Sphere STL | st slice | mt slice | mt vs st | G-code (both) | st peak heap readout |
+|---|---|---|---|---|---|
+| 1,048,884 B | 11,845 ms | 7,354 ms | -38% | 5,099,230 B | 256 MB |
+| 10,485,684 B | 13,116 ms | 7,895 ms | -40% | 4,688,153 B | 256 MB |
+| 20,971,584 B | 14,274 ms | 9,001 ms | -37% | 4,739,633 B | 256 MB |
+| 52,428,684 B | not run | 13,107 ms | - | 4,785,491 B | - |
+
+- No crash or error at any size; st and mt produce byte-identical G-code lengths at every size.
+- Slice time is dominated by layers and perimeters, not triangle count: 50x more triangles costs about +80% time on mt.
+- Memory readouts are coarse: mt always reports the fixed 1 GiB shared memory, and st heap stayed at its 256 MB initial size (sampled at start and end only). Real iPad memory pressure still has to be measured on device.
+- Sphere generation in the page: 5-155 ms from 1 to 50 MB.

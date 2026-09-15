@@ -34,13 +34,13 @@ The system MUST deliver `slicer.wasm` and `slicer-mt.wasm` to the page same-orig
 
 ### Requirement: Correct WASM Content-Type
 
-Every response that serves a `.wasm` engine binary MUST report `Content-Type: application/wasm`.
+The `Response` handed to `WebAssembly.instantiateStreaming` MUST carry `Content-Type: application/wasm`. The engine is delivered as gzip parts (`*.wasm.gz.partN`), so the network responses themselves are gzip bytes and MUST NOT claim `application/wasm`; the loader reconstructs the wasm stream and sets the header on the `Response` it compiles.
 
-#### Scenario: Content-Type verified in Web Inspector
+#### Scenario: Streaming compile receives the wasm content type
 
-- GIVEN the engine binary is requested by the worker
-- WHEN the response headers are inspected
-- THEN the `Content-Type` header is `application/wasm`
+- GIVEN the worker has fetched and decompressed the engine parts
+- WHEN it calls `instantiateStreaming`
+- THEN the `Response` passed in reports `Content-Type: application/wasm` and the load path is `streaming`
 
 ### Requirement: Git-Connected Deployment
 

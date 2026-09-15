@@ -17,7 +17,7 @@ A free, touch-first 3D printing slicer for the iPad, built on the real OrcaSlice
 | **Engine variants** | Single-thread, and multithread with a fixed 1 GiB shared memory |
 | **Verified in** | Node (headless engine check) and Playwright WebKit (Safari's engine) |
 | **Stack** | TypeScript, Vite, Web Workers, WebAssembly, Vitest, Cloudflare Workers (static assets) |
-| **Tests** | 112 unit tests + a real-engine slice check in Node + a WebKit end-to-end smoke test |
+| **Tests** | 117 unit tests + a real-engine slice check in Node + WebKit end-to-end smoke and model-size ladder runs |
 | **License** | AGPL-3.0 (inherited from OrcaSlicer) |
 
 ---
@@ -43,7 +43,8 @@ That idea has an obvious risk: a slicer is heavy C++ code that assumes a desktop
 | Can OrcaSlicer's engine run in a browser worker? | **Yes** | WebKit loads the engine with streaming compilation in ~300–600 ms |
 | Does it produce correct G-code? | **Yes** | A 20 mm cube → 292,819 bytes, 100 layers, Marlin start sequence, 220 °C nozzle, 60 °C bed |
 | Is the 38 MB engine too big to host for free? | **No** | gzip brings it to ~9 MB, streamed and decompressed in the worker |
-| Does multithreading work in Safari's engine? | **Yes, with fixed memory** | Byte-identical G-code; ~14% faster than single-thread on a 60 mm cube in Node |
+| Does multithreading work in Safari's engine? | **Yes, with fixed memory** | Identical G-code; **~40% faster** than single-thread in WebKit on 1–20 MB test models |
+| Does it handle large models? | **Yes, on desktop WebKit** | A generated 50 MB STL slices in ~13 s (multithread) with no crash |
 | Can the user get the file out? | **Yes (download path)** | Web Share first, download fallback; the saved file matches the G-code byte for byte |
 | Is it safe to restart the engine? | **Not always** | Found a WebKit crash — see [What broke](#what-broke-and-what-we-learned) |
 | Does it hold up on a real iPad? | **Not tested yet** | Next step: deploy and run the measurement matrix on device |
@@ -166,6 +167,7 @@ To use the page, serve `dist/` with the isolation headers from `public/_headers`
 | `npm run typecheck` | TypeScript without emitting files |
 | `npm run slice-check` | Real single-thread slice in Node |
 | `npm run slice-check:mt` | Real multithread slice in Node (fixed shared memory) |
+| `npm run check-deploy -- <url>` | Check a deployed URL: isolation headers, engine manifest, parts, caching |
 | `node scripts/resolve-profile.mjs` | Regenerate the printer profile from OrcaSlicer presets |
 | `npm run deploy` | Deploy `dist/` with Wrangler |
 

@@ -24,7 +24,7 @@ The system MUST load the OrcaWasm single-thread build same-origin inside a Web W
 
 ### Requirement: Bundled Profile Application
 
-The system MUST apply the bundled flattened Ender-3 V2 0.4 / 0.20mm Standard / Generic PLA profile via `onewasm_init_profile` before any slice starts.
+The system MUST apply the bundled flattened Ender-3 V2 0.4 / 0.20mm Standard / Creality Generic PLA profile, as flat `orca.native-json` passed to `onewasm_init`, before any slice starts.
 
 #### Scenario: Profile applied before slicing
 

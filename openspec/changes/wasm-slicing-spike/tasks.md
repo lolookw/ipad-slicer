@@ -72,7 +72,9 @@ Chain strategy: stacked-to-main
 
 ## Phase 7: Remote, Deploy, Device Testing (gated, outside code PR budget)
 
-- [ ] 7.1 Create GitHub repo and remote; explicit user authorization required (Human/remote)
+- [x] 7.0a In-app test model generator: binary STL ladder (~1/10/20/50 MB) sliced without leaving Safari, for the 7.4 matrix (Codex)
+- [x] 7.0b `scripts/check-deploy.mjs <url>`: verify COOP/COEP/CORP, `crossOriginIsolated`-relevant headers, engine manifest and part reachability on a deployed URL (Codex)
+- [x] 7.1 Create GitHub repo and remote; explicit user authorization required (Human/remote) — https://github.com/lolookw/ipad-slicer, public, noreply author
 - [ ] 7.2 Cloudflare dashboard, one-time: Workers & Pages → Create → Import a repository; build command `npm run build`, deploy command `npx wrangler deploy`; enable non-production branch builds (Human/remote)
 - [ ] 7.3 Open branch preview URL; verify `crossOriginIsolated` true and `Content-Type: application/wasm` in Web Inspector (Human/remote)
 - [ ] 7.4 On-device test matrix: Safari tab and PWA, STL ladder to 50MB, Web Share at 10/50/100MB (Human/remote)
@@ -80,5 +82,5 @@ Chain strategy: stacked-to-main
 
 ## Phase 8: Verification
 
-- [ ] 8.1 Run `vitest run` and `vite build`; confirm both green (Claude)
-- [ ] 8.2 Cross-check implemented behavior against all four spec files' scenarios (Claude)
+- [x] 8.1 Run `vitest run` and `vite build`; confirm both green (Claude) — 112 tests, typecheck, build and `npm run slice-check` green on 2026-09-15
+- [x] 8.2 Cross-check implemented behavior against all four spec files' scenarios (Claude) — 22 scenarios: 7 compliant, 6 partial, 1 documented deviation, 7 pending device, 1 missing (LICENSE not served; fixed). Code-fixable gaps fixed; stale spec text updated
