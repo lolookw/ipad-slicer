@@ -36,16 +36,16 @@ Chain strategy: stacked-to-main
 
 ## Phase 2: Fetch Script and Stream Loader (PR 2)
 
-- [ ] 2.1 Authorize and download OrcaWasm `wasm-v2.4.2-patch19` release; record SHA-256 in `engine.lock.json` (Human/remote)
-- [ ] 2.2 Create `scripts/fetch-engine.mjs`: verify SHA-256 against `engine.lock.json`, gzip, split parts >20MiB, write `engine-manifest.json` (Codex)
-- [ ] 2.3 Create `src/engine/manifest.ts` typed `EngineManifest` loader (Codex)
-- [ ] 2.4 Create `src/engine/stream-loader.ts`: part concat, magic-byte sniff, `DecompressionStream` gunzip, `instantiateStreaming`, buffered fallback with `loadPath=buffered` log (Codex)
-- [ ] 2.5 Vitest tests for `stream-loader.ts` (concat, sniff, gunzip, fallback) and `manifest.ts` (Codex)
+- [x] 2.1 Authorize and download OrcaWasm `wasm-v2.4.2-patch19` release; record SHA-256 in `engine.lock.json` (Human/remote)
+- [x] 2.2 Create `scripts/fetch-engine.mjs`: verify SHA-256 against `engine.lock.json`, gzip, split parts >20MiB, write `engine-manifest.json` (Codex)
+- [x] 2.3 Create `src/engine/manifest.ts` typed `EngineManifest` loader (Codex)
+- [x] 2.4 Create `src/engine/stream-loader.ts`: part concat, magic-byte sniff, `DecompressionStream` gunzip, `instantiateStreaming`, buffered fallback with `loadPath=buffered` log (Codex)
+- [x] 2.5 Vitest tests for `stream-loader.ts` (concat, sniff, gunzip, fallback) and `manifest.ts` (Codex)
 
 ## Phase 3: Worker, Profile, Single-Thread Slice (PR 3)
 
-- [ ] 3.1 Create `profiles/ender3v2-020-pla.3mf` flattened profile and `profiles/README.md` provenance, per R3 (Claude)
-- [ ] 3.2 Verify `onewasm_init_profile` accepts the flattened 3mf on desktop before device testing (Human/remote)
+- [ ] 3.1 Create `scripts/resolve-profile.mjs` (merge pinned OrcaSlicer v2.4.2 preset `inherits` chains) and commit its output `profiles/ender3v2-020-pla.json` plus `profiles/README.md` provenance (Claude)
+- [ ] 3.2 Node slice check: load cached `slicer.js`/`slicer.wasm`, `onewasm_init` with the profile JSON, slice a generated calibration cube, assert G-code has Marlin start sequence and PLA temperatures (Codex)
 - [ ] 3.3 Create `src/worker/protocol.ts` (`ToWorker`/`FromWorker` types) (Codex)
 - [ ] 3.4 Create `src/worker/engine.worker.ts`: load via stream-loader, init profile, slice with progress, cancel via `terminate()` (Codex)
 - [ ] 3.5 Wire `src/main.ts`: file input, spawn worker, handle progress/done/error (single-thread only) (Claude)

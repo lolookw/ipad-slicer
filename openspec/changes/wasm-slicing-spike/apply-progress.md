@@ -57,3 +57,34 @@ Status: done for assigned tasks 1.3 and 1.5; remaining change tasks are outside 
 ## Next Handoff
 
 Independent SDD verification may inspect this completed slice. The broader change is not complete; LICENSE, engine integration, panel and device testing remain with their assigned owners.
+
+## PR 2 Fetch/Loader — Tasks 2.2–2.5
+
+Status: done for this assigned slice; PR 1 content above is preserved as historical evidence.
+
+- Context: schema `spec-driven`, planning home `openspec`, hybrid persistence, applyState `ready`; proposal, design, assigned specs/tasks and previous file/Engram progress read before implementation. Edit root remains the repository; standard mode, strict TDD off.
+- Delivery: auto-chain, stacked-to-main, PR 2 of 5 following committed PR 1 on `main`; no Git mutations or review actors (disabled/unmanaged).
+- Cumulative state: tasks 1.1–1.5 are currently checked (including Claude's later work); this batch adds 2.2–2.5 only. Task 2.1 is externally completed per handoff, but its existing unchecked marker remains untouched. Every other marker is unchanged.
+- Files: created `scripts/fetch-engine.mjs`, `src/engine/{manifest,stream-loader}.ts` and their two `.test.ts` files; changed only scripts in `package.json`, generated-manifest ignore in `.gitignore`, four task checkboxes, and this appended progress section.
+- Generated, ignored outputs: `public/engine/<release>/{st,mt}/`, `public/engine-manifest.json`, and `dist/`; engine lock and cached inputs are unchanged.
+
+### PR 2 Work Unit Evidence
+
+| Evidence | Observed result |
+|---|---|
+| Focused tests / full suite | `npx.cmd vitest run`: exit 0, 3 files / 46 tests passed (25 engine tests, 21 PR 1 tests); Node environment, fake fetch, no cache dependency. |
+| Typecheck | `npm.cmd run typecheck`: exit 0, no diagnostics after fixes to ArrayBuffer-backed stream types and the test-only Node import annotation. |
+| Runtime harness | `npm.cmd run fetch-engine`: exit 0, run exactly once after all four cache paths passed preflight; `ENGINE_CACHE_ONLY=1` prevented downloads. Four cache hits; st gzip 9,010,325 bytes and mt gzip 9,370,936 bytes, one part each. Both inputs verified before public outputs were written. |
+| Build | `npx.cmd vite build`: exit 0, Vite 8.3.0, 4 modules, 120 ms; prebuild not rerun. Node v22.12.0; npm offline mode enabled throughout. |
+| Built-asset integrity | Node fs/zlib/crypto check: both `dist` JS SHA-256 values and reconstructed WASM lengths/SHA-256 values match the lock; every part is at most 20 MiB. |
+| Rollback boundary | Remove the five new script/engine files, revert the two package scripts and one ignore entry, uncheck only 2.2–2.5, and remove only this PR 2 appendix. Preserve PR 1, lock, cache and all other task markers. Generated outputs can be regenerated. |
+
+### PR 2 Deviations, Risks and Handoff
+
+- Emscripten's synchronous hook cannot propagate a later asynchronous throw through its synchronous `{}` return. `createInstantiateWasm` therefore exposes `hook.completion`: PR 3 must observe it alongside the `OrcaModule` promise (for example, `Promise.all`). Both-path failure rejects this promise; receiving/instrumentation callback errors do not retry instantiation. Tests cover failure and receiver-callback behavior.
+- `@types/node` is not installed. The test-only `node:zlib` import uses a narrowly documented `@ts-expect-error`; no dependency or TypeScript configuration changes were permitted. Production code typechecks without suppressions.
+- Real cached gzip files exercise one-part output only; splitting is implemented at 20 MiB but oversized compressed input was not exercised. Loader multipart concat and split magic bytes are covered with synthetic test bytes.
+- Actual OrcaModule integration, Safari memory/streaming behavior, pthread startup, isolation and hosted Content-Type remain for PR 3/5 and authorized device testing. The Vite app does not wire the loader yet.
+- No network downloads, installs, commits, branches, pushes, remote operations, deployments or secrets. No edits to lock, design/spec/proposal or unrelated PR 1 files.
+- Next: independent SDD verification of this slice, then assigned PR 3 worker/profile work. Engram progress/tasks mirror is handled by the parent orchestrator.
+- Changed-line estimate: 314 authored additions + deletions (42 tracked changes including this appendix + 272 untracked source/test lines), excluding engine.lock.json and package-lock.json; within the 400-line PR 2 budget.
