@@ -46,12 +46,12 @@ Commands run from the repository root. `npm exec -- vitest run ...` uses the pro
 
 ## Phase 1: Tooling, Shell, and Touch Primitives (PR 1a)
 
-- [ ] 1.1 Configure `package.json`, `vite.config.ts`, and `tsconfig.json` for Solid JSX, multi-page inputs, Vitest TS/TSX and component tests; move `src/main.ts` to `src/harness/main.ts` and old `index.html` to `harness.html`, retaining a usable spike until 5b (covers app-shell: Guided Slicing Flow) (Claude)
-- [ ] 1.2 Create `index.html`, `src/app/index.tsx`, `src/app/App.tsx`, and `src/app/AppProvider.tsx` with the single-screen step bar, feature-folder boundaries, simple Configure default, and guarded Slice/Preview/Save entry points (covers app-shell: Guided Slicing Flow) (Claude)
-- [ ] 1.3 Create domain stores under `src/app/stores/*.ts` for prefs/catalog/settings/plate/engine/result; keep Three objects, Blobs, and ArrayBuffers in id-keyed non-proxied Maps and test result ownership (covers app-shell: Guided Slicing Flow) (Claude)
-- [ ] 1.4 Build `src/ui/tokens.css`, `src/ui/Button.tsx`, `src/ui/Sheet.tsx`, `src/ui/Popover.tsx`, `src/ui/Segmented.tsx`, `src/ui/Stepper.tsx`, and `src/ui/Slider.tsx` with props-only APIs, 44px targets, focus rings and component tests (covers app-shell: Touch Layout and Appearance) (Codex)
-- [ ] 1.5 Wire `src/app/layout/*` to the 700px media query, regular sidebar, compact sheet detents, safe-area padding, and pointer/viewport changes; test reachable controls in both layouts (covers app-shell: Touch Layout and Appearance) (Claude)
-- [ ] 1.6 Add `scripts/serve-dist.mjs`, `playwright.config.ts`, and `tests/e2e/shell.spec.ts`; verify real-header isolation, both orientations, shell guards and retained harness with the WebKit harness; run shell/UI Vitest (covers app-shell: Guided Slicing Flow; Touch Layout and Appearance; offline-pwa: Isolation-Preserving Service Worker) (Claude)
+- [x] 1.1 Configure `package.json`, `vite.config.ts`, and `tsconfig.json` for Solid JSX, multi-page inputs, Vitest TS/TSX and component tests; move `src/main.ts` to `src/harness/main.ts` and old `index.html` to `harness.html`, retaining a usable spike until 5b (covers app-shell: Guided Slicing Flow) (Claude)
+- [x] 1.2 Create `index.html`, `src/app/index.tsx`, `src/app/App.tsx`, and `src/app/AppProvider.tsx` with the single-screen step bar, feature-folder boundaries, simple Configure default, and guarded Slice/Preview/Save entry points (covers app-shell: Guided Slicing Flow) (Claude)
+- [x] 1.3 Create domain stores under `src/app/stores/*.ts` for prefs/catalog/settings/plate/engine/result; keep Three objects, Blobs, and ArrayBuffers in id-keyed non-proxied Maps and test result ownership (covers app-shell: Guided Slicing Flow) (Claude)
+- [x] 1.4 Build `src/ui/tokens.css`, `src/ui/Button.tsx`, `src/ui/Sheet.tsx`, `src/ui/Popover.tsx`, `src/ui/Segmented.tsx`, `src/ui/Stepper.tsx`, and `src/ui/Slider.tsx` with props-only APIs, 44px targets, focus rings and component tests (covers app-shell: Touch Layout and Appearance) (Codex)
+- [x] 1.5 Wire `src/app/layout/*` to the 700px media query, regular sidebar, compact sheet detents, safe-area padding, and pointer/viewport changes; test reachable controls in both layouts (covers app-shell: Touch Layout and Appearance) (Claude)
+- [x] 1.6 Add `scripts/serve-dist.mjs`, `playwright.config.ts`, and `tests/e2e/shell.spec.ts`; verify real-header isolation, both orientations, shell guards and retained harness with the WebKit harness; run shell/UI Vitest (covers app-shell: Guided Slicing Flow; Touch Layout and Appearance; offline-pwa: Isolation-Preserving Service Worker) (Claude)
 
 ## Phase 2: Localization, Theme, and Adaptive Tiers (PR 1b)
 
