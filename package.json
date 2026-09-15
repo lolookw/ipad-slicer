@@ -1,0 +1,25 @@
+{
+  "name": "ipad-slicer",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Spike: OrcaSlicer engine (OrcaWasm) slicing STL files client-side in iPad Safari",
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.0",
+    "wrangler": "^4.131.2"
+  }
+}

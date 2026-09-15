@@ -1,0 +1,12 @@
+{
+  "name": "iPad Slicer Spike",
+  "short_name": "Slicer",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

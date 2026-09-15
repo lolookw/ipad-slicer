@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.wrangler/
+.dev.vars*
+*.log
+
+# OrcaWasm engine artifacts are fetched and verified at build time, never committed
+public/engine/
+.engine-cache/

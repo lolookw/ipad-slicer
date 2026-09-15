@@ -1,0 +1,10 @@
+# Cross-origin isolation is required for SharedArrayBuffer (multithread engine).
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: same-origin
+  X-Content-Type-Options: nosniff
+
+# Engine artifacts live under versioned paths (/engine/<release>/...), so they never change in place.
+/engine/*
+  Cache-Control: public, max-age=31536000, immutable

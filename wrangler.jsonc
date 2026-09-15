@@ -1,0 +1,10 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ipad-slicer",
+  "compatibility_date": "2026-09-15",
+  // Assets-only Worker: Vite builds to ./dist and Cloudflare serves it statically.
+  // Response headers (COOP/COEP/CORP, caching) come from dist/_headers.
+  "assets": {
+    "directory": "./dist"
+  }
+}
