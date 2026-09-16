@@ -185,3 +185,54 @@ Status: done. Everything Codex delivered autonomously between the 1a handoff and
 | `npm audit` | 0 vulnerabilities (was 2 high, dev-only Playwright SSL-verification advisory GHSA-7mvr-c777-76hp; patched by bumping to `@playwright/test@1.55.1`, same pinned browser revision — commit `f3bf33b`) |
 
 Both fix commits were scanned for personal data before pushing (clean) and are now on `origin/main` at `f3bf33b`.
+
+## Phase 6 — Touch Model Workspace, partial (Lorenzo with Codex directly, audited by Claude, 2026-09-16)
+
+Status: **partial**. This work was done directly by Lorenzo using Codex outside the sdd-apply flow (commits `3b87dd8`, `7004b41`, `07c46b5`, `bb15f4f`) and was never reconciled into these artifacts — the runtime attempt for `pr4a-touch-model-workspace` (ordinal 8) stayed open with `changed_lines: 0` recorded despite the work existing in the tree. This section is Claude's independent audit (re-derived from diffs, greps and re-run commands, not a restatement of prior claims), used to reconcile `tasks.md` and settle that attempt.
+
+Of tasks 6.1–6.7: **6.1, 6.2, 6.4, 6.5 are complete**; **6.3 and 6.6 were not started**; **6.7 is partial**.
+
+- 6.1 `mesh.worker.ts`/`stl-parse.ts`: real Worker STL parsing via `STLLoader`, zero-copy transfer of positions/normals/bounds, validated shape/type/finiteness, main-thread synchronous fallback on any worker failure. 2 tests.
+- 6.2 `scene.ts`/`renderer.ts`/`bed.ts`: Z-up mm, bed geometry from `printable_area`/`printable_height`, dirty-flag demand rendering (not constant RAF), tier-gated DPR/AA (Standard 1.5 DPR/no AA/no WebGPU, Full 2 DPR/AA/WebGPU opt-in with try/catch fallback to WebGL2). Matches design.md §7/§8.
+- 6.4 `gizmo.ts`/`transforms.ts`: correctly scaffolded behind an abstract adapter — `ObjectTransform` is explicitly app-internal, not the engine's stride-11 encoding, with rotation/order/origin conversion deferred to task 7.1 as designed. Selected-object gesture ownership, cumulative-since-begin deltas (immune to mid-gesture store mutation), bed-drop, per-mode isolation. 6 tests, including isolation and cumulative-delta cases.
+- 6.5 `TransformToolbar`/`ScaleSheet`/`ViewerToolbarContainer`: rotate 90° X/Y, mm/in/% scaling, duplicate/delete/reset, lay-flat correctly `disabled` pending engine integration (not silently missing). 6 tests: selected-only edits, unit switch preserves physical size, suspicious-size prompts (both directions, all four correction actions), fixed % baseline.
+- **6.3 `camera.ts`/`gestures.ts`: not started.** Neither file exists. `camera-controls@2.10.1` was added to `package.json` but is never imported anywhere — only referenced in two forward-reference doc comments (`gizmo.ts`, `scene.ts`); `gizmo.ts`'s own docstring says gestures.ts "must check this before handing a pointer... to camera-controls," documenting that it didn't happen.
+- **6.6 wiring through `AppProvider.tsx`/plate store: not started.** `createViewer()` and `importStlFile()` are never called outside their own definitions/tests; no `<input type="file" accept=".stl">` exists anywhere; the production build ships a 65.84 kB gzip app bundle with no three.js in any chunk — the entire `src/viewer/**` tree is unreferenced and tree-shaken out. Object/triangle-limit enforcement does not exist. `scene.ts`'s `dispose()` cleanup is correctly written but currently unreachable.
+- 6.7 partial: Vitest ran and passes (16/16 focused), but `tests/e2e/shell.spec.ts` is byte-for-byte unchanged from before these commits — zero new import/selection/camera/unit scenarios. Given 6.3/6.6 aren't started, meaningful viewer e2e coverage isn't achievable yet.
+
+### Work Unit Evidence
+
+| Evidence | Observed result |
+|---|---|
+| Focused test | `npm.cmd exec -- vitest run src/viewer`: exit 0, 4 files / 16 tests passed. |
+| Full regression | `npm.cmd test`: exit 0, 25 files / 206 tests passed (benign jsdom `getContext` warning; no canvas rendering exercised). |
+| Typecheck / build | `npm.cmd run typecheck`: exit 0. `npm.cmd run build`: exit 0; engine cache hit; catalog verify 6 packs/63 combos OK; app bundle 65.84 kB gzip with no three.js present, corroborating 6.6 not started. |
+| E2E portrait/landscape | `npm.cmd exec -- playwright test tests/e2e/shell.spec.ts --project=ipad-webkit` and `--project=ipad-webkit-landscape`: 11/11 passed on both — all pre-existing shell/i18n/theme/settings scenarios, none viewer-related. |
+| Rollback boundary | Remove `src/viewer/**`, the `camera-controls` dependency line, and revert only checkboxes 6.1/6.2/6.4/6.5 and this section. Prior slices (1a–3b) are untouched; nothing else references the viewer tree yet. |
+
+- Authored line count across the 4 commits (excluding `package-lock.json` churn): 1,125 insertions + 1 deletion (426+184+157+357+1), **exceeding the standing ≤800-line one-PR rule** with no PR split performed — a process deviation independent of the functional gaps above.
+- Deviations/concerns: `renderer.ts` line 8 carries a false comment claiming WebKit e2e coverage of renderer construction that does not exist (`createRenderer()`/`createViewer()` have zero coverage of any kind) — should be corrected. `camera-controls` is a dead dependency. `rotate90()`'s quaternion composition is wired into the UI but has no test asserting the resulting Euler angles. No shortcuts, missing error handling, or incorrect disposal logic found in the parts that do exist.
+- Handoff: 6.3 (camera/gestures), 6.6 (app/plate wiring), and the e2e half of 6.7 remain open. Until 6.6 lands, none of the model-workspace spec scenarios (add/invalid STL, navigate without moving models, edit only selected object, preserve physical size across unit conversion) are reachable by an actual user — they're only proven at the isolated unit-test level.
+
+## Slice 4a completion — Camera and production viewer wiring (Codex, 2026-09-16)
+
+- Status: success; Standard mode (`strict_tdd: false`); tasks 6.3, 6.6, and 6.7 complete.
+- Wired `camera-controls` with Z-up orbit/dolly/truck mappings, touch mappings, double-tap fit, tap thresholds, and a capture-phase ownership gate that prevents camera-controls from receiving selected-object gizmo pointers. Tests prove normalized pointer math and that camera gestures never mutate plate transforms.
+- Added the real app-shell STL picker and model workspace. Imports use the worker/fallback parser, preserve the existing plate on errors, enforce the active tier's aggregate object/triangle budgets, retain source blobs and CPU typed arrays, and keep selection plus toolbar transforms reachable.
+- Mounted and synchronized `createViewer()` from `AppProvider`; removed objects release geometry/material/source storage, while unmount disposes gestures, camera controls, renderer, resize observer, and the WebGL context. The production app bundle now contains the viewer/three.js path.
+- Added real WebKit import, invalid-import retention, independent selection, camera-navigation isolation, and unit-conversion scenarios. Engine transform encoding remains explicitly deferred to task 7.1.
+
+### Work Unit Evidence
+
+| Evidence | Observed result |
+|---|---|
+| Focused test | `npm.cmd exec -- vitest run src/viewer`: exit 0; 6 files / 22 tests passed. |
+| Full regression | `npm.cmd test`: exit 0; 27 files / 213 tests passed. jsdom printed three expected unimplemented-canvas warnings; no test failed. |
+| Typecheck | `npm.cmd run typecheck`: exit 0. |
+| Production build | `npm.cmd run build`: exit 0; engine cache hits, 6 packs / 63 combinations verified, 73 modules transformed. The app bundle is 838.19 kB / 219.71 kB gzip and `mesh.worker` is 105.09 kB, replacing the prior viewer-free 65.84 kB gzip bundle. Vite emitted only its chunk-size warning. |
+| Runtime harness | `node scripts/serve-dist.mjs 4175` served `http://127.0.0.1:4175/`; `npm.cmd exec -- playwright test tests/e2e/shell.spec.ts --project=ipad-webkit`: exit 0, 14/14 passed; `npm.cmd exec -- playwright test tests/e2e/shell.spec.ts --project=ipad-webkit-landscape`: exit 0, 14/14 passed. The server was stopped afterward. |
+| Rollback boundary | Remove `src/viewer/{camera,gestures,ViewerWorkspace,plate-import}*` and `workspace.css`; revert only the renderer/scene disposal and raycast additions, the AppProvider/app-test wiring, the three shell E2E scenarios, task checkboxes 6.3/6.6/6.7, and this section. Keep the previously audited Phase 6 foundation unchanged. |
+
+- Delivery boundary: auto-chain, stacked-to-main work unit `pr4a-remaining-camera-wiring`. Authored implementation, tests, task check lines, and this progress record total **487 changed lines**, below the standing 800-line limit; lockfiles/generated files are excluded.
+- Deviations: the workspace uses a calibrated 220×220×250 mm placeholder bed until printer selection supplies bed settings to this slice; tier budgets, import safety, viewer reachability, and disposal behavior match the assigned contract. No engine stride-11 conversion or engine-facing rotation/origin claim was added.
+- Issues/handoff: Vite reports the expected large app chunk now that three.js is reachable. Task 7.1 must still pin engine rotation units, Euler order, offset origin, and stride-11 encoding before engine-facing transforms are enabled.

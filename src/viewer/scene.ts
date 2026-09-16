@@ -1,4 +1,4 @@
-import { AmbientLight, Color, DirectionalLight, Group, Mesh, MeshStandardMaterial, PerspectiveCamera, Scene } from 'three';
+import { AmbientLight, Color, DirectionalLight, Group, Mesh, MeshStandardMaterial, PerspectiveCamera, Raycaster, Scene, Vector2 } from 'three';
 import type { PlateObject } from '../app/stores/plate';
 import { createBed, type BedSize } from './bed';
 import { getGeometry } from './geometry-cache';
@@ -19,6 +19,8 @@ export interface Viewer {
   /** Rebuilds the visible mesh list from the plate store + geometry cache. Cheap: reuses cached geometry. */
   syncObjects(objects: readonly PlateObject[], selectedId: string | undefined): void;
   meshFor(id: string): Mesh | undefined;
+  meshAt(ndcX: number, ndcY: number): Mesh | undefined;
+  objectRoot: Group;
   start(): void;
   dispose(): void;
 }
@@ -45,6 +47,7 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
   const bed = createBed(bedSize); scene.add(bed);
   const objects = new Group(); objects.name = 'objects'; scene.add(objects);
   const meshes = new Map<string, Mesh>();
+  const raycaster = new Raycaster();
 
   const renderer = await createRenderer(canvas, rendererLimits(tier));
 
@@ -75,10 +78,14 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
   }
 
   return {
-    scene, camera, renderer,
+    scene, camera, renderer, objectRoot: objects,
     onFrame(callback) { frameCallbacks.add(callback); return () => frameCallbacks.delete(callback); },
     requestRender() { dirty = true; },
     meshFor(id) { return meshes.get(id); },
+    meshAt(ndcX, ndcY) {
+      raycaster.setFromCamera(new Vector2(ndcX, ndcY), camera);
+      return raycaster.intersectObjects([...meshes.values()], false)[0]?.object as Mesh | undefined;
+    },
     syncObjects(next, selectedId) {
       const seen = new Set<string>();
       for (const object of next) {
@@ -87,7 +94,7 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
         const geometry = getGeometry(object.id);
         if (!geometry) continue; // buffers not loaded yet (import still in flight)
         if (!mesh || mesh.geometry !== geometry) {
-          mesh?.removeFromParent();
+          if (mesh) { mesh.removeFromParent(); (mesh.material as MeshStandardMaterial).dispose(); }
           mesh = new Mesh(geometry, new MeshStandardMaterial({ color: DEFAULT_COLOR, roughness: 0.6, metalness: 0.05 }));
           mesh.name = object.id;
           objects.add(mesh);
@@ -96,7 +103,11 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
         applyTransform(mesh, object.transform);
         (mesh.material as MeshStandardMaterial).color.set(object.id === selectedId ? SELECTED_COLOR : DEFAULT_COLOR);
       }
-      for (const [id, mesh] of meshes) if (!seen.has(id)) { mesh.removeFromParent(); meshes.delete(id); }
+      for (const [id, mesh] of meshes) if (!seen.has(id)) {
+        mesh.removeFromParent();
+        (mesh.material as MeshStandardMaterial).dispose();
+        meshes.delete(id);
+      }
       dirty = true;
     },
     start() { if (running) return; running = true; resize(); requestAnimationFrame(tick); },
@@ -107,6 +118,7 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
       for (const mesh of meshes.values()) (mesh.material as MeshStandardMaterial).dispose();
       meshes.clear();
       renderer.dispose();
+      renderer.forceContextLoss();
     },
   };
 }

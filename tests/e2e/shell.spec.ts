@@ -1,5 +1,19 @@
 import { expect, test } from '@playwright/test';
 
+function binaryTriangleStl(): Buffer {
+  const buffer = Buffer.alloc(134);
+  buffer.writeUInt32LE(1, 80);
+  buffer.writeFloatLE(1, 92);
+  const vertices = [[0, 0, 0], [20, 0, 0], [0, 20, 10]];
+  vertices.forEach((vertex, vertexIndex) => vertex.forEach((value, axis) => buffer.writeFloatLE(value, 96 + vertexIndex * 12 + axis * 4)));
+  return buffer;
+}
+
+async function importStl(page: import('@playwright/test').Page, name: string, buffer = binaryTriangleStl()) {
+  await page.getByLabel('Import STL').setInputFiles({ name, mimeType: 'model/stl', buffer });
+  await expect(page.getByRole('button', { name, exact: true })).toBeVisible();
+}
+
 test('the app shell loads cross-origin isolated', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.title')).toHaveText('iPad Slicer');
@@ -142,4 +156,43 @@ test('custom printer form rejects invalid dimensions and labels a valid printer 
   await width.fill('235'); await page.getByRole('button', { name: 'Save custom printer' }).click();
   await expect(page.getByText('Custom printer saved', { exact: false })).toBeVisible();
   await expect(page.getByLabel('Printer', { exact: true })).toContainText('not individually smoke-tested');
+});
+
+test('STL imports remain independently selectable and an invalid file preserves the plate', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'first.stl');
+  await importStl(page, 'second.stl');
+  await expect(page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button')).toHaveCount(2);
+  await page.getByRole('button', { name: 'first.stl', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'first.stl', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByLabel('Import STL').setInputFiles({ name: 'broken.stl', mimeType: 'model/stl', buffer: Buffer.from([1, 2, 3]) });
+  await expect(page.getByRole('alert')).toContainText(/STL/i);
+  await expect(page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button')).toHaveCount(2);
+  await expect(page.getByRole('button', { name: 'first.stl', exact: true })).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('camera navigation changes the view without changing model transforms', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'camera-check.stl');
+  const object = page.getByRole('button', { name: 'camera-check.stl', exact: true });
+  const before = await object.getAttribute('data-transform');
+  const canvas = page.getByTestId('viewer-canvas');
+  const box = await canvas.boundingBox();
+  expect(box).not.toBeNull();
+  await page.mouse.move(box!.x + box!.width * .8, box!.y + box!.height * .2);
+  await page.mouse.down();
+  await page.mouse.move(box!.x + box!.width * .55, box!.y + box!.height * .35, { steps: 8 });
+  await page.mouse.up();
+  await expect(object).toHaveAttribute('data-transform', before!);
+});
+
+test('changing scale display units preserves the physical millimeter size', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'units.stl');
+  await page.getByRole('button', { name: 'Scale', exact: true }).click();
+  await page.getByRole('radio', { name: 'in', exact: true }).click();
+  const dimension = page.getByLabel('Largest dimension');
+  await dimension.fill('1'); await dimension.blur();
+  await page.getByRole('radio', { name: 'mm', exact: true }).click();
+  await expect(dimension).toHaveValue('25.4');
 });

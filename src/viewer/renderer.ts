@@ -16,6 +16,7 @@ export interface ViewerRenderer {
   setSize(width: number, height: number): void;
   render(sceneAndCamera: Parameters<WebGLRenderer['render']>): void;
   dispose(): void;
+  forceContextLoss(): void;
 }
 
 /**
@@ -35,6 +36,7 @@ export async function createRenderer(canvas: HTMLCanvasElement, limits: Renderer
         setSize: (width, height) => renderer.setSize(width, height, false),
         render: ([scene, camera]) => renderer.render(scene, camera),
         dispose: () => renderer.dispose(),
+        forceContextLoss: () => {},
       };
     } catch (error) {
       console.warn('WebGPU renderer unavailable, falling back to WebGL2.', error);
@@ -47,5 +49,6 @@ export async function createRenderer(canvas: HTMLCanvasElement, limits: Renderer
     setSize: (width, height) => renderer.setSize(width, height, false),
     render: ([scene, camera]) => renderer.render(scene, camera),
     dispose: () => renderer.dispose(),
+    forceContextLoss: () => renderer.forceContextLoss(),
   };
 }

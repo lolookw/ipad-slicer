@@ -68,3 +68,8 @@ it('applies and persists explicit appearance changes', () => {
   expect(document.documentElement.dataset.theme).toBe('dark');
   expect(localStorage.getItem('ipad-slicer:theme')).toBe('dark');
 });
+
+it('exposes the STL file picker from the real application shell', () => {
+  const picker = host.querySelector<HTMLInputElement>('input[type="file"]');
+  expect(picker?.accept).toContain('.stl');
+});

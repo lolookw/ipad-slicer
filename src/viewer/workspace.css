@@ -1,0 +1,11 @@
+.viewer-workspace { display: grid; gap: .5rem; margin: 1rem; padding: .75rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); }
+.viewer-import { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.viewer-import-button { display: grid; gap: .25rem; }
+.viewer-import-button input, .viewer-objects button { box-sizing: border-box; min-width: 44px; min-height: 44px; padding: .5rem .75rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); }
+.viewer-stage { min-height: 240px; height: min(42dvh, 420px); }
+.viewer-stage canvas { width: 100%; height: 100%; display: block; touch-action: none; border-radius: var(--radius-sm); }
+.viewer-objects { display: flex; gap: .5rem; overflow-x: auto; }
+.viewer-objects button { flex: 0 0 auto; background: var(--color-surface); color: var(--color-text); }
+.viewer-objects button[aria-pressed='true'] { border-width: 3px; border-color: var(--color-primary); }
+.viewer-error { margin: 0; color: var(--color-danger); }
+@media (max-width: 699px) { .viewer-workspace { margin: .5rem; } .viewer-stage { min-height: 180px; height: 30dvh; } }

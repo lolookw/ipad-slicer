@@ -1,0 +1,87 @@
+import { For, Show, createEffect, createSignal, onCleanup, onMount, type Accessor, type JSX } from 'solid-js';
+import type { TierDecision } from '../app/tier/decide';
+import { binaries, flow } from '../app/stores';
+import { plate } from '../app/stores/plate';
+import { attachCameraControls, type ViewerCameraControls } from './camera';
+import { ViewerToolbarContainer } from './components/ViewerToolbarContainer';
+import { releaseMesh } from './geometry-cache';
+import { createGizmo } from './gizmo';
+import { createViewerGestures, type ViewerGestures } from './gestures';
+import { importFileToPlate } from './plate-import';
+import { createViewer, type Viewer } from './scene';
+import './workspace.css';
+
+export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> }): JSX.Element {
+  let canvas!: HTMLCanvasElement;
+  let viewer: Viewer | undefined;
+  let controls: ViewerCameraControls | undefined;
+  let gestures: ViewerGestures | undefined;
+  const gizmo = createGizmo();
+  const [error, setError] = createSignal<string>();
+  const [busy, setBusy] = createSignal(false);
+  const knownIds = new Set<string>();
+
+  const sync = () => {
+    const currentIds = new Set(plate.state.objects.map(object => object.id));
+    for (const id of knownIds) if (!currentIds.has(id)) { releaseMesh(id); binaries.release(id); knownIds.delete(id); }
+    for (const id of currentIds) knownIds.add(id);
+    viewer?.syncObjects(plate.state.objects, plate.state.selectedId);
+    flow.hasModel.set(plate.state.objects.length > 0);
+  };
+
+  createEffect(() => {
+    plate.state.objects.map(object => `${object.id}:${JSON.stringify(object.transform)}`).join('|');
+    plate.state.selectedId;
+    sync();
+  });
+
+  onMount(async () => {
+    try {
+      viewer = await createViewer(canvas, { widthMm: 220, depthMm: 220, heightMm: 250 }, props.tierDecision().tier);
+      controls = attachCameraControls(viewer);
+      gestures = createViewerGestures({
+        canvas, camera: viewer.camera, controls, gizmo,
+        selectedMesh: () => viewer?.meshFor(plate.state.selectedId ?? ''),
+        meshAt: (x, y) => viewer?.meshAt(x, y),
+        onSelect: id => plate.select(id),
+        onFit: () => { if (viewer && controls && plate.state.objects.length) void controls.fit(viewer.objectRoot); },
+      });
+      sync(); viewer.start();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'The 3D viewer could not start.');
+    }
+  });
+
+  onCleanup(() => { gestures?.dispose(); controls?.dispose(); viewer?.dispose(); });
+
+  const importFiles = async (files: FileList | null) => {
+    if (!files?.length) return;
+    setBusy(true); setError(undefined);
+    for (const file of Array.from(files)) {
+      const result = await importFileToPlate(file, props.tierDecision().limits);
+      if (!result.ok) { setError(result.error); break; }
+    }
+    setBusy(false); sync();
+  };
+
+  return <section class="viewer-workspace" aria-label="Model workspace">
+    <header class="viewer-import">
+      <label class="viewer-import-button"><span>Import STL</span>
+        <input aria-label="Import STL" type="file" accept=".stl,model/stl,application/sla" multiple
+          disabled={busy()} onChange={event => { void importFiles(event.currentTarget.files); event.currentTarget.value = ''; }} />
+      </label>
+      <span>{plate.state.objects.length}/{props.tierDecision().limits.objects} objects</span>
+    </header>
+    <Show when={error()}><p class="viewer-error" role="alert">{error()}</p></Show>
+    <div class="viewer-stage"><canvas ref={canvas} data-testid="viewer-canvas" aria-label="3D build plate" /></div>
+    <Show when={plate.state.objects.length}>
+      <nav class="viewer-objects" aria-label="Plate objects">
+        <For each={plate.state.objects}>{object =>
+          <button type="button" aria-pressed={plate.state.selectedId === object.id}
+            data-transform={JSON.stringify(object.transform)} onClick={() => plate.select(object.id)}>{object.name}</button>}
+        </For>
+      </nav>
+      <ViewerToolbarContainer />
+    </Show>
+  </section>;
+}
