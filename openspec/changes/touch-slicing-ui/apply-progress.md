@@ -163,3 +163,25 @@ Status: done in Standard mode (`strict_tdd: false`). Tasks 3.2–3.5 and 3.7 com
 - Delivery boundary: auto-chain, stacked-to-main PR3b on top of PR3a. The complete authored snapshot is 570 changed lines including tasks and this progress record, within the standing 800-line limit.
 - Deviations: none. The requirements/tasks control the bounded Simple count and unavailable quality behavior; no untested rung is synthesized.
 - Issues/handoff: estimates and orient/arrange remain visible placeholders for later planned slices. The custom printer generic base is smoke-tested, but each user overlay is deliberately labeled as not individually smoke-tested.
+
+## Independent Audit of Slices 1b–3b (Claude, 2026-09-16)
+
+Status: done. Everything Codex delivered autonomously between the 1a handoff and 3b (commits `ec5dfeb`, `2558ac9`, `6091536`, `0a16c1f`, `6c620ea`) was reviewed for the first time here — two parallel read-only audits plus Claude's own re-runs, not a re-statement of Codex's own claims.
+
+**i18n / theme / adaptive tiers / catalog pipeline (ec5dfeb, 2558ac9, 6091536):** all 8 audited areas CONFIRMED OK. No user-agent sniffing anywhere in the tier logic; `probeThreading()` stays fully independent of the tier decision; the catalog resolver is genuinely fail-closed (throws on any integrity gap, never falls back); the smoke gate runs the real Node engine per combination (63/63 reproduced independently); packs are hash-verified before parsing. Two non-blocking notes: an unused `decideThreadVariant` helper (expected — its caller lands in PR 5a/5b) and the provisional Full-tier thresholds aren't commented inline (already tracked as open task 2.6).
+
+**Settings, storage and configuration UI (0a16c1f, 6c620ea):** the spec-mandated checks (bounded simple mode, enum/bound validation, obsolete-key rejection, atomic IndexedDB writes, "not certified" custom-printer labeling) all held up under independent re-derivation. One HIGH-severity defect was found and is now fixed:
+
+- **`validationContext(pack)` read the globally-selected filament instead of the filament actually being validated.** Importing a preset — or drafting a custom printer — while no filament was selected in the live UI silently widened the safe nozzle-temperature range to a generic `[150, 320]` fallback, so an out-of-range value (e.g. 300 °C for PLA) could pass validation and get written to IndexedDB undetected. Not caught by the existing test suite, which only ever exercised the "a filament happens to be selected" path.
+- **Fix (commit `f55e46d`):** `validationContext` now takes an explicit `filamentId` parameter; the import and custom-printer call sites pass the profile's own filament id (already proven to exist by the `isCompatible` check that runs first), instead of reading live UI state. Also closed an IndexedDB connection leak on the custom-printer save path (missing `try/finally`), the same class of bug the review flagged on the import path.
+- **New regression tests:** `src/app/stores/configuration.test.ts` (4 tests), including one that reproduces the exact silent-pass scenario against the old fallback behavior.
+- Two LOW-severity, non-blocking notes from the review were left as tracked follow-ups rather than fixed now: a legacy `first_layer_height` key can be silently dropped (not applied, just discarded with no user-visible notice) if an import declares a self-reported `schemaVersion` that lies about being current; and the Simple-mode time/filament/cost readout is a documented placeholder until the slicing pipeline lands in PR 5a.
+
+| Evidence | Observed result |
+|---|---|
+| Full suite (after the fix) | `npx vitest run`: 21 files / 190 tests passed (186 + 4 new) |
+| Typecheck / build | `npm run typecheck` exit 0; `npx vite build` exit 0 |
+| E2E | `npx playwright test --project=ipad-webkit` and `--project=ipad-webkit-landscape`: 11/11 passed on both, using the already-installed WebKit build |
+| `npm audit` | 0 vulnerabilities (was 2 high, dev-only Playwright SSL-verification advisory GHSA-7mvr-c777-76hp; patched by bumping to `@playwright/test@1.55.1`, same pinned browser revision — commit `f3bf33b`) |
+
+Both fix commits were scanned for personal data before pushing (clean) and are now on `origin/main` at `f3bf33b`.
