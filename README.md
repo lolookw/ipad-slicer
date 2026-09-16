@@ -169,6 +169,9 @@ To use the page, serve `dist/` with the isolation headers from `public/_headers`
 | `npm run slice-check:mt` | Real multithread slice in Node (fixed shared memory) |
 | `npm run check-deploy -- <url>` | Check a deployed URL: isolation headers, engine manifest, parts, caching |
 | `node scripts/catalog/resolve.mjs` | Regenerate a profile from pinned OrcaSlicer vendor indexes and cached presets |
+| `npm run catalog:acquire` | Fetch only curated preset chains and write their SHA-256 provenance lock |
+| `npm run catalog` | Smoke every curated combination with the pinned ST engine, then build and verify packs |
+| `npm run catalog:verify` | Fast release check for pack hashes, schemas, six-vendor coverage, and smoke lineage |
 | `npm run deploy` | Deploy `dist/` with Wrangler |
 
 ---
@@ -188,6 +191,8 @@ scripts/
   slice-check.mjs            Real-engine slice check in Node (st / mt)
 profiles/                    Generated Ender-3 V2 + PLA profile and its provenance
 engine.lock.json             Pinned engine release and hashes
+catalog.config.json          Six-vendor curation pinned to OrcaSlicer v2.4.2 commit 8500fcdccaa10b5099ac20d252af3a7c560046f1
+catalog.presets.lock.json     Exact upstream preset/index bytes and SHA-256 provenance
 openspec/                    Spec-driven development artifacts
 ```
 

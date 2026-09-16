@@ -1,0 +1,144 @@
+{
+  "schema": 1,
+  "source": {
+    "repository": "https://github.com/SoftFever/OrcaSlicer",
+    "tag": "v2.4.2",
+    "commit": "8500fcdccaa10b5099ac20d252af3a7c560046f1"
+  },
+  "orcaTag": "v2.4.2",
+  "engineRelease": "wasm-v2.4.2-patch19",
+  "vendors": [
+    {
+      "id": "bbl", "name": "Bambu Lab", "source": "BBL",
+      "models": [{
+        "id": "bbl-x1c-04", "name": "X1 Carbon", "nozzle": 0.4, "required": true,
+        "machine": "Bambu Lab X1 Carbon 0.4 nozzle",
+        "processes": [
+          { "id": "fine", "name": "Fine", "ladder": "fine", "preset": "0.12mm Fine @BBL X1C" },
+          { "id": "standard", "name": "Standard", "ladder": "standard", "preset": "0.20mm Standard @BBL X1C" },
+          { "id": "draft", "name": "Draft", "ladder": "draft", "preset": "0.24mm Draft @BBL X1C" }
+        ],
+        "filaments": [
+          { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Generic PLA" },
+          { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Generic PETG" },
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS" }
+        ],
+        "fixups": { "curr_bed_type": "Textured PEI Plate", "use_relative_e_distances": "1" }
+      }]
+    },
+    {
+      "id": "prusa", "name": "Prusa", "source": "Prusa",
+      "models": [{
+        "id": "prusa-mk4-04", "name": "MK4", "nozzle": 0.4, "required": true,
+        "machine": "Prusa MK4 0.4 nozzle",
+        "processes": [
+          { "id": "fine", "name": "Fine", "ladder": "fine", "preset": "0.12mm Standard @MK4" },
+          { "id": "standard", "name": "Standard", "ladder": "standard", "preset": "0.20mm Standard @MK4" },
+          { "id": "draft", "name": "Draft", "ladder": "draft", "preset": "0.28mm Standard @MK4" }
+        ],
+        "filaments": [
+          { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Prusa Generic PLA @MK4" },
+          { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Prusa Generic PETG @MK4" },
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Prusa Generic ABS @MK4" }
+        ],
+        "fixups": { "use_relative_e_distances": "1" }
+      }]
+    },
+    {
+      "id": "creality", "name": "Creality", "source": "Creality",
+      "models": [{
+        "id": "creality-ender3-v2-04", "name": "Ender-3 V2", "nozzle": 0.4, "required": true,
+        "machine": "Creality Ender-3 V2 0.4 nozzle",
+        "processes": [
+          { "id": "fine", "name": "Fine", "ladder": "fine", "preset": "0.12mm Fine @Creality Ender3V2" },
+          { "id": "standard", "name": "Standard", "ladder": "standard", "preset": "0.20mm Standard @Creality Ender3V2" },
+          { "id": "draft", "name": "Draft", "ladder": "draft", "preset": "0.24mm Draft @Creality Ender3V2" }
+        ],
+        "filaments": [
+          { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Creality Generic PLA" },
+          { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Creality Generic PETG" },
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Creality Generic ABS" }
+        ],
+        "fixups": { "use_relative_e_distances": "1" }
+      }]
+    },
+    {
+      "id": "elegoo", "name": "Elegoo", "source": "Elegoo",
+      "models": [{
+        "id": "elegoo-neptune4-04", "name": "Neptune 4", "nozzle": 0.4, "required": true,
+        "machine": "Elegoo Neptune 4 0.4 nozzle",
+        "processes": [
+          { "id": "fine", "name": "Fine", "ladder": "fine", "preset": "0.12mm Fine @Elegoo N4 0.4 nozzle" },
+          { "id": "standard", "name": "Standard", "ladder": "standard", "preset": "0.20mm Standard @Elegoo N4 0.4 nozzle" },
+          { "id": "draft", "name": "Draft", "ladder": "draft", "preset": "0.24mm Draft @Elegoo N4 0.4 nozzle" }
+        ],
+        "filaments": [
+          { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Generic PLA @Elegoo" },
+          { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Generic PETG @Elegoo" },
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS @Elegoo" }
+        ],
+        "fixups": { "use_relative_e_distances": "1" }
+      }]
+    },
+    {
+      "id": "anycubic", "name": "Anycubic", "source": "Anycubic",
+      "models": [{
+        "id": "anycubic-kobra2-04", "name": "Kobra 2", "nozzle": 0.4, "required": true,
+        "machine": "Anycubic Kobra 2 0.4 nozzle",
+        "processes": [
+          { "id": "fine", "name": "Fine", "ladder": "fine", "preset": "0.15mm Optimal @Anycubic Kobra2" },
+          { "id": "standard", "name": "Standard", "ladder": "standard", "preset": "0.20mm Standard @Anycubic Kobra2" },
+          { "id": "draft", "name": "Draft", "ladder": "draft", "preset": "0.30mm Draft @Anycubic Kobra2" }
+        ],
+        "filaments": [
+          { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Anycubic Generic PLA" },
+          { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Anycubic Generic PETG" },
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Anycubic Generic ABS" }
+        ],
+        "fixups": { "use_relative_e_distances": "1" }
+      }]
+    },
+    {
+      "id": "voron", "name": "Voron", "source": "Voron",
+      "models": [{
+        "id": "voron-24-250-04", "name": "2.4 250", "nozzle": 0.4, "required": true,
+        "machine": "Voron 2.4 250 0.4 nozzle",
+        "processes": [
+          { "id": "fine", "name": "Fine", "ladder": "fine", "preset": "0.12mm Fine @Voron" },
+          { "id": "standard", "name": "Standard", "ladder": "standard", "preset": "0.20mm Standard @Voron" },
+          { "id": "draft", "name": "Draft", "ladder": "draft", "preset": "0.24mm Draft @Voron" }
+        ],
+        "filaments": [
+          { "id": "pla", "name": "Generic PLA", "type": "PLA", "source": "BBL", "preset": "Generic PLA @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
+          { "id": "petg", "name": "Generic PETG", "type": "PETG", "source": "BBL", "preset": "Generic PETG @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "source": "BBL", "preset": "Generic ABS @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." }
+        ],
+        "fixups": { "use_relative_e_distances": "1" }
+      }]
+    }
+  ],
+  "customBase": {
+    "id": "custom", "name": "Custom printer", "source": "Custom", "machine": "fdm_machine_common",
+    "processes": [
+      { "id": "fine", "name": "Fine", "ladder": "fine", "preset": "fdm_process_common", "conditionOnly": "Generic common process for the smoke-tested custom base.", "fixups": { "layer_height": "0.12" } },
+      { "id": "standard", "name": "Standard", "ladder": "standard", "preset": "fdm_process_common", "conditionOnly": "Generic common process for the smoke-tested custom base.", "fixups": { "layer_height": "0.20" } },
+      { "id": "draft", "name": "Draft", "ladder": "draft", "preset": "fdm_process_common", "conditionOnly": "Generic common process for the smoke-tested custom base.", "fixups": { "layer_height": "0.28" } }
+    ],
+    "filaments": [
+      { "id": "pla", "name": "Generic PLA", "type": "PLA", "source": "BBL", "preset": "Generic PLA @base", "conditionOnly": "Generic base for user-defined printers; custom instances are not catalog-certified." },
+      { "id": "petg", "name": "Generic PETG", "type": "PETG", "source": "BBL", "preset": "Generic PETG @base", "conditionOnly": "Generic base for user-defined printers; custom instances are not catalog-certified." },
+      { "id": "abs", "name": "Generic ABS", "type": "ABS", "source": "BBL", "preset": "Generic ABS @base", "conditionOnly": "Generic base for user-defined printers; custom instances are not catalog-certified." }
+    ],
+    "fixups": {
+      "printable_area": ["0x0", "220x0", "220x220", "0x220"], "printable_height": "250",
+      "machine_start_gcode": "G28\nG90", "machine_end_gcode": "M104 S0\nM140 S0\nM84",
+      "before_layer_change_gcode": "G92 E0", "use_relative_e_distances": "1"
+    }
+  },
+  "directSources": {
+    "Custom": {
+      "machine": { "fdm_machine_common": "machine/fdm_machine_common.json" },
+      "process": { "fdm_process_common": "process/fdm_process_common.json" }
+    }
+  }
+}

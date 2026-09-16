@@ -97,3 +97,28 @@ Status: partial in Standard mode (`strict_tdd: false`). Tasks 3.1 and 3.6 are co
 - Authored implementation/test/config/documentation count before OpenSpec audit edits: 586 additions + deletions, excluding ignored runtime fixtures and generated build output; within the standing ≤800-line one-PR rule.
 - Delivery boundary: auto-chain, stacked-to-main PR 2 partial. The partial is safely committable as a fail-closed catalog foundation, but it MUST NOT be represented as the curated six-vendor catalog or wired into release build verification yet.
 - Deviations: no design behavior was weakened. Release generation was deliberately withheld rather than inventing missing vendor payloads or claiming smoke evidence that cannot be produced offline.
+
+## Slice 2 — Curated catalog completion (Codex, 2026-09-15)
+
+Status: done in Standard mode (`strict_tdd: false`). Tasks 3.2–3.5 and 3.7 complete; prior tasks 3.1 and 3.6 remain intact. This successor work unit completes PR2 without committing, pushing, deploying, or using credentials.
+
+- Pinned the acquisition source to official `SoftFever/OrcaSlicer` tag `v2.4.2`, commit `8500fcdccaa10b5099ac20d252af3a7c560046f1`. `catalog.presets.lock.json` records byte counts and SHA-256 for 99 referenced vendor indexes, presets, and inheritance parents; acquisition downloaded no repository archive or unrelated payload tree.
+- Curated one required 0.4 mm model per BBL, Prusa, Creality, Elegoo, Anycubic, and Voron, each with Fine/Standard/Draft and Generic PLA/PETG/ABS. BBL uses X1 Carbon and Anycubic uses Kobra 2 because upstream compatibility metadata rejects the initially considered A1-mini ABS and Kobra-2-Pro generic material sets.
+- Voron's upstream filament list is empty, so its BBL generic base filaments carry explicit condition-only rationale and remain gated by real smoke tests. The custom base uses generic common machine/process data and is labeled by the contract as a base, not a certification of user-created instances.
+- The builder emits deterministic hashed schema-1 packs, a six-vendor index, embedded source/smoke lineage, and `custom-base.json`. The fast verifier checks hashes, references, acquisition lock identity, six-vendor coverage, all three material types and ladder rungs, custom base, and smoke lineage.
+- Real smoke discovered two required fixups rather than masking failures: BBL requires `Textured PEI Plate` for PETG/ABS, and the relative-extrusion custom base requires `G92 E0` before each layer. After applying them, every curated combination passed.
+
+### Work Unit Evidence
+
+| Evidence | Observed result |
+|---|---|
+| Acquisition provenance | `node scripts/catalog/fetch-presets.mjs`: 99 pinned profile records acquired from `v2.4.2` commit `8500fcdccaa1`; `npm.cmd run catalog:verify-presets`: 99/99 byte/hash records verified. |
+| Focused tests | `npm.cmd exec -- vitest run scripts/catalog src/catalog`: exit 0, 3 files / 11 tests passed, including deterministic/custom builds, corruption failures, index-only search, and selected-pack-only fetching. |
+| Runtime harness | `node scripts/catalog/smoke-catalog.mjs`: exit 0, 63/63 20 mm cube combinations passed through the real locally pinned `wasm-v2.4.2-patch19` ST engine. Engine JS/WASM hashes are checked before slicing. |
+| Release verification | `npm.cmd run catalog:verify`: exit 0, 6 printer packs and 63 smoke-gated combinations verified. `dist/catalog/**` contains the same index, custom base, and six hashed packs after build. |
+| Full regression | `npm.cmd test`: 17 files / 163 tests passed. `npm.cmd run typecheck`: exit 0. `npm.cmd run build`: exit 0, including fast catalog verification in `prebuild`. |
+| Rollback boundary | Remove `catalog.config.json`, `catalog.presets.lock.json`, generated `public/catalog/**`, `scripts/catalog/{fetch-presets,smoke-catalog,verify-presets}.mjs`; revert catalog builder/verifier/package/test/docs edits and these five task checkboxes. Keep committed 3.1 resolver and 3.6 clients unchanged. |
+
+- Delivery boundary: auto-chain, stacked-to-main PR2 completion on top of commit `2558ac9`. Authored implementation/test/config/docs remain below the 800-line standing limit; generated catalog JSON and the generated provenance lock are excluded from authored count but included in the delivered snapshot.
+- Deviations: selected compatible models changed from the first local candidates based on upstream evidence; this stays within the designed curated-subset scope. No compatibility expression evaluator was added.
+- Remaining PR2 work: none. Parent should perform independent SDD verification before any commit or push.

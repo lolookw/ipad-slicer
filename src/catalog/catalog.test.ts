@@ -29,6 +29,18 @@ describe('catalog clients', () => {
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
 
+  it('fetches only the selected pack when unrelated models exist', async () => {
+    const bytes = new TextEncoder().encode(JSON.stringify(pack));
+    const reference = { url: '/catalog/selected.json', bytes: bytes.byteLength, sha256: await digest(bytes) };
+    const fetcher = vi.fn(async (input: RequestInfo | URL) => {
+      expect(String(input)).toBe(reference.url);
+      return new Response(bytes);
+    });
+    await expect(loadPrinterPack(reference, fetcher)).resolves.toMatchObject({ id: 'p1' });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    expect(fetcher).not.toHaveBeenCalledWith('/catalog/unrelated.json');
+  });
+
   it('merges machine then process then filament then settings ids', () => {
     expect(mergePackSelection(pack, 'standard', 'pla')).toEqual({
       speed: '40', shared: 'filament', layer_height: '0.2', nozzle_temperature: ['210'],

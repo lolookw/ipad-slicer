@@ -9,6 +9,58 @@ export function stableJson(value) {
   return `${JSON.stringify(normalize(value))}\n`;
 }
 
+function assertCompatible(meta, machine, entry) {
+  if (meta.compatiblePrinters?.includes(machine)) return;
+  if (entry.conditionOnly) return;
+  throw new Error(`${entry.preset} is not explicitly compatible with ${machine}; curate a condition-only exception`);
+}
+
+export async function resolvePack(source, owner, model) {
+  const machine = await source.resolve(owner.source, 'machine', model.machine);
+  const processes = await Promise.all(model.processes.map(async entry => {
+    const resolved = await source.resolve(entry.source ?? owner.source, 'process', entry.preset);
+    assertCompatible(resolved.meta, model.machine, entry);
+    return { id: entry.id, name: entry.name, ladder: entry.ladder,
+      layerHeight: Number(entry.fixups?.layer_height ?? resolved.settings.layer_height),
+      settings: { ...resolved.settings, ...entry.fixups }, meta: resolved.meta,
+      conditionOnly: entry.conditionOnly };
+  }));
+  const filaments = await Promise.all(model.filaments.map(async entry => {
+    const resolved = await source.resolve(entry.source ?? owner.source, 'filament', entry.preset);
+    assertCompatible(resolved.meta, model.machine, entry);
+    return { id: entry.id, name: entry.name, type: entry.type,
+      settings: { ...resolved.settings, ...entry.fixups }, meta: resolved.meta,
+      conditionOnly: entry.conditionOnly };
+  }));
+  return { machine: { ...machine.settings, ...model.fixups }, machineMeta: machine.meta, processes, filaments };
+}
+
+function combinations(model) {
+  return model.combos ?? model.processes.flatMap(process => model.filaments.map(filament => [process.id, filament.id]));
+}
+
+async function makePack(config, source, owner, model, passing) {
+  const resolved = await resolvePack(source, owner, model);
+  const combos = combinations(model).filter(([processId, filamentId]) =>
+    passing.has(`${model.id}:${processId}:${filamentId}`));
+  if (!combos.length && model.required !== false) throw new Error(`Required model has no passing combinations: ${model.id}`);
+  if (!combos.length) return;
+  const processIds = new Set(combos.map(([id]) => id));
+  const filamentIds = new Set(combos.map(([, id]) => id));
+  return { schema: 1, id: model.id, vendor: owner.id, model: model.name, nozzle: model.nozzle ?? 0.4,
+    machine: resolved.machine,
+    processes: resolved.processes.filter(entry => processIds.has(entry.id))
+      .map(({ meta: _meta, conditionOnly: _conditionOnly, ...entry }) => entry),
+    filaments: resolved.filaments.filter(entry => filamentIds.has(entry.id))
+      .map(({ meta: _meta, conditionOnly: _conditionOnly, ...entry }) => entry), combos,
+    meta: { source: config.source, engineRelease: config.engineRelease, passed: combos,
+      machine: resolved.machineMeta,
+      processes: Object.fromEntries(resolved.processes.map(entry => [entry.id,
+        { ...entry.meta, conditionOnly: entry.conditionOnly }])),
+      filaments: Object.fromEntries(resolved.filaments.map(entry => [entry.id,
+        { ...entry.meta, conditionOnly: entry.conditionOnly }])) } };
+}
+
 export async function buildCatalog(config, passing, { source = createPresetSource(), outputDir = 'public/catalog' } = {}) {
   const root = join(outputDir, config.orcaTag);
   await rm(root, { recursive: true, force: true });
@@ -17,28 +69,8 @@ export async function buildCatalog(config, passing, { source = createPresetSourc
   for (const vendor of config.vendors) {
     const models = [];
     for (const model of vendor.models) {
-      const machine = await source.resolve(vendor.source, 'machine', model.machine);
-      const processes = await Promise.all(model.processes.map(async entry => {
-        const resolved = await source.resolve(vendor.source, 'process', entry.preset);
-        return { id: entry.id, name: entry.name, ladder: entry.ladder,
-          layerHeight: Number(resolved.settings.layer_height), settings: resolved.settings, meta: resolved.meta };
-      }));
-      const filaments = await Promise.all(model.filaments.map(async entry => {
-        const resolved = await source.resolve(entry.source ?? vendor.source, 'filament', entry.preset);
-        return { id: entry.id, name: entry.name, type: entry.type, settings: resolved.settings, meta: resolved.meta };
-      }));
-      const combos = model.combos.filter(([processId, filamentId]) =>
-        passing.has(`${model.id}:${processId}:${filamentId}`));
-      if (!combos.length) {
-        if (model.required) throw new Error(`Required model has no passing combinations: ${model.id}`);
-        continue;
-      }
-      const pack = { schema: 1, id: model.id, vendor: vendor.id, model: model.name, nozzle: model.nozzle,
-        machine: { ...machine.settings, ...model.fixups },
-        processes: processes.map(({ meta: _meta, ...entry }) => entry),
-        filaments: filaments.map(({ meta: _meta, ...entry }) => entry), combos,
-        meta: { machine: machine.meta, processes: Object.fromEntries(processes.map(entry => [entry.id, entry.meta])),
-          filaments: Object.fromEntries(filaments.map(entry => [entry.id, entry.meta])) } };
+      const pack = await makePack(config, source, vendor, model, passing);
+      if (!pack) continue;
       const bytes = Buffer.from(stableJson(pack));
       const sha256 = createHash('sha256').update(bytes).digest('hex');
       const file = `${model.id}.${sha256.slice(0, 8)}.json`;
@@ -51,6 +83,11 @@ export async function buildCatalog(config, passing, { source = createPresetSourc
   const index = { schema: 1, orcaTag: config.orcaTag, engineRelease: config.engineRelease, vendors };
   await mkdir(outputDir, { recursive: true });
   await writeFile(join(outputDir, 'index.json'), stableJson(index));
+  if (config.customBase) {
+    const custom = { ...config.customBase, required: true, nozzle: 0.4 };
+    const customPack = await makePack(config, source, { id: 'custom', source: custom.source }, custom, passing);
+    await writeFile(join(outputDir, 'custom-base.json'), stableJson(customPack));
+  }
   return index;
 }
 

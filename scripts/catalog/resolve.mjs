@@ -23,7 +23,7 @@ function splitPreset(resolved, chain) {
 }
 
 export function createPresetSource({
-  indexDir = '.engine-cache/research-codex', presetDir = '.engine-cache/orca-profiles-v2.4.2',
+  indexDir = '.engine-cache/orca-profiles-v2.4.2', presetDir = '.engine-cache/orca-profiles-v2.4.2',
 } = {}) {
   const indexCache = new Map();
   async function indexFor(vendor) {

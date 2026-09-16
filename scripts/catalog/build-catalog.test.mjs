@@ -30,7 +30,7 @@ describe('catalog builder and verifier', () => {
     const pack = JSON.parse(await readFile(join(first, model.pack), 'utf8'));
     expect(pack.meta.machine.chain).toEqual(['base-machine', 'Printer']);
     expect(pack.machine.fixed).toBe('1');
-    await expect(verifyCatalog(join(first, 'index.json'))).resolves.toEqual({ printers: 1 });
+    await expect(verifyCatalog(join(first, 'index.json'))).resolves.toEqual({ printers: 1, combos: 1 });
   });
 
   it('fails required gaps and corrupted pack hashes', async () => {
@@ -39,5 +39,16 @@ describe('catalog builder and verifier', () => {
     const index = await buildCatalog(config, new Set(['printer:standard:pla']), { source, outputDir: root });
     await writeFile(join(root, index.vendors[0].models[0].pack), '{}');
     await expect(verifyCatalog(join(root, 'index.json'))).rejects.toThrow('Length mismatch');
+  });
+
+  it('emits a smoke-gated custom base without indexing it as certified', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'catalog-custom-'));
+    const customBase = { id: 'custom', name: 'Custom', source: 'Acme', machine: 'Printer',
+      processes: config.vendors[0].models[0].processes,
+      filaments: config.vendors[0].models[0].filaments };
+    await buildCatalog({ ...config, customBase }, new Set(['printer:standard:pla', 'custom:standard:pla']),
+      { source, outputDir: root });
+    const custom = JSON.parse(await readFile(join(root, 'custom-base.json'), 'utf8'));
+    expect(custom).toMatchObject({ schema: 1, id: 'custom', vendor: 'custom', combos: [['standard', 'pla']] });
   });
 });
