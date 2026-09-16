@@ -53,10 +53,10 @@ it('gives every step control at least a 44px touch target', () => {
 
 it('translates visible errors live and persists the locale', async () => {
   const language = host.querySelector<HTMLSelectElement>('select[aria-label="Language"]');
-  expect(host.querySelector('[role="alert"]')?.textContent).toContain('Import a model');
+  expect(host.querySelector('.configuration-error[role="alert"]')?.textContent).toContain('Import a model');
   language!.value = 'es';
   language!.dispatchEvent(new Event('change', { bubbles: true }));
-  await waitFor(() => expect(host.querySelector('[role="alert"]')?.textContent).toContain('Importa un modelo'));
+  await waitFor(() => expect(host.querySelector('.configuration-error[role="alert"]')?.textContent).toContain('Importa un modelo'));
   expect(localStorage.getItem('ipad-slicer:locale')).toBe('es');
   expect(document.documentElement.lang).toBe('es');
 });

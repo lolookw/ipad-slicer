@@ -5,7 +5,6 @@ import { browserThemeEnvironment, createThemeController, resolveTheme, THEME_STO
 import { decideTier, resolveTier, TIER_STORAGE_KEY } from './tier/decide';
 import { browserTierSignals, type TierSignals } from './tier/signals';
 import { openSettingsDatabase } from '../storage/db';
-import { ViewerWorkspace } from '../viewer/ViewerWorkspace';
 
 /** iPad regular width (sidebar + canvas) versus compact width (stacked with sheets). */
 const REGULAR_WIDTH = '(min-width: 700px)';
@@ -75,7 +74,7 @@ const AppContext = createContext<AppValue>();
 
 export function AppProvider(props: { children: JSX.Element }): JSX.Element {
   const value = createAppValue();
-  return <AppContext.Provider value={value}>{props.children}<ViewerWorkspace tierDecision={value.tierDecision} /></AppContext.Provider>;
+  return <AppContext.Provider value={value}>{props.children}</AppContext.Provider>;
 }
 
 export function useApp(): AppValue {

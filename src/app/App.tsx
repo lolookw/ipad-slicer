@@ -5,6 +5,7 @@ import type { Step, Tier } from './stores';
 import type { Locale, TranslationKey } from '../i18n';
 import type { Theme } from './theme';
 import { ConfigurationContainer } from './ConfigurationContainer';
+import { ViewerWorkspace } from '../viewer/ViewerWorkspace';
 
 const STEPS: { id: Step; label: TranslationKey }[] = [
   { id: 'import', label: 'steps.import' },
@@ -109,6 +110,7 @@ function Shell(): JSX.Element {
       }
       canvas={
         <>
+          <ViewerWorkspace tierDecision={app.tierDecision} />
           <StepPane />
           <p class="engine-state">{app.t('app.engine')}: <code>{app.engine.state.get()}</code></p>
         </>
