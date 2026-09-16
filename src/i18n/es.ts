@@ -57,6 +57,7 @@ export const es = {
     resizeSheet: 'Cambiar tamaño del panel de escala',
   },
   configuration: {
+    arrangeComplete: 'La placa fue orientada y organizada.',
     search: 'Buscar impresoras', printer: 'Impresora', filament: 'Filamento', quality: 'Calidad', loading: 'Cargando impresora…', unavailable: 'No disponible',
     draft: 'Borrador', standard: 'Estándar', fine: 'Fina', simple: 'Simple', advanced: 'Avanzado', arrange: 'Orientar y organizar',
     arrangePending: 'Orientar y organizar estará disponible después de importar un modelo.', estimates: 'Tiempo, filamento y costo estimados', reset: 'Restablecer al preset',

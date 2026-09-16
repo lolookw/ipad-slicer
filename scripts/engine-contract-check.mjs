@@ -52,6 +52,23 @@ const wasm = await readFile('.engine-cache/wasm-v2.4.2-patch19/slicer.wasm');
 const { default: factory } = await import('data:text/javascript;charset=utf-8,' + encodeURIComponent(`${js}\nexport default OrcaModule;`));
 const module = await factory({ wasmBinary: wasm, print: () => {}, printErr: () => {},
   onAbort: reason => { throw new Error(`OrcaWasm aborted: ${reason}`); } });
+const initCalls = new Map();
+const destroyedSessions = [];
+const initializedLiveSessions = new Set();
+let initializedTwice = false;
+const instrumentedModule = new Proxy(module, { get(target, property) {
+  if (property === '_onewasm_init') return (session, ptr, length) => {
+    if (initializedLiveSessions.has(session)) initializedTwice = true;
+    initializedLiveSessions.add(session);
+    initCalls.set(session, (initCalls.get(session) ?? 0) + 1);
+    return target._onewasm_init(session, ptr, length);
+  };
+  if (property === '_onewasm_session_destroy') return session => {
+    initializedLiveSessions.delete(session);
+    destroyedSessions.push(session); target._onewasm_session_destroy(session);
+  };
+  return target[property];
+} });
 const baseProfile = JSON.parse(await readFile('profiles/ender3v2-020-pla.json', 'utf8'));
 const profile = { ...baseProfile, brim_type: 'no_brim', skirt_loops: 0 };
 const mesh = asymmetricPrism();
@@ -113,6 +130,38 @@ try {
   assert.ok(prepared.arrange.every(item => item.offset.length === 2 && item.offset.every(Number.isFinite)), 'Arrange returns finite offsets');
   assert.equal(auto.statistics.schemaVersion, '0.2');
 
+  // Mirror the worker's one-session-per-config-hash policy against the real module.
+  let configuredSession = 0, configuredHash;
+  const useConfig = (hash, value) => {
+    if (configuredSession && configuredHash === hash) return configuredSession;
+    const next = initSession(instrumentedModule, JSON.stringify(value));
+    const previous = configuredSession;
+    configuredSession = next; configuredHash = hash;
+    if (previous) instrumentedModule._onewasm_session_destroy(previous);
+    return configuredSession;
+  };
+  const firstSession = useConfig('base', profile);
+  assert.equal(useConfig('base', { ...profile, brim_width: '99' }), firstSession, 'Same config hash must reuse its session');
+  assert.equal(initCalls.get(firstSession), 1, 'onewasm_init must run once per session');
+  const overridden = { ...profile, brim_type: 'outer_only', brim_width: '5' };
+  const secondSession = useConfig('brim', overridden);
+  assert.notEqual(secondSession, firstSession, 'Changed config hash must create before destroying the old session');
+  assert.ok(destroyedSessions.includes(firstSession), 'Changed config hash must destroy the old session');
+  const overriddenGcode = new TextDecoder().decode(sliceStlMulti(module, secondSession, [mesh], Float32Array.from(transform())));
+  assert.match(overriddenGcode, /; brim_type = outer_only/, 'Override must reach its fresh session');
+  const thirdSession = useConfig('clean', profile);
+  const cleanGcode = new TextDecoder().decode(sliceStlMulti(module, thirdSession, [mesh], Float32Array.from(transform())));
+  assert.match(cleanGcode, /; brim_type = no_brim/, 'Previous override must not leak into a changed configuration');
+  const heapSamples = [];
+  for (let index = 0; index < 8; index++) {
+    useConfig(`repeat-${index}`, { ...profile, brim_width: String(index) });
+    heapSamples.push(module.HEAPU8.buffer.byteLength);
+  }
+  assert.ok(Math.max(...heapSamples) - Math.min(...heapSamples) <= 16 * 1024 * 1024,
+    `Repeated config changes grew the heap without bound: ${heapSamples.join(',')}`);
+  assert.equal(initializedTwice, false, 'No live session may receive onewasm_init twice');
+  instrumentedModule._onewasm_session_destroy(configuredSession);
+
   const header = await readFile('.engine-cache/src-patch19/onewasm_slicer_api.h', 'utf8');
   assert.match(header, /#define ONEWASM_OBJECT_TRANSFORM_STRIDE 11/);
   assert.match(header, /const int32_t\* extruder_ids,\s*const float\* object_transforms,/s);
@@ -125,4 +174,5 @@ try {
   console.log('preparePlate JSON: [{scale:[3], rotation:[3], mirror:[3], offset:null|[x,y]}]');
   console.log(`evidence: auto=${JSON.stringify(auto.bounds)} shifted=${JSON.stringify(finite.bounds)} orderProbe=${JSON.stringify(orderProbe.bounds)}`);
   console.log(`statistics: schema=${auto.statistics.schemaVersion}; two-object ranges=PASS; per-object config=unsupported`);
+  console.log(`sessions: same-hash=reused; changed-hash=fresh+old-destroyed; init-once=PASS; heap=${heapSamples.join(',')}`);
 } finally { module?.PThread?.terminateAllThreads?.(); }

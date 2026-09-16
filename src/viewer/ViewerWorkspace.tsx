@@ -9,6 +9,7 @@ import { createGizmo } from './gizmo';
 import { createViewerGestures, type ViewerGestures } from './gestures';
 import { importFileToPlate } from './plate-import';
 import { createViewer, type Viewer } from './scene';
+import { engineClient } from '../engine/client';
 import './workspace.css';
 
 export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> }): JSX.Element {
@@ -23,7 +24,9 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
 
   const sync = () => {
     const currentIds = new Set(plate.state.objects.map(object => object.id));
-    for (const id of knownIds) if (!currentIds.has(id)) { releaseMesh(id); binaries.release(id); knownIds.delete(id); }
+    for (const id of knownIds) if (!currentIds.has(id)) {
+      releaseMesh(id); binaries.release(id); void engineClient.releaseMesh(id); knownIds.delete(id);
+    }
     for (const id of currentIds) knownIds.add(id);
     viewer?.syncObjects(plate.state.objects, plate.state.selectedId);
     flow.hasModel.set(plate.state.objects.length > 0);

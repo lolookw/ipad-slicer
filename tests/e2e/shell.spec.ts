@@ -14,6 +14,23 @@ async function importStl(page: import('@playwright/test').Page, name: string, bu
   await expect(page.getByRole('button', { name, exact: true })).toBeVisible();
 }
 
+function binaryBoxStl(): Buffer {
+  const vertices = [[0, 0, 0], [20, 0, 0], [20, 20, 0], [0, 20, 0], [0, 0, 10], [20, 0, 10], [20, 20, 10], [0, 20, 10]];
+  const faces = [[0, 2, 1], [0, 3, 2], [4, 5, 6], [4, 6, 7], [0, 1, 5], [0, 5, 4],
+    [1, 2, 6], [1, 6, 5], [2, 3, 7], [2, 7, 6], [3, 0, 4], [3, 4, 7]];
+  const buffer = Buffer.alloc(84 + faces.length * 50); buffer.writeUInt32LE(faces.length, 80);
+  faces.forEach((face, index) => face.forEach((vertex, vertexIndex) => vertices[vertex]!.forEach((value, axis) =>
+    buffer.writeFloatLE(value!, 84 + index * 50 + 12 + vertexIndex * 12 + axis * 4))));
+  return buffer;
+}
+
+async function configureEngine(page: import('@playwright/test').Page) {
+  await page.getByLabel('Printer', { exact: true }).selectOption('creality-ender3-v2-04');
+  await expect(page.getByLabel('Filament')).toBeEnabled();
+  await page.getByLabel('Filament').selectOption({ index: 1 });
+  await page.getByRole('button', { name: 'Standard', exact: true }).click();
+}
+
 test('the app shell loads cross-origin isolated', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.title')).toHaveText('iPad Slicer');
@@ -195,4 +212,31 @@ test('changing scale display units preserves the physical millimeter size', asyn
   await dimension.fill('1'); await dimension.blur();
   await page.getByRole('radio', { name: 'mm', exact: true }).click();
   await expect(dimension).toHaveValue('25.4');
+});
+
+test('two imported objects round-trip through real engine orient and arrange', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto('/'); await configureEngine(page);
+  await importStl(page, 'prepare-a.stl', binaryBoxStl());
+  await importStl(page, 'prepare-b.stl', binaryBoxStl());
+  const objects = page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button');
+  const before = await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')));
+  await page.getByRole('button', { name: 'Orient and arrange' }).click();
+  await expect(page.locator('.configuration-ui p[role="status"]')).toHaveText('Plate orientation and arrangement updated.', { timeout: 45_000 });
+  const after = await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')));
+  expect(after).not.toEqual(before);
+  expect(after.every(value => value && !value.includes('null'))).toBe(true);
+});
+
+test('prepare failure preserves every prior object transform', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.route('**/engine/wasm-v2.4.2-patch19/st/**', route => route.abort('failed'));
+  await page.goto('/'); await configureEngine(page);
+  await importStl(page, 'failure-a.stl', binaryBoxStl());
+  await importStl(page, 'failure-b.stl', binaryBoxStl());
+  const objects = page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button');
+  const before = await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')));
+  await page.getByRole('button', { name: 'Orient and arrange' }).click();
+  await expect(page.locator('.configuration-ui p[role="status"]')).toContainText(/failed|error|fetch|engine/i, { timeout: 20_000 });
+  expect(await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')))).toEqual(before);
 });

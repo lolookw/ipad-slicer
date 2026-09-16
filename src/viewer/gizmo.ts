@@ -1,6 +1,8 @@
 import { Mesh, Plane, Raycaster, Vector2, Vector3, type PerspectiveCamera } from 'three';
 import { plate, type PlateObject } from '../app/stores/plate';
-import type { ObjectTransform } from './transforms';
+import { resolvedSettings } from '../app/stores/configuration';
+import { engineClient } from '../engine/client';
+import { encodeEngineTransforms, fromEngineTransform, toEngineTransform, type ObjectTransform } from './transforms';
 
 export type GizmoMode = 'move' | 'rotate' | 'scale';
 
@@ -31,6 +33,19 @@ export interface Gizmo {
 const BED_PLANE = new Plane(new Vector3(0, 0, 1), 0);
 const raycaster = new Raycaster();
 const MIN_SCALE = 0.01;
+
+/** Prepares a complete plate snapshot and commits only after a valid full result is received. */
+export async function prepareCurrentPlate(operation: 1 | 2 | 3): Promise<void> {
+  const settings = resolvedSettings();
+  if (!settings) throw new Error('Choose a compatible printer, filament and quality before preparing the plate.');
+  const snapshot = plate.state.objects.map(object => ({ id: object.id, transform: object.transform }));
+  if (!snapshot.length) throw new Error('Import at least one model before preparing the plate.');
+  const messages = snapshot.map(object => ({ meshId: object.id,
+    transform: encodeEngineTransforms([toEngineTransform(object.transform, operation === 2)]), extruderId: 1 }));
+  const prepared = await engineClient.prepare(JSON.stringify(settings), messages, operation);
+  const next = new Map(snapshot.map((object, index) => [object.id, fromEngineTransform(prepared[index]!, object.transform)]));
+  plate.applyPreparedTransforms(next);
+}
 
 function bedPoint(ndcX: number, ndcY: number, camera: PerspectiveCamera): Vector3 | undefined {
   raycaster.setFromCamera(new Vector2(ndcX, ndcY), camera);

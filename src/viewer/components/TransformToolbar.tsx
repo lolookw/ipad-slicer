@@ -9,7 +9,6 @@ export interface TransformToolbarLabels extends ScaleSheetLabels {
   toolbar: string;
   deselect: string;
   layFlat: string;
-  layFlatPending: string;
   rotateX: string;
   rotateY: string;
   scale: string;
@@ -30,15 +29,13 @@ export interface TransformToolbarProps {
   onReset: () => void;
   onTransform: (transform: ObjectTransform) => void;
   onDeselect: () => void;
+  onLayFlat: () => void;
 }
 
 export function TransformToolbar(props: TransformToolbarProps) {
   return <Show when={props.object}>{object => <>
     <div class="viewer-transform-toolbar" role="toolbar" aria-label={props.labels.toolbar}>
-      <span class="viewer-disabled-action" tabindex="0" aria-describedby="viewer-lay-flat-help">
-        <Button disabled>{props.labels.layFlat}</Button>
-        <span id="viewer-lay-flat-help" role="tooltip">{props.labels.layFlatPending}</span>
-      </span>
+      <Button onClick={props.onLayFlat}>{props.labels.layFlat}</Button>
       <Button variant="secondary" onClick={() => props.onRotate('x')}>{props.labels.rotateX}</Button>
       <Button variant="secondary" onClick={() => props.onRotate('y')}>{props.labels.rotateY}</Button>
       <Button variant="secondary" onClick={props.onScaleOpen}>{props.labels.scale}</Button>

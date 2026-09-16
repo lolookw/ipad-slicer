@@ -5,7 +5,7 @@ import type { TransformToolbarLabels } from './TransformToolbar';
 import { PlateObjectToolbar } from './ViewerToolbarContainer';
 
 const labels: TransformToolbarLabels = {
-  toolbar: 'Object tools', deselect: 'Deselect', layFlat: 'Lay flat', layFlatPending: 'Available after engine integration', rotateX: 'Rotate X', rotateY: 'Rotate Y',
+  toolbar: 'Object tools', deselect: 'Deselect', layFlat: 'Lay flat', rotateX: 'Rotate X', rotateY: 'Rotate Y',
   scale: 'Scale', duplicate: 'Duplicate', delete: 'Delete', reset: 'Reset', title: 'Object size', close: 'Close', size: 'Largest dimension',
   unit: 'Size unit', suspicious: 'Suspicious size', multiply25_4: '×25.4', multiply1000: '×1000', divide10: '÷10', keep: 'Keep as entered', resize: 'Resize',
 };

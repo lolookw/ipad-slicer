@@ -16,6 +16,7 @@ import { saveFile } from '../export/save-gcode';
 import { configuration, resolvedSettings, settingsIssues, validationContext } from './stores';
 import { useApp } from './AppProvider';
 import type { TranslationKey } from '../i18n';
+import { prepareCurrentPlate } from '../viewer/gizmo';
 
 function requireNumber(value: number, min: number, max: number, label: string): void {
   if (!Number.isFinite(value) || value < min || value > max) throw new Error(`${label} must be between ${min} and ${max}.`);
@@ -101,7 +102,9 @@ export function ConfigurationContainer() {
       customName={configuration.customName.get()} filamentId={configuration.filamentId.get()} processId={configuration.processId.get()} loading={configuration.loading.get()}
       error={configuration.errorKind.get() ? t(`configuration.${configuration.errorKind.get()}` as TranslationKey) : undefined} labels={labels()} onPrinter={id => void configuration.selectPrinter(id)} onFilament={id => configuration.selectFilament(id)} onQuality={quality => configuration.selectQuality(quality)} />
       <SettingsPanels mode={configuration.mode.get()} values={resolvedSettings()} overrides={configuration.overrides.get()} labels={settingsLabels()}
-        onMode={configuration.mode.set} onChange={(key, value) => configuration.setOverride(key, value)} onReset={key => configuration.resetOverride(key)} onArrange={() => configuration.notice.set(t('configuration.arrangePending'))} />
+        onMode={configuration.mode.set} onChange={(key, value) => configuration.setOverride(key, value)} onReset={key => configuration.resetOverride(key)}
+        onArrange={() => void prepareCurrentPlate(2).then(() => configuration.notice.set(t('configuration.arrangeComplete')),
+          error => configuration.notice.set(error instanceof Error ? error.message : String(error)))} />
     </div>
     <Show when={settingsIssues().length}><ul class="validation-errors" role="alert">{settingsIssues().map(issue => <li>{t('configuration.invalidSetting')}: <code>{issue.key}</code></li>)}</ul></Show>
     <button class="ui-target slice-action" type="button" disabled={!app.flow.hasModel.get() || !resolvedSettings() || hasBlockingIssues(settingsIssues())}>{t('configuration.slice')}</button>

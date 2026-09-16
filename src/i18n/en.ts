@@ -57,7 +57,7 @@ export const en = {
   configuration: {
     search: 'Search printers', printer: 'Printer', filament: 'Filament', quality: 'Quality', loading: 'Loading printer…', unavailable: 'Unavailable',
     draft: 'Draft', standard: 'Standard', fine: 'Fine', simple: 'Simple', advanced: 'Advanced', arrange: 'Orient and arrange',
-    arrangePending: 'Orient and arrange becomes available after importing a model.', estimates: 'Estimated time, filament and cost', reset: 'Reset to preset',
+    arrangePending: 'Orient and arrange becomes available after importing a model.', arrangeComplete: 'Plate orientation and arrangement updated.', estimates: 'Estimated time, filament and cost', reset: 'Reset to preset',
     plateWide: 'Support and brim settings apply to the whole plate. Per-object controls are not available.', notSmokeTested: 'User printer — not individually smoke-tested',
     slice: 'Slice', incomplete: 'Choose a compatible printer, filament and quality before slicing.', invalidSetting: 'Invalid setting', selectPrinterFirst: 'Select a printer before importing a preset.',
     profileUnavailable: 'The printer profile is unavailable. Try again.', invalidCustom: 'The custom printer is invalid and was not saved.', invalidImport: 'The preset could not be imported; current settings were kept.',

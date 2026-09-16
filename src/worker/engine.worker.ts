@@ -2,14 +2,18 @@ import profile from '../../profiles/ender3v2-020-pla.json';
 import { fetchEngineManifest, type Variant } from '../engine/manifest';
 import { MT_THREADS, probeThreading, type ProbeResult } from '../engine/probe';
 import { createInstantiateWasm } from '../engine/stream-loader';
-import { checkStatus, initSession, sliceStl, type OrcaModule } from './engine-bridge.mjs';
+import { checkStatus, getLastStatistics, initSession, preparePlate, sliceStl, sliceStlMulti, type OrcaModule } from './engine-bridge.mjs';
 import { isToWorker, type FromWorker } from './protocol';
+import { WorkerMeshCache } from './mesh-cache';
 
 type Stage = Extract<FromWorker, { t: 'error' }>['stage'];
 const post = (message: FromWorker, transfer: Transferable[] = []) => self.postMessage(message, { transfer });
 let engine: OrcaModule | undefined;
-let session = 0;
+let legacySession = 0;
+let configuredSession = 0;
+let configuredHash: string | undefined;
 let loading = false;
+const meshes = new WorkerMeshCache();
 
 function chooseVariant(prefer: Variant): ProbeResult {
   return prefer === 'mt' ? probeThreading() : { variant: 'st', reason: 'single-thread requested' };
@@ -46,7 +50,7 @@ async function initialize(prefer: Variant, setStage: (stage: Stage) => void) {
     const modulePromise = Promise.resolve().then(() => factory(options)) as Promise<OrcaModule>;
     const [module] = await Promise.race([Promise.all([modulePromise, hook.completion]), aborted]);
     setStage('profile');
-    session = initSession(module, JSON.stringify(profile));
+    legacySession = initSession(module, JSON.stringify(profile));
     engine = module;
     post({ t: 'ready', variant: probe.variant, ...info, probe: probe.reason });
   } finally { URL.revokeObjectURL(url); }
@@ -63,20 +67,79 @@ function slice(module: OrcaModule, stl: ArrayBuffer, setStage: (stage: Stage) =>
   try {
     if (module.addFunction) {
       callback = module.addFunction((pct, text) => progress(pct, text ? module.UTF8ToString(text) : undefined), 'viii');
-      checkStatus(module, session, module._onewasm_set_progress_callback(session, callback, 0));
+      checkStatus(module, legacySession, module._onewasm_set_progress_callback(legacySession, callback, 0));
     }
     progress(0);
     const start = performance.now();
-    const gcode = sliceStl(module, session, new Uint8Array(stl));
+    const gcode = sliceStl(module, legacySession, new Uint8Array(stl));
     const sliceMs = performance.now() - start;
     progress(100);
     setStage('export');
     post({ t: 'done', gcode, sliceMs, peakHeapBytes }, [gcode]);
   } finally {
     if (callback) {
-      module._onewasm_set_progress_callback(session, 0, 0);
+      module._onewasm_set_progress_callback(legacySession, 0, 0);
       module.removeFunction?.(callback);
     }
+  }
+}
+
+function requireEngine(): OrcaModule {
+  if (!engine) throw new Error('Engine is not ready');
+  return engine;
+}
+
+function configure(module: OrcaModule, hash: string, nativeJson: string): void {
+  if (configuredSession && configuredHash === hash) return;
+  const next = initSession(module, nativeJson);
+  const previous = configuredSession;
+  configuredSession = next;
+  configuredHash = hash;
+  if (previous) module._onewasm_session_destroy(previous);
+}
+
+async function readMeshes(generation: number, objects: { meshId: string }[]): Promise<Uint8Array[]> {
+  return meshes.read(generation, objects.map(object => object.meshId));
+}
+
+async function handleV2(message: Exclude<import('./protocol').ToWorker, { t: 'init' | 'slice' }>): Promise<void> {
+  const module = requireEngine();
+  if (message.t === 'config') {
+    configure(module, message.configHash, message.nativeJson);
+    post({ t: 'accepted', requestId: message.requestId, kind: 'config' });
+  } else if (message.t === 'mesh') {
+    meshes.put(message.generation, message.meshId, message.blob);
+    post({ t: 'accepted', requestId: message.requestId, kind: 'mesh', generation: message.generation });
+  } else if (message.t === 'releaseMesh') {
+    meshes.release(message.generation, message.meshId);
+    post({ t: 'accepted', requestId: message.requestId, kind: 'releaseMesh', generation: message.generation });
+  } else if (message.t === 'preparePlate' || message.t === 'sliceMulti') {
+    if (!configuredSession || configuredHash !== message.configHash) throw new Error(`Missing configuration ${message.configHash}`);
+    // Capture the validated session/hash before the only await in this branch: a concurrent
+    // 'config' message for a different hash can reassign (and destroy) configuredSession while
+    // readMeshes is pending. Re-checking after the await, rather than re-reading the globals,
+    // stops this operation from silently running under another request's session.
+    const session = configuredSession, hash = configuredHash;
+    const bytes = await readMeshes(message.generation, message.objects);
+    if (configuredSession !== session || configuredHash !== hash) {
+      throw new Error(`Configuration changed to ${configuredHash ?? 'none'} while ${message.configHash} was in flight`);
+    }
+    const transforms = new Float32Array(message.objects.length * 11);
+    message.objects.forEach((object, index) => transforms.set(object.transform, index * 11));
+    if (message.t === 'preparePlate') {
+      const result = preparePlate(module, session, bytes, transforms, message.operation);
+      post({ t: 'preparePlateResult', requestId: message.requestId, transforms: result as import('../viewer/transforms').EngineTransform[] });
+    } else {
+      const started = performance.now();
+      const gcode = sliceStlMulti(module, session, bytes, transforms, Int32Array.from(message.objects.map(object => object.extruderId)));
+      post({ t: 'sliceMultiResult', requestId: message.requestId, gcode, statistics: getLastStatistics(module, session),
+        sliceMs: performance.now() - started, peakHeapBytes: module.HEAPU8.buffer.byteLength }, [gcode]);
+    }
+  } else if (message.t === 'getStatistics') {
+    if (!configuredSession) throw new Error('No configured session');
+    post({ t: 'statisticsResult', requestId: message.requestId, statistics: getLastStatistics(module, configuredSession) });
+  } else {
+    post({ t: 'accepted', requestId: message.requestId, kind: 'cancel' });
   }
 }
 
@@ -91,12 +154,12 @@ self.addEventListener('message', async (event: MessageEvent<unknown>) => {
       try { await initialize(event.data.prefer, setStage); } finally { loading = false; }
     } else if (event.data.t === 'slice') {
       stage = 'slice';
-      if (!engine) throw new Error('Engine is not ready');
-      slice(engine, event.data.stl, setStage);
+      slice(requireEngine(), event.data.stl, setStage);
     } else {
-      const requestStage = event.data.t === 'preparePlate' ? 'prepare' :
-        event.data.t === 'getStatistics' ? 'statistics' : event.data.t === 'sliceMulti' ? 'slice' : event.data.t;
-      post({ t: 'requestError', requestId: event.data.requestId, stage: requestStage, message: 'Protocol v2 operation is not initialized' });
+      const requestStage = event.data.t === 'preparePlate' ? 'prepare' : event.data.t === 'getStatistics' ? 'statistics' :
+        event.data.t === 'sliceMulti' ? 'slice' : event.data.t === 'releaseMesh' ? 'mesh' : event.data.t;
+      try { await handleV2(event.data); }
+      catch (error) { post({ t: 'requestError', requestId: event.data.requestId, stage: requestStage, message: error instanceof Error ? error.message : String(error) }); }
     }
   } catch (error) {
     post({ t: 'error', stage, message: error instanceof Error ? error.message : String(error) });

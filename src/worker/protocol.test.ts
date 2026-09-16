@@ -58,6 +58,7 @@ const object = { meshId: 'mesh-1', transform: Float32Array.from([1, 1, 1, 0, 0, 
 it('guards v2 config, mesh and plate operation requests', () => {
   expect(isToWorker({ t: 'config', requestId: 'r1', configHash: 'sha256', nativeJson: '{}' })).toBe(true);
   expect(isToWorker({ t: 'mesh', requestId: 'r2', meshId: 'mesh-1', generation: 2, blob: new Blob(['stl']) })).toBe(true);
+  expect(isToWorker({ t: 'releaseMesh', requestId: 'r2b', meshId: 'mesh-1', generation: 2 })).toBe(true);
   expect(isToWorker({ t: 'sliceMulti', requestId: 'r3', configHash: 'sha256', generation: 2, objects: [object] })).toBe(true);
   expect(isToWorker({ t: 'preparePlate', requestId: 'r4', configHash: 'sha256', generation: 2, operation: 3, objects: [object] })).toBe(true);
   expect(isToWorker({ t: 'getStatistics', requestId: 'r5' })).toBe(true);

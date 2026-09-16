@@ -8,6 +8,7 @@ export type ToWorker =
   | { t: 'slice'; stl: ArrayBuffer; name: string }
   | { t: 'config'; requestId: string; configHash: string; nativeJson: string }
   | { t: 'mesh'; requestId: string; meshId: string; generation: number; blob: Blob }
+  | { t: 'releaseMesh'; requestId: string; meshId: string; generation: number }
   | { t: 'sliceMulti'; requestId: string; configHash: string; generation: number; objects: PlateObjectMessage[] }
   | { t: 'preparePlate'; requestId: string; configHash: string; generation: number; operation: 1 | 2 | 3; objects: PlateObjectMessage[] }
   | { t: 'getStatistics'; requestId: string }
@@ -19,7 +20,7 @@ export type FromWorker =
   | { t: 'progress'; pct: number; heapBytes: number; stage?: string }
   | { t: 'done'; gcode: ArrayBuffer; sliceMs: number; peakHeapBytes: number }
   | { t: 'error'; stage: 'load' | 'probe' | 'profile' | 'slice' | 'export'; message: string }
-  | { t: 'accepted'; requestId: string; kind: 'config' | 'mesh' | 'cancel'; generation?: number }
+  | { t: 'accepted'; requestId: string; kind: 'config' | 'mesh' | 'releaseMesh' | 'cancel'; generation?: number }
   | { t: 'sliceMultiResult'; requestId: string; gcode: ArrayBuffer; statistics: unknown; sliceMs: number; peakHeapBytes: number }
   | { t: 'preparePlateResult'; requestId: string; transforms: EngineTransform[] }
   | { t: 'statisticsResult'; requestId: string; statistics: unknown }
@@ -59,6 +60,7 @@ export function isToWorker(value: unknown): value is ToWorker {
   switch (value.t) {
     case 'config': return text(value.configHash) && typeof value.nativeJson === 'string';
     case 'mesh': return text(value.meshId) && integer(value.generation) && value.blob instanceof Blob;
+    case 'releaseMesh': return text(value.meshId) && integer(value.generation);
     case 'sliceMulti': return text(value.configHash) && integer(value.generation) && Array.isArray(value.objects) && value.objects.length > 0 && value.objects.every(object);
     case 'preparePlate': return text(value.configHash) && integer(value.generation) && (value.operation === 1 || value.operation === 2 || value.operation === 3) && Array.isArray(value.objects) && value.objects.length > 0 && value.objects.every(object);
     case 'getStatistics':
@@ -74,7 +76,7 @@ export function isFromWorker(value: unknown): value is FromWorker {
     case 'progress': return nonnegative(value.pct) && value.pct <= 100 && nonnegative(value.heapBytes) && (value.stage === undefined || typeof value.stage === 'string');
     case 'done': return value.gcode instanceof ArrayBuffer && nonnegative(value.sliceMs) && nonnegative(value.peakHeapBytes);
     case 'error': return typeof value.stage === 'string' && ['load', 'probe', 'profile', 'slice', 'export'].includes(value.stage) && typeof value.message === 'string';
-    case 'accepted': return text(value.requestId) && (value.kind === 'config' || value.kind === 'mesh' || value.kind === 'cancel') && (value.generation === undefined || integer(value.generation));
+    case 'accepted': return text(value.requestId) && ['config', 'mesh', 'releaseMesh', 'cancel'].includes(String(value.kind)) && (value.generation === undefined || integer(value.generation));
     case 'sliceMultiResult': return text(value.requestId) && value.gcode instanceof ArrayBuffer && nonnegative(value.sliceMs) && nonnegative(value.peakHeapBytes);
     case 'preparePlateResult': return text(value.requestId) && Array.isArray(value.transforms) && value.transforms.every(engineTransform);
     case 'statisticsResult': return text(value.requestId);
