@@ -35,6 +35,7 @@
     "@solidjs/testing-library": "^0.8.10",
     "@testing-library/jest-dom": "^7.0.1",
     "@types/node": "^22.20.3",
+    "@types/three": "0.178.1",
     "jsdom": "^28.1.0",
     "solid-js": "^1.9.15",
     "typescript": "^7.0.2",
@@ -44,6 +45,8 @@
     "wrangler": "^4.131.2"
   },
   "dependencies": {
-    "@solid-primitives/i18n": "^2.2.1"
+    "@solid-primitives/i18n": "^2.2.1",
+    "camera-controls": "2.10.1",
+    "three": "0.178.0"
   }
 }
