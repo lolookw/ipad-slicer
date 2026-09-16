@@ -36,6 +36,7 @@ export const es = {
   },
   viewer: {
     toolbar: 'Herramientas del objeto seleccionado',
+    deselect: 'Deseleccionar',
     layFlat: 'Apoyar en una cara',
     layFlatPending: 'Esta función se habilitará después de integrar el motor en la fase 7.',
     rotateX: 'Girar 90° en X',

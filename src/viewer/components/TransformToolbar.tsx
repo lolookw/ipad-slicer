@@ -7,6 +7,7 @@ import './viewer-components.css';
 
 export interface TransformToolbarLabels extends ScaleSheetLabels {
   toolbar: string;
+  deselect: string;
   layFlat: string;
   layFlatPending: string;
   rotateX: string;
@@ -28,6 +29,7 @@ export interface TransformToolbarProps {
   onDelete: () => void;
   onReset: () => void;
   onTransform: (transform: ObjectTransform) => void;
+  onDeselect: () => void;
 }
 
 export function TransformToolbar(props: TransformToolbarProps) {
@@ -43,6 +45,7 @@ export function TransformToolbar(props: TransformToolbarProps) {
       <Button variant="secondary" onClick={props.onDuplicate}>{props.labels.duplicate}</Button>
       <Button variant="danger" onClick={props.onDelete}>{props.labels.delete}</Button>
       <Button variant="secondary" onClick={props.onReset}>{props.labels.reset}</Button>
+      <Button variant="secondary" onClick={props.onDeselect} aria-label={props.labels.deselect}>✕</Button>
     </div>
     <ScaleSheet open={props.scaleOpen} object={object()} labels={props.labels} onClose={props.onScaleClose} onTransform={props.onTransform} />
   </>}</Show>;

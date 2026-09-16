@@ -5,7 +5,7 @@ import type { TransformToolbarLabels } from './TransformToolbar';
 import { PlateObjectToolbar } from './ViewerToolbarContainer';
 
 const labels: TransformToolbarLabels = {
-  toolbar: 'Object tools', layFlat: 'Lay flat', layFlatPending: 'Available after engine integration', rotateX: 'Rotate X', rotateY: 'Rotate Y',
+  toolbar: 'Object tools', deselect: 'Deselect', layFlat: 'Lay flat', layFlatPending: 'Available after engine integration', rotateX: 'Rotate X', rotateY: 'Rotate Y',
   scale: 'Scale', duplicate: 'Duplicate', delete: 'Delete', reset: 'Reset', title: 'Object size', close: 'Close', size: 'Largest dimension',
   unit: 'Size unit', suspicious: 'Suspicious size', multiply25_4: '×25.4', multiply1000: '×1000', divide10: '÷10', keep: 'Keep as entered', resize: 'Resize',
 };
@@ -51,6 +51,17 @@ it('changes the displayed unit without committing a transform', () => {
   expect(sizeInput().value).toBe('1');
   expect(update).not.toHaveBeenCalled();
   expect(plate.state.objects[0]!.transform.scale).toEqual(before);
+});
+
+it('deselects the object and hides the toolbar when the deselect button is pressed', () => {
+  plate.addObject(object('first'));
+  render(() => <PlateObjectToolbar labels={labels} />);
+
+  expect(screen.getByRole('toolbar', { name: 'Object tools' })).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Deselect' }));
+
+  expect(plate.state.selectedId).toBeUndefined();
+  expect(screen.queryByRole('toolbar', { name: 'Object tools' })).toBeNull();
 });
 
 describe.each([4, 2001])('when the committed largest dimension is %s mm', value => {

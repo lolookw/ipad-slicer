@@ -34,6 +34,7 @@ export const en = {
   },
   viewer: {
     toolbar: 'Selected object tools',
+    deselect: 'Deselect',
     layFlat: 'Lay flat',
     layFlatPending: 'Lay flat unlocks after engine integration in phase 7.',
     rotateX: 'Rotate 90° X',
