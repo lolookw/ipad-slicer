@@ -65,10 +65,12 @@ export function ConfigurationContainer() {
       const base = await response.json() as PrinterPack; if (base.schema !== 1 || base.id !== 'custom') throw new Error('Custom printer base is invalid.');
       const settings = customSettings(values); const pack = { ...base, id: `custom-${crypto.randomUUID()}`, model: values.name, nozzle: values.nozzle, machine: { ...base.machine, ...settings } };
       const [process, filament] = pack.combos[0] ?? []; if (!process || !filament) throw new Error('Custom printer base has no tested generic combination.');
-      const issues = validateSettings(mergeResolvedSettings(mergePackSelection(pack, process, filament)), { ...validationContext(base), nozzleDiameter: values.nozzle });
+      // Validate against THIS draft's own filament, not whatever the live UI happens to have selected.
+      const issues = validateSettings(mergeResolvedSettings(mergePackSelection(pack, process, filament)), { ...validationContext(base, filament), nozzleDiameter: values.nozzle });
       if (hasBlockingIssues(issues)) throw new Error(issues.map(issue => issue.message).join(' '));
       const repository = await PresetRepository.open();
-      await repository.saveCustomPrinter({ id: pack.id, name: values.name, baseId: 'custom', settings, updatedAt: Date.now() }); repository.close();
+      try { await repository.saveCustomPrinter({ id: pack.id, name: values.name, baseId: 'custom', settings, updatedAt: Date.now() }); }
+      finally { repository.close(); }
       configuration.useCustomPrinter(pack.id, values.name, pack); configuration.notice.set(t('configuration.customSaved'));
     } catch (error) { configuration.error.set(error instanceof Error ? error.message : String(error)); configuration.errorKind.set('invalidCustom'); }
   };
@@ -76,10 +78,15 @@ export function ConfigurationContainer() {
     try {
       const pack = configuration.pack.get(); if (!pack) throw new Error(t('configuration.selectPrinterFirst'));
       const repository = await PresetRepository.open();
-      const result = await importPresetBundle(json, repository, {
-        isCompatible: preset => preset.printerId === configuration.printerId.get() && pack.combos.some(([process, filament]) => process === preset.processId && filament === preset.filamentId),
-        validate: preset => validateSettings({ ...mergeResolvedSettings(mergePackSelection(pack, preset.processId, preset.filamentId)), ...preset.overrides }, validationContext(pack)),
-      }); repository.close();
+      let result: Awaited<ReturnType<typeof importPresetBundle>>;
+      try {
+        result = await importPresetBundle(json, repository, {
+          isCompatible: preset => preset.printerId === configuration.printerId.get() && pack.combos.some(([process, filament]) => process === preset.processId && filament === preset.filamentId),
+          // isCompatible already confirmed preset.filamentId is one of this pack's real, catalog-verified
+          // filaments, so validating against that exact filament (not the live selection) is always safe here.
+          validate: preset => validateSettings({ ...mergeResolvedSettings(mergePackSelection(pack, preset.processId, preset.filamentId)), ...preset.overrides }, validationContext(pack, preset.filamentId)),
+        });
+      } finally { repository.close(); }
       const preset = result.presets[0]!; configuration.filamentId.set(preset.filamentId); configuration.processId.set(preset.processId);
       configuration.overrides.set(Object.fromEntries(Object.entries(preset.overrides).filter(([key]) => key in SETTINGS).map(([key, value]) => [key, decodeNative(SETTINGS[key as SettingKey], value)])));
       configuration.notice.set(result.notices.length ? t('configuration.importedWithNotices') : t('configuration.imported')); configuration.error.set(undefined); configuration.errorKind.set(undefined);

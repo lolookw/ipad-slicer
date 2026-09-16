@@ -22,8 +22,12 @@ function number(settings: NativeSettings, key: string, fallback: number): number
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-export function validationContext(pack: PrinterPack): ValidationContext {
-  const filament = pack.filaments.find(item => item.id === configuration.filamentId.get());
+// filamentId defaults to the currently selected filament, but a caller validating a specific
+// profile (an imported preset, a custom-printer draft) MUST pass that profile's own filament id
+// explicitly — falling back to whatever happens to be selected in the live UI (or to nothing,
+// which widens the safe range to a generic default) would validate against the wrong material.
+export function validationContext(pack: PrinterPack, filamentId?: string): ValidationContext {
+  const filament = pack.filaments.find(item => item.id === (filamentId ?? configuration.filamentId.get()));
   const settings = filament?.settings ?? {};
   return {
     nozzleDiameter: pack.nozzle,
@@ -96,7 +100,7 @@ export function resolvedSettings() {
 }
 export function settingsIssues() {
   const pack = configuration.pack.get(); const settings = resolvedSettings();
-  return pack && settings ? validateSettings(settings, validationContext(pack)) : [];
+  return pack && settings ? validateSettings(settings, validationContext(pack, configuration.filamentId.get())) : [];
 }
 
 export function resetConfiguration(): void {
