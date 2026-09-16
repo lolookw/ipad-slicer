@@ -32,8 +32,22 @@ export const en = {
     full: 'Full',
     activeTier: 'Active tier',
   },
+  settings: {
+    layerHeight: { label: 'Layer height' }, initialLayerHeight: { label: 'Initial layer height' },
+    wallLoops: { label: 'Walls' }, topLayers: { label: 'Top layers' }, bottomLayers: { label: 'Bottom layers' },
+    infillDensity: { label: 'Infill density' }, infillPattern: { label: 'Infill pattern' }, supports: { label: 'Supports' },
+    supportType: { label: 'Support type' }, supportAngle: { label: 'Support angle' }, buildPlateOnly: { label: 'Build plate only' },
+    brimType: { label: 'Brim type' }, brimWidth: { label: 'Brim width' }, bedType: { label: 'Build plate' },
+    nozzleTemperature: { label: 'Nozzle temperature' }, initialNozzleTemperature: { label: 'Initial nozzle temperature' },
+    bedTemperature: { label: 'Bed temperature' }, initialBedTemperature: { label: 'Initial bed temperature' },
+    nozzleDiameter: { label: 'Nozzle diameter' }, printableHeight: { label: 'Printable height' }, printableArea: { label: 'Printable area' },
+    outerWallSpeed: { label: 'Outer wall speed' }, innerWallSpeed: { label: 'Inner wall speed' }, infillSpeed: { label: 'Infill speed' },
+    travelSpeed: { label: 'Travel speed' }, initialLayerSpeed: { label: 'Initial layer speed' }, relativeExtrusion: { label: 'Relative extrusion' },
+    ironingType: { label: 'Ironing' }, seamPosition: { label: 'Seam position' }, fuzzySkin: { label: 'Fuzzy skin' },
+    gcodeFlavor: { label: 'G-code flavor' }, beforeLayerGcode: { label: 'Before-layer G-code' }, layerChangeGcode: { label: 'Layer-change G-code' },
+    startGcode: { label: 'Start G-code' }, endGcode: { label: 'End G-code' }, filamentCost: { label: 'Filament cost' }, filamentDensity: { label: 'Filament density' },
+  },
 } as const;
 
 type WidenStrings<T> = T extends string ? string : { readonly [K in keyof T]: WidenStrings<T[K]> };
 export type Dictionary = WidenStrings<typeof en>;
-

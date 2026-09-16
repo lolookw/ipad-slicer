@@ -1,9 +1,10 @@
-import { createContext, createEffect, createMemo, createSignal, onCleanup, useContext, type JSX } from 'solid-js';
+import { createContext, createEffect, createMemo, createSignal, onCleanup, onMount, useContext, type JSX } from 'solid-js';
 import { createI18n, LOCALE_STORAGE_KEY, resolveLocale, type Locale } from '../i18n';
 import { binaries, engine, flow, prefs, reachableSteps, type Step } from './stores';
 import { browserThemeEnvironment, createThemeController, resolveTheme, THEME_STORAGE_KEY, type Theme } from './theme';
 import { decideTier, resolveTier, TIER_STORAGE_KEY } from './tier/decide';
 import { browserTierSignals, type TierSignals } from './tier/signals';
+import { openSettingsDatabase } from '../storage/db';
 
 /** iPad regular width (sidebar + canvas) versus compact width (stacked with sheets). */
 const REGULAR_WIDTH = '(min-width: 700px)';
@@ -40,6 +41,7 @@ function createAppValue() {
   });
   createEffect(() => themeController?.apply(prefs.theme.get()));
   createEffect(() => storage?.setItem(TIER_STORAGE_KEY, prefs.tier.get()));
+  onMount(() => { void openSettingsDatabase().then(database => database.close()).catch(() => undefined); });
   onCleanup(() => themeController?.dispose());
 
   return {

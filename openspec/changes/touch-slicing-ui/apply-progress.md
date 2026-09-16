@@ -122,3 +122,24 @@ Status: done in Standard mode (`strict_tdd: false`). Tasks 3.2–3.5 and 3.7 com
 - Delivery boundary: auto-chain, stacked-to-main PR2 completion on top of commit `2558ac9`. Authored implementation/test/config/docs remain below the 800-line standing limit; generated catalog JSON and the generated provenance lock are excluded from authored count but included in the delivered snapshot.
 - Deviations: selected compatible models changed from the first local candidates based on upstream evidence; this stays within the designed curated-subset scope. No compatibility expression evaluator was added.
 - Remaining PR2 work: none. Parent should perform independent SDD verification before any commit or push.
+
+## Slice 3a — Settings domain and preset storage (Codex, 2026-09-15)
+
+- Status: success; Standard mode (`strict_tdd: false`); tasks 4.1–4.7 complete.
+- Added the OrcaSlicer 2.4.2-pinned settings schema, native codec, resolved-preset merge/reset, bed/adhesion virtual controls, cross-field validation, and a quality ladder that exposes only shipped smoke-tested combinations.
+- Added IndexedDB `ipad-slicer` v1 with `presets`, `printers`, and `ui` stores; pure v0→v1 override migration; atomic preset activation; and hardened JSON transfer with a 1 MB cap, null-prototype objects, prototype-key/macro defenses, regenerated ids, allow-list notices, fatal obsolete-key rejection, and compatibility/validation gates.
+- The application opens the production database schema on mount. The WebKit fixture uses browser IndexedDB directly after this initialization, with no test-only controls or globals in production code.
+
+### Work Unit Evidence
+
+| Evidence | Observed result |
+|---|---|
+| Threat-matrix RED | Before production modules existed, `npm.cmd exec -- vitest run src/settings src/storage` failed both suites on missing settings/storage imports. The import suite already enumerated malformed JSON, >1 MB, format/version, prototype keys, oversized strings, obsolete keys, unknown-key notices, regenerated ids, unavailable dependencies, and validation-before-write cases. |
+| Focused test | `npm.cmd exec -- vitest run src/settings src/storage`: exit 0; 2 files / 20 tests passed. |
+| Runtime harness | With `node scripts/serve-dist.mjs 4175` serving the production build, `npm.cmd exec -- playwright test tests/e2e/shell.spec.ts --project=ipad-webkit --grep "IndexedDB presets"`: exit 0; 1/1 passed. It created a preset and custom printer on the app-created v1 schema, reloaded, restored both, and completed a JSON round trip. |
+| Full regression | `npm.cmd test`: exit 0; 19 files / 183 tests passed. `npm.cmd run typecheck`: exit 0. `npm.cmd run build`: exit 0, including cached engine and six-pack/63-combination catalog verification. Full `shell.spec.ts`: exit 0; 18/18 WebKit portrait/landscape scenarios passed. |
+| Rollback boundary | Remove `src/settings/**` and `src/storage/**`; revert only the settings labels, the database initialization in `AppProvider`, the IndexedDB scenario in `tests/e2e/shell.spec.ts`, these seven checkboxes, and this progress section. Catalog and prior shell/i18n behavior remain intact. |
+
+- Delivery boundary: auto-chain, stacked-to-main PR3a on top of the completed PR2 work; 666 authored implementation/test/task-check lines before this SDD record (687 including this record), within the standing 800-line limit.
+- Design resolution: the requirements/tasks override the older design shorthand that proposed synthesizing missing quality rungs; absent smoke-tested rungs remain unavailable. Native IndexedDB wrappers are used instead of adding the `idb` package because this authorized unit prohibited installs; the designed database name, version, stores, migration, and transaction semantics are unchanged.
+- Issues/handoff: no catalog contract was weakened. PR3b may consume the exported schema, validators, repository, and transfer functions; it must provide the selected printer/material safety context when validating a merged profile.

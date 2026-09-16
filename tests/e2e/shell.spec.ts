@@ -58,3 +58,52 @@ test('the spike harness is still reachable until slice 5b', async ({ page }) => 
   await page.goto('/harness.html');
   await expect(page.locator('#engine-status')).toBeVisible();
 });
+
+test('IndexedDB presets survive reload and a JSON round trip', async ({ page }) => {
+  await page.goto('/');
+  const fixture = {
+    id: 'persisted', name: 'Persistent PLA', kind: 'custom', printerId: 'user-printer', baseId: 'custom',
+    processId: 'standard', filamentId: 'pla', overrides: { brim_width: '5' }, schemaVersion: 1, updatedAt: 1,
+  };
+  await page.evaluate(async preset => {
+    const database = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('ipad-slicer', 1);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const transaction = database.transaction(['presets', 'printers', 'ui'], 'readwrite');
+    transaction.objectStore('presets').put(preset);
+    transaction.objectStore('printers').put({ id: 'user-printer', name: 'User printer', baseId: 'custom', settings: {}, updatedAt: 1 });
+    transaction.objectStore('ui').put({ key: 'activePresetId', value: preset.id });
+    await new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+    database.close();
+  }, fixture);
+
+  await page.reload();
+  const restored = await page.evaluate(async () => {
+    const database = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('ipad-slicer', 1);
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const transaction = database.transaction(['presets', 'printers'], 'readonly');
+    const request = transaction.objectStore('presets').get('persisted');
+    const printerRequest = transaction.objectStore('printers').get('user-printer');
+    const preset = await new Promise<Record<string, unknown>>((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result as Record<string, unknown>);
+      request.onerror = () => reject(request.error);
+    });
+    const printer = await new Promise<Record<string, unknown>>((resolve, reject) => {
+      printerRequest.onsuccess = () => resolve(printerRequest.result as Record<string, unknown>);
+      printerRequest.onerror = () => reject(printerRequest.error);
+    });
+    database.close();
+    const bundle = JSON.stringify({ format: 'ipad-slicer.presets', version: 1, exportedAt: new Date(0).toISOString(), presets: [preset] });
+    return { preset: (JSON.parse(bundle) as { presets: unknown[] }).presets[0], customBaseId: printer.baseId };
+  });
+  expect(restored.preset).toMatchObject(fixture);
+  expect(restored.customBaseId).toBe('custom');
+});
