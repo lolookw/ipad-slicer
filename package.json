@@ -36,5 +36,8 @@
     "vite-plugin-solid": "^2.11.14",
     "vitest": "^5.0.0",
     "wrangler": "^4.131.2"
+  },
+  "dependencies": {
+    "@solid-primitives/i18n": "^2.2.1"
   }
 }

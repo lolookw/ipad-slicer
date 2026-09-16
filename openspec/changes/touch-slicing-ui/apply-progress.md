@@ -47,3 +47,28 @@ Deviations and notes:
 - Installing `@types/node` made an `@ts-expect-error` in `src/engine/stream-loader.test.ts` unused; it was removed.
 - New dev dependencies: solid-js, vite-plugin-solid, jsdom, @solidjs/testing-library, @testing-library/jest-dom, @types/node, @playwright/test.
 - Playwright artifacts (`test-results/`, `playwright-report/`) added to `.gitignore`.
+
+## Slice 1b — Localization, theme, and adaptive tiers (Codex, 2026-09-15)
+
+Status: done in Standard mode (`strict_tdd: false`). Tasks 2.1–2.5 are complete; human calibration task 2.6 remains open.
+
+- 2.1: Added typed English and Spanish dictionaries through `@solid-primitives/i18n`, a lazy Spanish chunk, stored-preference/browser-language fallback, dictionary parity checks, and locale-aware number formatting.
+- 2.2: Added system/light/dark persistence, an inline first-paint bootstrap in `index.html`, live system-theme response, and token-backed shell colors.
+- 2.3: Added UA-independent WebGL2/texture/core/WebGPU/pointer/viewport/crash signals, provisional Full eligibility, tier budgets, and thread selection that remains independently probe-gated.
+- 2.4: Wired Language, Appearance, and Performance selectors through `AppProvider`; all current shell labels, errors, and accessibility text translate live while the raw engine state remains in a code element.
+- 2.5: Extended component and WebKit coverage for ES reload persistence, live error translation, first-paint dark mode, forced Full fallback, and 44×44 controls in portrait and landscape.
+
+### Work Unit Evidence
+
+| Evidence | Observed result |
+|---|---|
+| Focused test | `npm.cmd exec -- vitest run src/i18n src/app/tier src/app/theme.test.ts src/app/app.test.tsx`: exit 0, 4 files / 22 tests passed. |
+| Regression test | `npm.cmd test`: exit 0, 14 files / 152 tests passed. |
+| Typecheck and build | `npm.cmd run typecheck`: exit 0. `npm.cmd run build`: exit 0; Spanish emitted as a separate `es-*.js` chunk. |
+| Runtime harness | Start `node scripts/serve-dist.mjs 4175`, then `npm.cmd exec -- playwright test tests/e2e/shell.spec.ts`: exit 0, 16/16 passed across `ipad-webkit` portrait and `ipad-webkit-landscape`; real HTTP isolation headers remained active. |
+| Rollback boundary | Revert `src/i18n/**`, `src/app/theme*`, `src/app/tier/**`, the preference wiring/styles/tests in `src/app/**`, `index.html`, the i18n dependency/lockfile, and the added shell E2E scenarios. Slice 1a shell behavior remains intact. |
+
+- Authored implementation/test/config count: 577 additions + deletions, excluding the generated lockfile, within the standing ≤800-line single-PR rule. The OpenSpec checkbox/progress edits are audit artifacts outside that implementation count.
+- Delivery boundary: auto-chain, stacked-to-main PR 1b; one cohesive preference/adaptive-shell work unit. No commit, branch, push, deployment, or remote operation was performed.
+- Deviations: none from the design or app-shell contract. The Full thresholds remain explicitly provisional and require task 2.6 physical-device calibration.
+- Harness note: when Playwright owns the Windows child server in this sandbox, all tests finish but child teardown can hang. Starting the same repository server explicitly makes Playwright reuse it and exit cleanly; the final recorded run used that equivalent real-header path and returned exit 0.

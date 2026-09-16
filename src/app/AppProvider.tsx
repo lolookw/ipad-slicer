@@ -1,5 +1,9 @@
-import { createContext, createSignal, onCleanup, useContext, type JSX } from 'solid-js';
+import { createContext, createEffect, createMemo, createSignal, onCleanup, useContext, type JSX } from 'solid-js';
+import { createI18n, LOCALE_STORAGE_KEY, resolveLocale, type Locale } from '../i18n';
 import { binaries, engine, flow, prefs, reachableSteps, type Step } from './stores';
+import { browserThemeEnvironment, createThemeController, resolveTheme, THEME_STORAGE_KEY, type Theme } from './theme';
+import { decideTier, resolveTier, TIER_STORAGE_KEY } from './tier/decide';
+import { browserTierSignals, type TierSignals } from './tier/signals';
 
 /** iPad regular width (sidebar + canvas) versus compact width (stacked with sheets). */
 const REGULAR_WIDTH = '(min-width: 700px)';
@@ -17,12 +21,37 @@ function createLayoutSignal() {
 
 function createAppValue() {
   const isRegular = createLayoutSignal();
+  const storage = typeof localStorage === 'undefined' ? undefined : localStorage;
+  const languages = typeof navigator === 'undefined' ? [] : navigator.languages;
+  prefs.locale.set(resolveLocale(storage?.getItem(LOCALE_STORAGE_KEY) ?? null, languages));
+  prefs.theme.set(resolveTheme(storage?.getItem(THEME_STORAGE_KEY) ?? null));
+  prefs.tier.set(resolveTier(storage?.getItem(TIER_STORAGE_KEY) ?? null));
+
+  const i18n = createI18n(prefs.locale.get);
+  const themeEnvironment = browserThemeEnvironment();
+  const themeController = themeEnvironment ? createThemeController(themeEnvironment) : undefined;
+  const [tierSignals] = createSignal<TierSignals>(browserTierSignals());
+  const tierDecision = createMemo(() => decideTier(prefs.tier.get(), tierSignals()));
+
+  createEffect(() => {
+    const locale = prefs.locale.get();
+    storage?.setItem(LOCALE_STORAGE_KEY, locale);
+    if (typeof document !== 'undefined') document.documentElement.lang = locale;
+  });
+  createEffect(() => themeController?.apply(prefs.theme.get()));
+  createEffect(() => storage?.setItem(TIER_STORAGE_KEY, prefs.tier.get()));
+  onCleanup(() => themeController?.dispose());
+
   return {
     prefs,
     flow,
     engine,
     binaries,
     isRegular,
+    t: i18n.t,
+    tierDecision,
+    setLocale(locale: Locale): void { prefs.locale.set(locale); },
+    setTheme(theme: Theme): void { prefs.theme.set(theme); },
     reachableSteps,
     /** Navigation is refused for steps the flow has not unlocked yet. */
     goTo(step: Step): boolean {

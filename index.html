@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="system">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -8,6 +8,19 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/icon.svg" />
     <title>iPad Slicer</title>
+    <script>
+      (() => {
+        const key = 'ipad-slicer:theme';
+        let theme = 'system';
+        try {
+          const stored = localStorage.getItem(key);
+          if (stored === 'light' || stored === 'dark' || stored === 'system') theme = stored;
+        } catch {}
+        const dark = theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.dataset.colorScheme = dark ? 'dark' : 'light';
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

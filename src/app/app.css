@@ -7,6 +7,8 @@
 body {
   margin: 0;
   font-family: -apple-system, system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 .layout {
@@ -43,9 +45,37 @@ body {
   padding: 0 1rem;
   border-radius: 0.75rem;
   border: 1px solid currentColor;
-  background: transparent;
+  background: var(--color-surface);
+  color: var(--color-text);
   font: inherit;
 }
+
+.preferences {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.preferences label {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.preferences select {
+  box-sizing: border-box;
+  min-height: var(--touch-target-min);
+  padding: 0 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.configuration-error { color: var(--color-danger); }
+.active-tier { color: var(--color-muted); }
 
 .step[aria-current='step'] {
   font-weight: 600;
