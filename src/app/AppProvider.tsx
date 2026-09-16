@@ -1,10 +1,16 @@
-import { createContext, createEffect, createMemo, createSignal, onCleanup, onMount, useContext, type JSX } from 'solid-js';
+import { createContext, createEffect, createMemo, createSignal, on, onCleanup, onMount, useContext, type JSX } from 'solid-js';
 import { createI18n, LOCALE_STORAGE_KEY, resolveLocale, type Locale } from '../i18n';
-import { binaries, configuration, engine, flow, prefs, reachableSteps, type Step } from './stores';
+import { binaries, configuration, engine, flow, prefs, reachableSteps, resolvedSettings, result, settingsIssues, type Step } from './stores';
+import { sliceInputFingerprint } from './stores/result';
 import { browserThemeEnvironment, createThemeController, resolveTheme, THEME_STORAGE_KEY, type Theme } from './theme';
 import { decideTier, resolveTier, TIER_STORAGE_KEY } from './tier/decide';
-import { browserTierSignals, type TierSignals } from './tier/signals';
+import { browserTierSignals, CRASH_MARKER_STORAGE_KEY, type TierSignals } from './tier/signals';
 import { openSettingsDatabase } from '../storage/db';
+import { hasBlockingIssues } from '../settings/validate';
+import { plate } from './stores/plate';
+import { encodeEngineTransforms, toEngineTransform } from '../viewer/transforms';
+import { engineClient } from '../engine/client';
+import { summarizeSlice } from '../slice/summary';
 
 /** iPad regular width (sidebar + canvas) versus compact width (stacked with sheets). */
 const REGULAR_WIDTH = '(min-width: 700px)';
@@ -31,8 +37,12 @@ function createAppValue() {
   const i18n = createI18n(prefs.locale.get);
   const themeEnvironment = browserThemeEnvironment();
   const themeController = themeEnvironment ? createThemeController(themeEnvironment) : undefined;
-  const [tierSignals] = createSignal<TierSignals>(browserTierSignals());
-  const tierDecision = createMemo(() => decideTier(prefs.tier.get(), tierSignals()));
+  const [initialTierSignals] = createSignal<TierSignals>(browserTierSignals());
+  const tierDecision = createMemo(() => {
+    engine.state.get(); engine.variant.get();
+    const crashMarker = storage?.getItem(CRASH_MARKER_STORAGE_KEY) === '1';
+    return decideTier(prefs.tier.get(), { ...initialTierSignals(), crashMarker });
+  });
 
   createEffect(() => {
     const locale = prefs.locale.get();
@@ -41,6 +51,8 @@ function createAppValue() {
   });
   createEffect(() => themeController?.apply(prefs.theme.get()));
   createEffect(() => storage?.setItem(TIER_STORAGE_KEY, prefs.tier.get()));
+  createEffect(on(() => sliceInputFingerprint(resolvedSettings(), plate.state.objects),
+    () => result.markStale(), { defer: true }));
   onMount(() => {
     void openSettingsDatabase().then(database => database.close()).catch(() => undefined);
     void configuration.loadIndex();
@@ -53,11 +65,35 @@ function createAppValue() {
     engine,
     binaries,
     configuration,
+    result,
     isRegular,
     t: i18n.t,
     tierDecision,
     setLocale(locale: Locale): void { prefs.locale.set(locale); },
     setTheme(theme: Theme): void { prefs.theme.set(theme); },
+    async startSlice(): Promise<void> {
+      const settings = resolvedSettings(); const issues = settingsIssues();
+      if (!settings || hasBlockingIssues(issues) || !plate.state.objects.length) return;
+      const attempt = result.start(); binaries.deleteResult('current'); flow.hasResult.set(false); engine.state.set('slicing'); engine.message.set(undefined);
+      const objects = plate.state.objects.map(object => ({ meshId: object.id,
+        transform: encodeEngineTransforms([toEngineTransform(object.transform)]), extruderId: 1 }));
+      try {
+        const sliced = await engineClient.slice(JSON.stringify(settings), objects);
+        if (!sliced) { result.finishedPrevious(); if (result.state.attempt === attempt) engine.state.set('idle'); return; }
+        const nativePrice = settings.filament_cost; const price = Number(Array.isArray(nativePrice) ? nativePrice[0] : nativePrice);
+        const summary = summarizeSlice(sliced.gcode, sliced.statistics, settings, Number.isFinite(price) ? price : undefined, prefs.currency.get());
+        binaries.putResult('current', sliced.gcode); result.succeed(attempt, summary, { variant: sliced.variant, loadMs: sliced.loadMs,
+          sliceMs: sliced.sliceMs, peakHeapBytes: sliced.peakHeapBytes, at: Date.now() });
+        flow.hasResult.set(true); engine.state.set('ready'); engine.variant.set(sliced.variant); flow.step.set('preview');
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        result.fail(attempt, message); flow.hasResult.set(false); engine.state.set('error'); engine.message.set(message);
+      }
+    },
+    cancelSlice(): void {
+      const canceled = engineClient.cancelSlice(); result.cancel(canceled.finishingPreviousSlice);
+      binaries.deleteResult('current'); flow.hasResult.set(false); engine.state.set('idle');
+    },
     reachableSteps,
     /** Navigation is refused for steps the flow has not unlocked yet. */
     goTo(step: Step): boolean {

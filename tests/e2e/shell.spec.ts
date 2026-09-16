@@ -230,7 +230,7 @@ test('two imported objects round-trip through real engine orient and arrange', a
 
 test('prepare failure preserves every prior object transform', async ({ page }) => {
   test.setTimeout(60_000);
-  await page.route('**/engine/wasm-v2.4.2-patch19/st/**', route => route.abort('failed'));
+  await page.route('**/engine/wasm-v2.4.2-patch19*/**', route => route.abort('failed'));
   await page.goto('/'); await configureEngine(page);
   await importStl(page, 'failure-a.stl', binaryBoxStl());
   await importStl(page, 'failure-b.stl', binaryBoxStl());
@@ -239,4 +239,22 @@ test('prepare failure preserves every prior object transform', async ({ page }) 
   await page.getByRole('button', { name: 'Orient and arrange' }).click();
   await expect(page.locator('.configuration-ui p[role="status"]')).toContainText(/failed|error|fetch|engine/i, { timeout: 20_000 });
   expect(await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')))).toEqual(before);
+});
+
+test('a configured imported plate completes a real multi-object slice', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto('/'); await configureEngine(page); await importStl(page, 'slice-round-trip.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Slice', exact: true }).click();
+  await expect(page.getByTestId('slice-result')).toContainText('Slice complete', { timeout: 45_000 });
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeEnabled();
+});
+
+test('canceling an active slice never unlocks a stale result', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto('/'); await configureEngine(page); await importStl(page, 'cancel-slice.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Slice', exact: true }).click();
+  const cancel = page.getByRole('button', { name: 'Cancel slice', exact: true });
+  await expect(cancel).toBeVisible(); await cancel.click();
+  await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled();
+  await expect(page.getByTestId('slice-result')).toHaveCount(0);
 });

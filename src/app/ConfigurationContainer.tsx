@@ -107,7 +107,11 @@ export function ConfigurationContainer() {
           error => configuration.notice.set(error instanceof Error ? error.message : String(error)))} />
     </div>
     <Show when={settingsIssues().length}><ul class="validation-errors" role="alert">{settingsIssues().map(issue => <li>{t('configuration.invalidSetting')}: <code>{issue.key}</code></li>)}</ul></Show>
-    <button class="ui-target slice-action" type="button" disabled={!app.flow.hasModel.get() || !resolvedSettings() || hasBlockingIssues(settingsIssues())}>{t('configuration.slice')}</button>
+    <button class="ui-target slice-action" type="button" disabled={app.engine.state.get() !== 'slicing' && (!app.flow.hasModel.get() || !resolvedSettings() || hasBlockingIssues(settingsIssues()))}
+      onClick={() => app.engine.state.get() === 'slicing' ? app.cancelSlice() : void app.startSlice()}>
+      {t(app.engine.state.get() === 'slicing' ? 'configuration.cancel' : 'configuration.slice')}
+    </button>
+    <Show when={app.result.state.finishingPreviousSlice}><p role="status">{t('configuration.finishing')}</p></Show>
     <Show when={configuration.notice.get()}><p role="status">{configuration.notice.get()}</p></Show>
     <details><summary>{t('configuration.custom.heading')}</summary><CustomPrinterForm labels={{ heading: t('configuration.custom.heading'), name: t('configuration.custom.name'), width: t('configuration.custom.width'), depth: t('configuration.custom.depth'), height: t('configuration.custom.height'), nozzle: t('configuration.custom.nozzle'), flavor: t('configuration.custom.flavor'), start: t('configuration.custom.start'), end: t('configuration.custom.end'), heated: t('configuration.custom.heated'), save: t('configuration.custom.save'), disclaimer: t('configuration.notSmokeTested') }} onSubmit={makeCustom} /></details>
     <details><summary>{t('configuration.presets.heading')}</summary><PresetTransfer labels={{ heading: t('configuration.presets.heading'), json: t('configuration.presets.json'), import: t('configuration.presets.import'), export: t('configuration.presets.export') }} onImport={importPresets} onExport={exportPreset} /></details>

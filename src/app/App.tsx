@@ -56,6 +56,9 @@ function StepPane(): JSX.Element {
       </Show>
       <Show when={app.flow.step.get() === 'preview'}>
         <p>{app.t('panes.preview')}</p>
+        <Show when={app.result.state.status === 'success'}>
+          <output data-testid="slice-result">{app.t('configuration.sliceComplete')}: {app.result.state.summary?.layerCount ?? 0}</output>
+        </Show>
       </Show>
       <Show when={app.flow.step.get() === 'save'}>
         <p>{app.t('panes.save')}</p>

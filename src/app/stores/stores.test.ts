@@ -1,10 +1,17 @@
 import { beforeEach, expect, it } from 'vitest';
 import { binaries, flow, reachableSteps } from './index';
+import { sliceInputFingerprint } from './result';
 
 beforeEach(() => {
   flow.hasModel.set(false);
   flow.hasResult.set(false);
   binaries.clear();
+});
+
+it('includes mesh identity when detecting stale slice inputs', () => {
+  const transform = { position: [0, 0, 0] };
+  expect(sliceInputFingerprint({}, [{ id: 'mesh-a', transform }]))
+    .not.toBe(sliceInputFingerprint({}, [{ id: 'mesh-b', transform }]));
 });
 
 it('unlocks steps only as the flow progresses', () => {

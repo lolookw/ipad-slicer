@@ -24,6 +24,7 @@ export const prefs = {
   locale: signal<'en' | 'es'>('en'),
   theme: signal<'system' | 'light' | 'dark'>('system'),
   tier: signal<Tier>('auto'),
+  currency: signal('USD'),
 };
 
 /** Where the user is in the guided flow, and which steps are reachable. */
@@ -57,6 +58,7 @@ export const binaries = {
   getResult(id: string): ArrayBuffer | undefined {
     return results.get(id);
   },
+  deleteResult(id: string): void { results.delete(id); },
   /** Frees a model and its slice output together, so nothing outlives the plate entry. */
   release(id: string): void {
     meshes.delete(id);
@@ -80,3 +82,4 @@ export function reachableSteps(): Step[] {
 }
 
 export * from './configuration';
+export { result } from './result';

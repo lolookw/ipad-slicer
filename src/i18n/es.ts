@@ -62,7 +62,7 @@ export const es = {
     draft: 'Borrador', standard: 'Estándar', fine: 'Fina', simple: 'Simple', advanced: 'Avanzado', arrange: 'Orientar y organizar',
     arrangePending: 'Orientar y organizar estará disponible después de importar un modelo.', estimates: 'Tiempo, filamento y costo estimados', reset: 'Restablecer al preset',
     plateWide: 'Los ajustes de soporte y borde se aplican a toda la placa. Los controles por objeto no están disponibles.', notSmokeTested: 'Impresora del usuario — sin prueba de humo individual',
-    slice: 'Laminar', incomplete: 'Seleccione una impresora, un filamento y una calidad compatibles antes de laminar.', invalidSetting: 'Ajuste inválido', selectPrinterFirst: 'Seleccione una impresora antes de importar un preset.',
+    slice: 'Laminar', cancel: 'Cancelar laminado', finishing: 'Finalizando el laminado anterior', sliceComplete: 'Laminado completo (capas)', incomplete: 'Seleccione una impresora, un filamento y una calidad compatibles antes de laminar.', invalidSetting: 'Ajuste inválido', selectPrinterFirst: 'Seleccione una impresora antes de importar un preset.',
     profileUnavailable: 'El perfil de la impresora no está disponible. Inténtelo nuevamente.', invalidCustom: 'La impresora personalizada no es válida y no se guardó.', invalidImport: 'No se pudo importar el preset; se conservaron los ajustes actuales.',
     imported: 'Preset importado.', importedWithNotices: 'Preset importado. Se omitieron los ajustes no compatibles.', customSaved: 'Impresora personalizada guardada. Seleccione un filamento y una calidad compatibles para continuar.',
     categories: { quality: 'Calidad', strength: 'Resistencia', speed: 'Velocidad', support: 'Soporte', others: 'Otros' },
