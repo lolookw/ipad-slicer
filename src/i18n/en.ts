@@ -32,6 +32,18 @@ export const en = {
     full: 'Full',
     activeTier: 'Active tier',
   },
+  configuration: {
+    search: 'Search printers', printer: 'Printer', filament: 'Filament', quality: 'Quality', loading: 'Loading printer…', unavailable: 'Unavailable',
+    draft: 'Draft', standard: 'Standard', fine: 'Fine', simple: 'Simple', advanced: 'Advanced', arrange: 'Orient and arrange',
+    arrangePending: 'Orient and arrange becomes available after importing a model.', estimates: 'Estimated time, filament and cost', reset: 'Reset to preset',
+    plateWide: 'Support and brim settings apply to the whole plate. Per-object controls are not available.', notSmokeTested: 'User printer — not individually smoke-tested',
+    slice: 'Slice', incomplete: 'Choose a compatible printer, filament and quality before slicing.', invalidSetting: 'Invalid setting', selectPrinterFirst: 'Select a printer before importing a preset.',
+    profileUnavailable: 'The printer profile is unavailable. Try again.', invalidCustom: 'The custom printer is invalid and was not saved.', invalidImport: 'The preset could not be imported; current settings were kept.',
+    imported: 'Preset imported.', importedWithNotices: 'Preset imported. Unsupported settings were omitted.', customSaved: 'Custom printer saved. Choose a compatible filament and quality to continue.',
+    categories: { quality: 'Quality', strength: 'Strength', speed: 'Speed', support: 'Support', others: 'Others' },
+    custom: { heading: 'Custom printer', name: 'Name', width: 'Bed width (mm)', depth: 'Bed depth (mm)', height: 'Printable height (mm)', nozzle: 'Nozzle diameter (mm)', flavor: 'G-code flavor', start: 'Start G-code', end: 'End G-code', heated: 'Heated bed', save: 'Save custom printer' },
+    presets: { heading: 'Preset transfer', json: 'Preset JSON', import: 'Import preset', export: 'Export current preset' },
+  },
   settings: {
     layerHeight: { label: 'Layer height' }, initialLayerHeight: { label: 'Initial layer height' },
     wallLoops: { label: 'Walls' }, topLayers: { label: 'Top layers' }, bottomLayers: { label: 'Bottom layers' },

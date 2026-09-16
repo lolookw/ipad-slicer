@@ -89,3 +89,21 @@ body {
 .pane {
   min-height: 12rem;
 }
+
+.configuration-ui, .simple-controls, .settings-panels, .settings-form, .advanced-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+.control-entry, .settings-form label, .setting-row label { display: grid; gap: 0.25rem; }
+.control-entry select, .control-entry input, .settings-form input, .settings-form select, .settings-form textarea,
+.setting-row input, .setting-row select, .setting-row textarea { box-sizing: border-box; width: 100%; padding: 0.5rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); }
+.control-entry[disabled] { opacity: 0.65; }
+.control-entry button, .mode-switch button, .slice-action, .settings-form button, .setting-row button { border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); }
+.control-entry button[aria-pressed='true'], .mode-switch button[aria-pressed='true'], .slice-action { background: var(--color-primary); color: var(--color-on-accent); }
+.mode-switch, .control-entry[role='group'], .settings-form > div { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.settings-panels details { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.5rem; }
+.settings-panels summary { min-height: var(--touch-target-min); display: flex; align-items: center; font-weight: 600; }
+.setting-row { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; align-items: end; }
+.settings-form textarea { min-height: 6rem; }
+.field-error, .validation-errors { color: var(--color-danger); }
+.plate-wide-note, .estimate-readout { color: var(--color-muted); }

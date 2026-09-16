@@ -78,3 +78,5 @@ export function reachableSteps(): Step[] {
   if (flow.hasResult.get()) steps.push('save');
   return steps;
 }
+
+export * from './configuration';

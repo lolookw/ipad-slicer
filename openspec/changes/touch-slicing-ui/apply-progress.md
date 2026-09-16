@@ -143,3 +143,23 @@ Status: done in Standard mode (`strict_tdd: false`). Tasks 3.2–3.5 and 3.7 com
 - Delivery boundary: auto-chain, stacked-to-main PR3a on top of the completed PR2 work; 666 authored implementation/test/task-check lines before this SDD record (687 including this record), within the standing 800-line limit.
 - Design resolution: the requirements/tasks override the older design shorthand that proposed synthesizing missing quality rungs; absent smoke-tested rungs remain unavailable. Native IndexedDB wrappers are used instead of adding the `idb` package because this authorized unit prohibited installs; the designed database name, version, stores, migration, and transaction semantics are unchanged.
 - Issues/handoff: no catalog contract was weakened. PR3b may consume the exported schema, validators, repository, and transfer functions; it must provide the selected printer/material safety context when validating a merged profile.
+
+## Slice 3b — Simple and Advanced Configuration UI (Codex, 2026-09-15)
+
+- Status: success; Standard mode (`strict_tdd: false`); tasks 5.1–5.7 complete.
+- Added props-only lazy catalog pickers, the bounded nine-entry Simple surface, five-category Advanced panels with shared overrides/reset, custom-printer and preset-transfer forms, and complete EN/ES UI/error/accessibility copy.
+- Wired catalog/settings state through `AppProvider`: printer and filament changes invalidate incompatible downstream choices, mode switches preserve overrides, custom printers retain the tested generic base identity while being labeled not individually smoke-tested, and Slice stays disabled for missing models/profiles or client validation errors.
+- Support and brim wording is explicitly plate-wide; per-object controls remain hidden pending the Phase 7.1 engine contract check.
+
+### Work Unit Evidence
+
+| Evidence | Observed result |
+|---|---|
+| Focused test | `npm.cmd exec -- vitest run src/settings/configuration-ui.test.tsx src/i18n/i18n.test.ts src/app/app.test.tsx`: exit 0; 3 files / 14 tests passed. It proves props-only loading, unavailable quality rungs, nine expanded Simple entries, preserved advanced overrides, localized parity, and Slice guards. |
+| Runtime harness | `npm.cmd exec -- playwright test tests/e2e/shell.spec.ts`: exit 0; 22/22 real WebKit scenarios passed across portrait and landscape. The run covers EN/ES 44×44 targets, the nine-entry surface, invalid import retention, safe-bound rejection, and invalid/valid custom printers with the untested label. |
+| Full regression | `npm.cmd test`: exit 0; 20 files / 186 tests passed. `npm.cmd run typecheck`: exit 0. `npm.cmd run build`: exit 0, including cached engine fetch and six-pack/63-combination catalog verification. |
+| Rollback boundary | Remove `src/catalog/components/**`, `src/settings/components/**`, `src/settings/configuration-ui.test.tsx`, `src/app/ConfigurationContainer.tsx`, and `src/app/stores/configuration.ts`; revert only the App/AppProvider/store export, configuration CSS, EN/ES configuration copy, E2E additions, these seven checkboxes, and this progress section. PR3a settings/storage and PR2 catalog artifacts remain intact. |
+
+- Delivery boundary: auto-chain, stacked-to-main PR3b on top of PR3a. The complete authored snapshot is 570 changed lines including tasks and this progress record, within the standing 800-line limit.
+- Deviations: none. The requirements/tasks control the bounded Simple count and unavailable quality behavior; no untested rung is synthesized.
+- Issues/handoff: estimates and orient/arrange remain visible placeholders for later planned slices. The custom printer generic base is smoke-tested, but each user overlay is deliberately labeled as not individually smoke-tested.

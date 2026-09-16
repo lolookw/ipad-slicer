@@ -13,12 +13,15 @@ test('locked steps stay disabled and Configure is the default', async ({ page })
   await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled();
 });
 
-test('every step control meets the 44pt touch target', async ({ page }) => {
+test('every visible English and Spanish control meets the 44pt touch target', async ({ page }) => {
   await page.goto('/');
-  for (const control of await page.locator('button, select').all()) {
-    const box = await control.boundingBox();
-    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
-    expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+  for (const locale of ['en', 'es']) {
+    await page.locator('select').filter({ has: page.locator('option[value="es"]') }).selectOption(locale);
+    for (const control of await page.locator('button:visible, select:visible, input:visible, textarea:visible').all()) {
+      const box = await control.boundingBox();
+      expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
+      expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
+    }
   }
 });
 
@@ -106,4 +109,37 @@ test('IndexedDB presets survive reload and a JSON round trip', async ({ page }) 
   });
   expect(restored.preset).toMatchObject(fixture);
   expect(restored.customBaseId).toBe('custom');
+});
+
+test('configuration stays bounded and rejects unsafe imports without replacing edits', async ({ page }) => {
+  await page.goto('/');
+  await page.getByLabel('Printer', { exact: true }).selectOption('creality-ender3-v2-04');
+  await expect(page.getByLabel('Filament')).toBeEnabled();
+  await page.getByLabel('Filament').selectOption({ index: 1 });
+  await page.getByRole('button', { name: 'Standard', exact: true }).click();
+  const supports = page.getByLabel('Supports');
+  if (!(await supports.isChecked())) await supports.check();
+  await expect(page.locator('[data-simple-entry]:visible')).toHaveCount(9);
+  const brim = page.getByLabel('Brim width'); const before = await brim.inputValue();
+  const ids = await page.evaluate(() => ({
+    printerId: (document.querySelector('select[aria-label="Printer"]') as HTMLSelectElement).value,
+    filamentId: (document.querySelector('select[aria-label="Filament"]') as HTMLSelectElement).value,
+  }));
+  const processId = 'standard';
+  const bad = JSON.stringify({ format: 'ipad-slicer.presets', version: 1, exportedAt: new Date(0).toISOString(), presets: [{ id: 'bad', name: 'Unsafe', kind: 'catalog', printerId: ids.printerId, baseId: ids.printerId, processId, filamentId: ids.filamentId, overrides: { brim_width: '101', support_type: 'tree' }, schemaVersion: 1, updatedAt: 1 }] });
+  await page.locator('summary').filter({ hasText: 'Preset transfer' }).click();
+  await page.getByLabel('Preset JSON').fill(bad); await page.getByRole('button', { name: 'Import preset' }).click();
+  await expect(page.getByRole('alert').filter({ hasText: 'current settings were kept' })).toBeVisible();
+  await expect(brim).toHaveValue(before);
+  await brim.fill('101'); await brim.blur(); await expect(page.getByRole('alert').filter({ hasText: 'brim_width' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Slice' })).toBeDisabled();
+});
+
+test('custom printer form rejects invalid dimensions and labels a valid printer as untested', async ({ page }) => {
+  await page.goto('/'); await page.locator('summary').filter({ hasText: 'Custom printer' }).click();
+  await page.getByLabel('Name').fill('Workshop printer'); const width = page.getByLabel('Bed width (mm)');
+  await width.fill('0'); await page.getByRole('button', { name: 'Save custom printer' }).click(); expect(await width.evaluate(input => !(input as HTMLInputElement).checkValidity())).toBe(true);
+  await width.fill('235'); await page.getByRole('button', { name: 'Save custom printer' }).click();
+  await expect(page.getByText('Custom printer saved', { exact: false })).toBeVisible();
+  await expect(page.getByLabel('Printer', { exact: true })).toContainText('not individually smoke-tested');
 });

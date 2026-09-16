@@ -4,6 +4,7 @@ import { Layout } from './layout/Layout';
 import type { Step, Tier } from './stores';
 import type { Locale, TranslationKey } from '../i18n';
 import type { Theme } from './theme';
+import { ConfigurationContainer } from './ConfigurationContainer';
 
 const STEPS: { id: Step; label: TranslationKey }[] = [
   { id: 'import', label: 'steps.import' },
@@ -49,7 +50,8 @@ function StepPane(): JSX.Element {
       </Show>
       <Show when={app.flow.step.get() === 'configure'}>
         <p>{app.t('panes.configure')}</p>
-        <p class="configuration-error" role="alert">{app.t('app.configurationError')}</p>
+        <Show when={!app.flow.hasModel.get()}><p class="configuration-error" role="alert">{app.t('app.configurationError')}</p></Show>
+        <ConfigurationContainer />
       </Show>
       <Show when={app.flow.step.get() === 'preview'}>
         <p>{app.t('panes.preview')}</p>

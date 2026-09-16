@@ -34,6 +34,18 @@ export const es = {
     full: 'Completo',
     activeTier: 'Nivel activo',
   },
+  configuration: {
+    search: 'Buscar impresoras', printer: 'Impresora', filament: 'Filamento', quality: 'Calidad', loading: 'Cargando impresora…', unavailable: 'No disponible',
+    draft: 'Borrador', standard: 'Estándar', fine: 'Fina', simple: 'Simple', advanced: 'Avanzado', arrange: 'Orientar y organizar',
+    arrangePending: 'Orientar y organizar estará disponible después de importar un modelo.', estimates: 'Tiempo, filamento y costo estimados', reset: 'Restablecer al preset',
+    plateWide: 'Los ajustes de soporte y borde se aplican a toda la placa. Los controles por objeto no están disponibles.', notSmokeTested: 'Impresora del usuario — sin prueba de humo individual',
+    slice: 'Laminar', incomplete: 'Seleccione una impresora, un filamento y una calidad compatibles antes de laminar.', invalidSetting: 'Ajuste inválido', selectPrinterFirst: 'Seleccione una impresora antes de importar un preset.',
+    profileUnavailable: 'El perfil de la impresora no está disponible. Inténtelo nuevamente.', invalidCustom: 'La impresora personalizada no es válida y no se guardó.', invalidImport: 'No se pudo importar el preset; se conservaron los ajustes actuales.',
+    imported: 'Preset importado.', importedWithNotices: 'Preset importado. Se omitieron los ajustes no compatibles.', customSaved: 'Impresora personalizada guardada. Seleccione un filamento y una calidad compatibles para continuar.',
+    categories: { quality: 'Calidad', strength: 'Resistencia', speed: 'Velocidad', support: 'Soporte', others: 'Otros' },
+    custom: { heading: 'Impresora personalizada', name: 'Nombre', width: 'Ancho de cama (mm)', depth: 'Profundidad de cama (mm)', height: 'Altura imprimible (mm)', nozzle: 'Diámetro de boquilla (mm)', flavor: 'Formato de G-code', start: 'G-code inicial', end: 'G-code final', heated: 'Cama caliente', save: 'Guardar impresora personalizada' },
+    presets: { heading: 'Transferencia de presets', json: 'JSON del preset', import: 'Importar preset', export: 'Exportar preset actual' },
+  },
   settings: {
     layerHeight: { label: 'Altura de capa' }, initialLayerHeight: { label: 'Altura de capa inicial' },
     wallLoops: { label: 'Paredes' }, topLayers: { label: 'Capas superiores' }, bottomLayers: { label: 'Capas inferiores' },
