@@ -89,10 +89,14 @@ self.addEventListener('message', async (event: MessageEvent<unknown>) => {
       if (loading || engine) throw new Error('Engine already initialized or loading');
       loading = true;
       try { await initialize(event.data.prefer, setStage); } finally { loading = false; }
-    } else {
+    } else if (event.data.t === 'slice') {
       stage = 'slice';
       if (!engine) throw new Error('Engine is not ready');
       slice(engine, event.data.stl, setStage);
+    } else {
+      const requestStage = event.data.t === 'preparePlate' ? 'prepare' :
+        event.data.t === 'getStatistics' ? 'statistics' : event.data.t === 'sliceMulti' ? 'slice' : event.data.t;
+      post({ t: 'requestError', requestId: event.data.requestId, stage: requestStage, message: 'Protocol v2 operation is not initialized' });
     }
   } catch (error) {
     post({ t: 'error', stage, message: error instanceof Error ? error.message : String(error) });

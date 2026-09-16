@@ -1,10 +1,12 @@
 import { Euler, Matrix4, Quaternion, Vector3, type Object3D } from 'three';
 
 /**
- * App-internal object transform. Millimeters, Z-up, XYZ Euler order — three.js's own
- * conventions. This is deliberately NOT the engine's stride-11 encoding: that mapping
- * (rotation units, Euler order, offset origin) is unverified until the PR 4b Node contract
- * check (task 7.1) pins it against the real engine. Nothing here may be assumed to match it.
+ * Pinned by scripts/engine-contract-check.mjs against wasm-v2.4.2-patch19:
+ * engine stride 11 is scale3, rotation3, mirror3, offsetXY2; rotation is radians in
+ * intrinsic ZYX Euler order; finite XY offsets are deltas from centered plate placement;
+ * NaN/NaN auto-places both axes (mixed finite/NaN is invalid). preparePlate returns
+ * {scale,rotation,mirror,offset}, with null offset for auto-placement and +/-1 mirrors.
+ * App transforms remain millimeters, Z-up, and three.js intrinsic XYZ Euler order.
  */
 export interface ObjectTransform {
   position: [number, number, number];
@@ -16,6 +18,46 @@ export interface ObjectTransform {
 export const IDENTITY_TRANSFORM: ObjectTransform = {
   position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1], mirror: [false, false, false],
 };
+
+export interface EngineTransform {
+  scale: [number, number, number];
+  rotation: [number, number, number];
+  mirror: [1 | -1, 1 | -1, 1 | -1];
+  offset: [number, number] | null;
+}
+
+export function toEngineTransform(transform: ObjectTransform, autoPlace = false): EngineTransform {
+  const rotation = new Euler().setFromQuaternion(new Quaternion().setFromEuler(new Euler(...transform.rotation, 'XYZ')), 'ZYX');
+  return {
+    scale: [...transform.scale],
+    rotation: [rotation.x, rotation.y, rotation.z],
+    mirror: transform.mirror.map(value => value ? -1 : 1) as EngineTransform['mirror'],
+    offset: autoPlace ? null : [transform.position[0], transform.position[1]],
+  };
+}
+
+export function fromEngineTransform(engine: EngineTransform, previous: ObjectTransform = IDENTITY_TRANSFORM): ObjectTransform {
+  const rotation = new Euler().setFromQuaternion(new Quaternion().setFromEuler(new Euler(...engine.rotation, 'ZYX')), 'XYZ');
+  return {
+    position: engine.offset ? [engine.offset[0], engine.offset[1], previous.position[2]] : [...previous.position],
+    rotation: [rotation.x, rotation.y, rotation.z],
+    scale: [...engine.scale],
+    mirror: engine.mirror.map(value => value < 0) as ObjectTransform['mirror'],
+  };
+}
+
+export function encodeEngineTransforms(transforms: readonly EngineTransform[]): Float32Array {
+  const table = new Float32Array(transforms.length * 11);
+  transforms.forEach((transform, index) => {
+    const offset = index * 11;
+    table.set(transform.scale, offset);
+    table.set(transform.rotation, offset + 3);
+    table.set(transform.mirror, offset + 6);
+    table[offset + 9] = transform.offset?.[0] ?? NaN;
+    table[offset + 10] = transform.offset?.[1] ?? NaN;
+  });
+  return table;
+}
 
 /** Applies an ObjectTransform to a three.js Object3D. Mirroring is a per-axis scale sign flip. */
 export function applyTransform(object: Object3D, transform: ObjectTransform): void {

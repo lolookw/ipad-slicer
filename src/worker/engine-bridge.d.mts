@@ -1,9 +1,6 @@
 /**
- * Real pinned engine build (v2.4.2-patch19, onewasm_slicer_api.h v0.2.0). Object transforms are a
- * flat Float32Array, ONEWASM_OBJECT_TRANSFORM_STRIDE (11) values per object — the exact field
- * layout, rotation units, Euler order and offset origin are NOT documented anywhere and MUST be
- * reverse-engineered empirically against this real module by task 7.1's engine-contract-check.mjs
- * before src/viewer/transforms.ts or any caller assumes a layout. Do not guess this contract.
+ * Real pinned engine build (v2.4.2-patch19, API v0.2.0). The empirical contract check pins
+ * stride 11 as scale3, radians/intrinsic-ZYX rotation3, +/-1 mirror3, and centered-delta offsetXY2.
  */
 export interface OrcaModule {
   HEAPU8: Uint8Array<ArrayBuffer>;
@@ -46,3 +43,7 @@ export interface OrcaModule {
 export function checkStatus(module: OrcaModule, session: number, status: number): void;
 export function initSession(module: OrcaModule, json: string): number;
 export function sliceStl(module: OrcaModule, session: number, bytes: Uint8Array): ArrayBuffer;
+export function sliceStlMulti(module: OrcaModule, session: number, meshes: Uint8Array[], transforms: Float32Array, extruderIds?: Int32Array | null): ArrayBuffer;
+export function preparePlate(module: OrcaModule, session: number, meshes: Uint8Array[], transforms: Float32Array, operation: number): unknown;
+export function getLastStatistics(module: OrcaModule, session: number): unknown;
+export function cancel(module: OrcaModule, session: number): void;

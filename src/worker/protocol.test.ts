@@ -52,3 +52,32 @@ it.each([null, undefined, [], {}, 'init', 0, true])('rejects non-messages: %j', 
   expect(isFromWorker(value)).toBe(false);
   expect(isToWorker(value)).toBe(false);
 });
+
+const object = { meshId: 'mesh-1', transform: Float32Array.from([1, 1, 1, 0, 0, 0, 1, 1, 1, NaN, NaN]), extruderId: 1 };
+
+it('guards v2 config, mesh and plate operation requests', () => {
+  expect(isToWorker({ t: 'config', requestId: 'r1', configHash: 'sha256', nativeJson: '{}' })).toBe(true);
+  expect(isToWorker({ t: 'mesh', requestId: 'r2', meshId: 'mesh-1', generation: 2, blob: new Blob(['stl']) })).toBe(true);
+  expect(isToWorker({ t: 'sliceMulti', requestId: 'r3', configHash: 'sha256', generation: 2, objects: [object] })).toBe(true);
+  expect(isToWorker({ t: 'preparePlate', requestId: 'r4', configHash: 'sha256', generation: 2, operation: 3, objects: [object] })).toBe(true);
+  expect(isToWorker({ t: 'getStatistics', requestId: 'r5' })).toBe(true);
+  expect(isToWorker({ t: 'cancel', requestId: 'r6' })).toBe(true);
+
+  expect(isToWorker({ t: 'sliceMulti', requestId: 'r', configHash: 'h', generation: 0, objects: [] })).toBe(false);
+  expect(isToWorker({ t: 'sliceMulti', requestId: 'r', configHash: 'h', generation: 0,
+    objects: [{ ...object, transform: new Float32Array(10) }] })).toBe(false);
+  expect(isToWorker({ t: 'sliceMulti', requestId: 'r', configHash: 'h', generation: 0,
+    objects: [{ ...object, transform: Float32Array.from([1, 1, 1, 0, 0, 0, 1, 1, 1, 0, NaN]) }] })).toBe(false);
+  expect(isToWorker({ t: 'preparePlate', requestId: 'r', configHash: 'h', generation: 0, operation: 4, objects: [object] })).toBe(false);
+});
+
+it('guards typed v2 result and request-error envelopes', () => {
+  const prepared = { scale: [1, 1, 1], rotation: [0, 0, 0], mirror: [1, -1, 1], offset: null };
+  expect(isFromWorker({ t: 'accepted', requestId: 'r', kind: 'mesh', generation: 1 })).toBe(true);
+  expect(isFromWorker({ t: 'sliceMultiResult', requestId: 'r', gcode: buffer, statistics: {}, sliceMs: 3, peakHeapBytes: 10 })).toBe(true);
+  expect(isFromWorker({ t: 'preparePlateResult', requestId: 'r', transforms: [prepared] })).toBe(true);
+  expect(isFromWorker({ t: 'statisticsResult', requestId: 'r', statistics: {} })).toBe(true);
+  expect(isFromWorker({ t: 'requestError', requestId: 'r', stage: 'prepare', message: 'failed' })).toBe(true);
+  expect(isFromWorker({ t: 'preparePlateResult', requestId: 'r', transforms: [{ ...prepared, offset: [0, NaN] }] })).toBe(false);
+  expect(isFromWorker({ t: 'requestError', requestId: 'r', stage: 'unknown', message: 'failed' })).toBe(false);
+});
