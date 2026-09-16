@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { initSession, sliceStl } from '../src/worker/engine-bridge.mjs';
@@ -46,16 +47,35 @@ function cube(profile, size) {
   return new TextEncoder().encode(`solid cube\n${facets}\nendsolid cube\n`);
 }
 
+function profileFromPack(value, processId, filamentId) {
+  if (value.schema !== 1 || !Array.isArray(value.combos)) return value;
+  const [defaultProcess, defaultFilament] = value.combos[0] ?? [];
+  const selectedProcess = processId ?? defaultProcess;
+  const selectedFilament = filamentId ?? defaultFilament;
+  assert.ok(value.combos.some(([candidateProcess, candidateFilament]) =>
+    candidateProcess === selectedProcess && candidateFilament === selectedFilament),
+  'Requested catalog combination was not smoke-tested');
+  const processPreset = value.processes.find(candidate => candidate.id === selectedProcess);
+  const filament = value.filaments.find(candidate => candidate.id === selectedFilament);
+  assert.ok(processPreset && filament, 'Catalog combination references a missing preset');
+  return { ...value.machine, ...processPreset.settings, ...filament.settings,
+    printer_settings_id: value.id, print_settings_id: processPreset.id,
+    filament_settings_id: [filament.id] };
+}
+
 let module;
 try {
   const { values } = parseArgs({ options: {
     variant: { type: 'string', default: 'st' }, size: { type: 'string', default: '20' },
+    pack: { type: 'string', default: 'profiles/ender3v2-020-pla.json' },
+    process: { type: 'string' }, filament: { type: 'string' },
   } });
   const variant = values.variant;
   const size = Number(values.size);
   assert.ok(variant === 'st' || variant === 'mt', '--variant must be st or mt');
   assert.ok(Number.isFinite(size) && size > 0, '--size must be a positive finite number');
-  const profile = JSON.parse(await read('profiles/ender3v2-020-pla.json', 'utf8'));
+  const profile = profileFromPack(JSON.parse(await readFile(resolve(values.pack), 'utf8')),
+    values.process, values.filament);
   const cache = `.engine-cache/wasm-v2.4.2-patch19${variant === 'mt' ? '-multithreaded' : ''}`;
   const engine = variant === 'mt' ? 'slicer-mt' : 'slicer';
   const js = await read(`${cache}/${engine}.js`, 'utf8');

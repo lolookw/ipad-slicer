@@ -72,3 +72,28 @@ Status: done in Standard mode (`strict_tdd: false`). Tasks 2.1–2.5 are complet
 - Delivery boundary: auto-chain, stacked-to-main PR 1b; one cohesive preference/adaptive-shell work unit. No commit, branch, push, deployment, or remote operation was performed.
 - Deviations: none from the design or app-shell contract. The Full thresholds remain explicitly provisional and require task 2.6 physical-device calibration.
 - Harness note: when Playwright owns the Windows child server in this sandbox, all tests finish but child teardown can hang. Starting the same repository server explicitly makes Playwright reuse it and exit cleanly; the final recorded run used that equivalent real-header path and returned exit 0.
+
+## Slice 2 — Offline catalog foundation partial (Codex, 2026-09-15)
+
+Status: partial in Standard mode (`strict_tdd: false`). Tasks 3.1 and 3.6 are complete. Tasks 3.2–3.5 and 3.7 remain open because the authorized offline cache has vendor indexes for all six vendors but preset payloads only for Creality and Custom common bases; no unverified vendor profile or six-vendor coverage was fabricated.
+
+- 3.1: Replaced the hardcoded resolver with `scripts/catalog/resolve.mjs`. It resolves inheritance from pinned vendor indexes, fails closed when a payload is absent, separates compatibility metadata from native settings, and retains a CLI that regenerates the legacy Ender-3 V2 profile from the local cache.
+- 3.3/3.5 foundation only: Added deterministic, smoke-result-gated pack/index construction and a fast schema/reference/hash verifier. They are intentionally not connected to release build output and no `public/catalog/**` was emitted, so these tasks remain unchecked.
+- 3.4 foundation only: `scripts/slice-check.mjs --pack` accepts a flat profile or schema-1 printer pack and refuses combinations not present in the pack's smoke-gated combo list. The catalog-wide smoke runner is not implemented, so this task remains unchecked.
+- 3.6: Added typed index/pack formats, index-only search, lazy selected-pack fetch, byte count and SHA-256 verification before JSON parsing, schema checks, cache eviction on corruption, combo enforcement, and deterministic machine → process → filament → settings-id merge.
+- Missing local evidence: BBL, Prusa, Elegoo, Anycubic, and Voron machine/process/filament preset payloads; Creality PETG/ABS payloads; shared generic filament payloads needed to resolve Voron's empty vendor filament list; compatibility-condition curation evidence; catalog-wide smoke results.
+- Authorized continuation: populate the pinned v2.4.2 preset cache through a separately authorized acquisition step, review explicit curation/condition-only exceptions, then implement 3.2–3.5, run every combo through the real st engine, emit only passing packs, and complete 3.7. Existing scripts fail closed until that evidence exists.
+
+### Work Unit Evidence
+
+| Evidence | Observed result |
+|---|---|
+| Threat-matrix RED | Before production clients existed, `npm.cmd exec -- vitest run scripts/catalog src/catalog` exited 1: both resolver and pack-client imports were missing. SHA mismatch, truncated JSON, and unknown schema were explicit RED cases. |
+| Focused tests | Final `npm.cmd exec -- vitest run scripts/catalog src/catalog`: exit 0, 3 files / 9 tests passed. Coverage includes offline inheritance, metadata separation, deterministic packs, required-model gaps, verifier corruption, lazy index search, merge order, SHA mismatch, truncation, and unknown schema. |
+| Regression | `npm.cmd test`: exit 0, 17 files / 161 tests passed. `npm.cmd run typecheck`: exit 0. `npm.cmd exec -- vite build`: exit 0. |
+| Runtime harness | Built one explicitly non-release Creality pack under ignored `.engine-cache/catalog-partial`, then `node scripts/catalog/verify-catalog.mjs .engine-cache/catalog-partial/index.json`: exit 0, 1 pack verified. `node scripts/slice-check.mjs --pack <generated-pack>`: exit 0; 20 mm cube, 292,768 G-code bytes, 100 layers, 3,271 ms, 256 MiB heap, expected 220 °C nozzle and 60 °C bed commands. This proves the real pinned local st engine path, not six-vendor release coverage. |
+| Rollback boundary | Restore `scripts/resolve-profile.mjs`; remove `scripts/catalog/**` and `src/catalog/**`; revert only the catalog options in `scripts/slice-check.mjs`, Vitest include, README references, task 3.1/3.6 checkboxes, and this progress section. Slice 1 remains untouched. |
+
+- Authored implementation/test/config/documentation count before OpenSpec audit edits: 586 additions + deletions, excluding ignored runtime fixtures and generated build output; within the standing ≤800-line one-PR rule.
+- Delivery boundary: auto-chain, stacked-to-main PR 2 partial. The partial is safely committable as a fail-closed catalog foundation, but it MUST NOT be represented as the curated six-vendor catalog or wired into release build verification yet.
+- Deviations: no design behavior was weakened. Release generation was deliberately withheld rather than inventing missing vendor payloads or claiming smoke evidence that cannot be produced offline.

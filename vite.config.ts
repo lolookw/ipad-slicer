@@ -39,7 +39,10 @@ export default defineConfig({
         test: {
           name: 'node',
           environment: 'node',
-          include: ['src/{engine,worker,export,instrumentation,testing}/**/*.test.ts'],
+          include: [
+            'src/{engine,worker,export,instrumentation,testing}/**/*.test.ts',
+            'scripts/catalog/**/*.test.mjs',
+          ],
         },
       },
       {

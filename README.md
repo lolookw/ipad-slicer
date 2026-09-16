@@ -168,7 +168,7 @@ To use the page, serve `dist/` with the isolation headers from `public/_headers`
 | `npm run slice-check` | Real single-thread slice in Node |
 | `npm run slice-check:mt` | Real multithread slice in Node (fixed shared memory) |
 | `npm run check-deploy -- <url>` | Check a deployed URL: isolation headers, engine manifest, parts, caching |
-| `node scripts/resolve-profile.mjs` | Regenerate the printer profile from OrcaSlicer presets |
+| `node scripts/catalog/resolve.mjs` | Regenerate a profile from pinned OrcaSlicer vendor indexes and cached presets |
 | `npm run deploy` | Deploy `dist/` with Wrangler |
 
 ---
@@ -184,7 +184,7 @@ src/
   instrumentation/           Persistent log and metrics panel
 scripts/
   fetch-engine.mjs           Pinned download, SHA-256 check, gzip + split
-  resolve-profile.mjs        OrcaSlicer preset inheritance → flat JSON
+  catalog/resolve.mjs        Indexed OrcaSlicer preset inheritance → flat JSON
   slice-check.mjs            Real-engine slice check in Node (st / mt)
 profiles/                    Generated Ender-3 V2 + PLA profile and its provenance
 engine.lock.json             Pinned engine release and hashes
