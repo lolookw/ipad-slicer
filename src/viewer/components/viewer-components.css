@@ -1,0 +1,30 @@
+.viewer-transform-toolbar {
+  position: absolute;
+  inset: auto max(16px, var(--safe-right)) max(16px, var(--safe-bottom));
+  z-index: 10;
+  display: flex;
+  gap: var(--space-1);
+  flex-wrap: wrap;
+  padding: var(--space-1);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.viewer-disabled-action { position: relative; }
+.viewer-disabled-action [role='tooltip'] {
+  position: absolute;
+  bottom: calc(100% + var(--space-1));
+  left: 0;
+  display: none;
+  width: 16rem;
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-text);
+  color: var(--color-surface);
+}
+.viewer-disabled-action:hover [role='tooltip'], .viewer-disabled-action:focus [role='tooltip'] { display: block; }
+.viewer-scale-sheet header, .viewer-scale-sheet > label, .viewer-size-suggestion div { display: flex; align-items: center; gap: var(--space-1); }
+.viewer-scale-sheet header { justify-content: space-between; }
+.viewer-scale-sheet > label { margin-block: var(--space-2); }
+.viewer-scale-sheet input { width: 10rem; }
+.viewer-size-suggestion { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-2); }
+.viewer-size-suggestion div { flex-wrap: wrap; }
