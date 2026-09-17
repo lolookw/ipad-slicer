@@ -2,11 +2,15 @@ import { Show } from 'solid-js';
 import type { PlateObject } from '../../app/stores/plate';
 import { Button } from '../../ui/Button';
 import type { ObjectTransform } from '../transforms';
+import type { TransformGestureMode } from '../gestures';
 import { ScaleSheet, type ScaleSheetLabels } from './ScaleSheet';
 import './viewer-components.css';
 
 export interface TransformToolbarLabels extends ScaleSheetLabels {
   toolbar: string;
+  interactionMode: string;
+  moveMode: string;
+  rotateMode: string;
   deselect: string;
   layFlat: string;
   rotateX: string;
@@ -21,6 +25,8 @@ export interface TransformToolbarProps {
   object?: PlateObject;
   scaleOpen: boolean;
   labels: TransformToolbarLabels;
+  transformMode: TransformGestureMode;
+  onTransformMode: (mode: TransformGestureMode) => void;
   onScaleOpen: () => void;
   onScaleClose: () => void;
   onRotate: (axis: 'x' | 'y') => void;
@@ -35,6 +41,12 @@ export interface TransformToolbarProps {
 export function TransformToolbar(props: TransformToolbarProps) {
   return <Show when={props.object}>{object => <>
     <div class="viewer-transform-toolbar" role="toolbar" aria-label={props.labels.toolbar}>
+      <span class="viewer-transform-modes" role="group" aria-label={props.labels.interactionMode}>
+        <Button variant={props.transformMode === 'move' ? 'primary' : 'secondary'} aria-pressed={props.transformMode === 'move'}
+          onClick={() => props.onTransformMode('move')}>{props.labels.moveMode}</Button>
+        <Button variant={props.transformMode === 'rotate' ? 'primary' : 'secondary'} aria-pressed={props.transformMode === 'rotate'}
+          onClick={() => props.onTransformMode('rotate')}>{props.labels.rotateMode}</Button>
+      </span>
       <Button onClick={props.onLayFlat}>{props.labels.layFlat}</Button>
       <Button variant="secondary" onClick={() => props.onRotate('x')}>{props.labels.rotateX}</Button>
       <Button variant="secondary" onClick={() => props.onRotate('y')}>{props.labels.rotateY}</Button>

@@ -6,7 +6,7 @@ import { attachCameraControls, type ViewerCameraControls } from './camera';
 import { ViewerToolbarContainer } from './components/ViewerToolbarContainer';
 import { releaseMesh } from './geometry-cache';
 import { createGizmo } from './gizmo';
-import { createViewerGestures, type ViewerGestures } from './gestures';
+import { createViewerGestures, type TransformGestureMode, type ViewerGestures } from './gestures';
 import { importFileToPlate } from './plate-import';
 import { createViewer, type Viewer } from './scene';
 import { engineClient } from '../engine/client';
@@ -23,6 +23,7 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
   const gizmo = createGizmo();
   const [error, setError] = createSignal<string | CodedError>();
   const [busy, setBusy] = createSignal(false);
+  const [transformMode, setTransformMode] = createSignal<TransformGestureMode>('move');
   const knownIds = new Set<string>();
 
   const sync = () => {
@@ -48,6 +49,8 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
       gestures = createViewerGestures({
         canvas, camera: viewer.camera, controls, gizmo,
         selectedMesh: () => viewer?.meshFor(plate.state.selectedId ?? ''),
+        selectedObject: () => plate.state.objects.find(object => object.id === plate.state.selectedId),
+        transformMode,
         meshAt: (x, y) => viewer?.meshAt(x, y),
         onSelect: id => plate.select(id),
         onFit: () => { if (viewer && controls && plate.state.objects.length) void controls.fit(viewer.objectRoot); },
@@ -82,7 +85,12 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
       <span>{objectCount()}</span>
     </header>
     <Show when={error()}>{failure => <p class="viewer-error" role="alert">{app.translateError(failure())}</p>}</Show>
-    <div class="viewer-stage"><canvas ref={canvas} data-testid="viewer-canvas" aria-label={app.t('viewer.buildPlate')} /></div>
+    <div class="viewer-stage" style={{ position: 'relative' }}>
+      <canvas ref={canvas} data-testid="viewer-canvas" aria-label={app.t('viewer.buildPlate')} />
+      <Show when={plate.state.objects.length}>
+        <ViewerToolbarContainer transformMode={transformMode()} onTransformMode={setTransformMode} />
+      </Show>
+    </div>
     <Show when={plate.state.objects.length}>
       <nav class="viewer-objects" aria-label={app.t('viewer.plateObjects')}>
         <For each={plate.state.objects}>{object =>
@@ -90,7 +98,6 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
             data-transform={JSON.stringify(object.transform)} onClick={() => plate.select(object.id)}>{object.name}</button>}
         </For>
       </nav>
-      <ViewerToolbarContainer />
     </Show>
   </section>;
 }

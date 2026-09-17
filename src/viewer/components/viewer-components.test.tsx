@@ -5,7 +5,8 @@ import type { TransformToolbarLabels } from './TransformToolbar';
 import { PlateObjectToolbar } from './ViewerToolbarContainer';
 
 const labels: TransformToolbarLabels = {
-  toolbar: 'Object tools', deselect: 'Deselect', layFlat: 'Lay flat', rotateX: 'Rotate X', rotateY: 'Rotate Y',
+  toolbar: 'Object tools', interactionMode: 'Touch transform mode', moveMode: 'Move', rotateMode: 'Rotate',
+  deselect: 'Deselect', layFlat: 'Lay flat', rotateX: 'Rotate X', rotateY: 'Rotate Y',
   scale: 'Scale', duplicate: 'Duplicate', delete: 'Delete', reset: 'Reset', title: 'Object size', close: 'Close', size: 'Largest dimension',
   unit: 'Size unit', suspicious: 'Suspicious size', multiply25_4: '×25.4', multiply1000: '×1000', divide10: '÷10', keep: 'Keep as entered', resize: 'Resize',
 };
@@ -62,6 +63,17 @@ it('deselects the object and hides the toolbar when the deselect button is press
 
   expect(plate.state.selectedId).toBeUndefined();
   expect(screen.queryByRole('toolbar', { name: 'Object tools' })).toBeNull();
+});
+
+it('shows and changes the active touch transform mode', () => {
+  plate.addObject(object('first'));
+  const onTransformMode = vi.fn();
+  render(() => <PlateObjectToolbar labels={labels} transformMode="move" onTransformMode={onTransformMode} />);
+
+  expect(screen.getByRole('button', { name: 'Move' }).getAttribute('aria-pressed')).toBe('true');
+  expect(screen.getByRole('button', { name: 'Rotate' }).getAttribute('aria-pressed')).toBe('false');
+  fireEvent.click(screen.getByRole('button', { name: 'Rotate' }));
+  expect(onTransformMode).toHaveBeenCalledWith('rotate');
 });
 
 describe.each([4, 2001])('when the committed largest dimension is %s mm', value => {

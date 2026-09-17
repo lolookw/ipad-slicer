@@ -14,6 +14,21 @@ async function importStl(page: import('@playwright/test').Page, name: string, bu
   await expect(page.getByRole('button', { name, exact: true })).toBeVisible();
 }
 
+async function selectedMeshPoint(page: import('@playwright/test').Page, objectName: string) {
+  const object = page.getByRole('button', { name: objectName, exact: true });
+  const canvas = page.getByTestId('viewer-canvas');
+  const box = await canvas.boundingBox();
+  if (!box) throw new Error('Viewer canvas has no bounding box');
+  const fractions = [[.55, .49], [.53, .49], [.57, .49], [.55, .47], [.55, .51]];
+  for (const [xFraction, yFraction] of fractions) {
+    await object.click();
+    const point = { x: box.x + box.width * xFraction!, y: box.y + box.height * yFraction! };
+    await page.mouse.click(point.x, point.y);
+    if (await object.getAttribute('aria-pressed') === 'true') return point;
+  }
+  throw new Error('Could not locate the selected mesh on the rendered canvas');
+}
+
 function binaryBoxStl(): Buffer {
   const vertices = [[0, 0, 0], [20, 0, 0], [20, 20, 0], [0, 20, 0], [0, 0, 10], [20, 0, 10], [20, 20, 10], [0, 20, 10]];
   const faces = [[0, 2, 1], [0, 3, 2], [4, 5, 6], [4, 6, 7], [0, 1, 5], [0, 5, 4],
@@ -209,6 +224,46 @@ test('camera navigation changes the view without changing model transforms', asy
   await page.mouse.move(box!.x + box!.width * .55, box!.y + box!.height * .35, { steps: 8 });
   await page.mouse.up();
   await expect(object).toHaveAttribute('data-transform', before!);
+});
+
+test('selected-object taps, move drags, and rotate-mode drags commit through real pointer events', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'touch-transform.stl', binaryBoxStl());
+  const object = page.getByRole('button', { name: 'touch-transform.stl', exact: true });
+  const canvas = page.getByTestId('viewer-canvas');
+  const box = await canvas.boundingBox();
+  expect(box).not.toBeNull();
+
+  const selectedPoint = await selectedMeshPoint(page, 'touch-transform.stl');
+  await page.mouse.click(box!.x + 2, box!.y + 2);
+  await expect(object).toHaveAttribute('aria-pressed', 'false');
+
+  const moveStart = await selectedMeshPoint(page, 'touch-transform.stl');
+  const beforeMove = await object.getAttribute('data-transform');
+  const moveDirection = moveStart.x < box!.x + box!.width * .65 ? 36 : -36;
+  await page.mouse.move(moveStart.x, moveStart.y);
+  await page.mouse.down();
+  await page.mouse.move(moveStart.x + Math.sign(moveDirection) * 12, moveStart.y);
+  await page.mouse.move(moveStart.x + moveDirection, moveStart.y);
+  await page.mouse.up();
+  await expect.poll(() => object.getAttribute('data-transform')).not.toBe(beforeMove);
+  const afterMove = await object.getAttribute('data-transform');
+
+  await page.getByRole('button', { name: 'Reset', exact: true }).click();
+  await page.getByRole('button', { name: 'Rotate', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Rotate', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  const rotateStart = await selectedMeshPoint(page, 'touch-transform.stl');
+  const beforeRotate = JSON.parse((await object.getAttribute('data-transform'))!);
+  const rotateDirection = rotateStart.x < box!.x + box!.width * .65 ? 42 : -42;
+  await page.mouse.move(rotateStart.x, rotateStart.y);
+  await page.mouse.down();
+  await page.mouse.move(rotateStart.x + Math.sign(rotateDirection) * 12, rotateStart.y);
+  await page.mouse.move(rotateStart.x + rotateDirection, rotateStart.y);
+  await page.mouse.up();
+  await expect.poll(async () => JSON.parse((await object.getAttribute('data-transform'))!).rotation[2]).not.toBeCloseTo(beforeRotate.rotation[2]);
+  const afterRotate = JSON.parse((await object.getAttribute('data-transform'))!);
+  expect(afterRotate.rotation[2] / (Math.PI / 2)).not.toBeCloseTo(Math.round(afterRotate.rotation[2] / (Math.PI / 2)));
+  expect(await object.getAttribute('data-transform')).not.toBe(afterMove);
 });
 
 test('changing scale display units preserves the physical millimeter size', async ({ page }) => {

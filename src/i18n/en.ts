@@ -55,6 +55,9 @@ export const en = {
   viewer: {
     workspace: 'Model workspace', importStl: 'Import STL', buildPlate: '3D build plate', plateObjects: 'Plate objects', objectCount: '{count}/{limit} objects',
     toolbar: 'Selected object tools',
+    interactionMode: 'Touch transform mode',
+    moveMode: 'Move',
+    rotateMode: 'Rotate',
     deselect: 'Deselect',
     layFlat: 'Lay flat',
     layFlatPending: 'Lay flat unlocks after engine integration in phase 7.',

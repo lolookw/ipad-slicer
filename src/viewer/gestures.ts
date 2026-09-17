@@ -1,4 +1,5 @@
 import type { Mesh, PerspectiveCamera } from 'three';
+import type { PlateObject } from '../app/stores/plate';
 import type { Gizmo } from './gizmo';
 import type { ViewerCameraControls } from './camera';
 
@@ -7,6 +8,18 @@ export const TAP_MAX_DURATION_MS = 250;
 export const DOUBLE_TAP_MAX_DELAY_MS = 300;
 
 interface Point { x: number; y: number; time: number }
+export type TransformGestureMode = 'move' | 'rotate';
+
+interface TransformCandidate {
+  object: PlateObject;
+  start: Point;
+}
+
+interface ActiveTransform {
+  pointerId: number;
+  mode: TransformGestureMode;
+  startX: number;
+}
 
 export interface GestureOptions {
   canvas: HTMLCanvasElement;
@@ -14,6 +27,8 @@ export interface GestureOptions {
   controls: ViewerCameraControls;
   gizmo: Gizmo;
   selectedMesh: () => Mesh | undefined;
+  selectedObject: () => PlateObject | undefined;
+  transformMode: () => TransformGestureMode;
   meshAt: (xNdc: number, yNdc: number) => Mesh | undefined;
   onSelect: (id: string | undefined) => void;
   onFit: () => void;
@@ -26,10 +41,13 @@ export function pointerNdc(canvas: HTMLCanvasElement, clientX: number, clientY: 
   return [(clientX - rect.left) / rect.width * 2 - 1, 1 - (clientY - rect.top) / rect.height * 2];
 }
 
-/** Capture-phase ownership gate: a pointer beginning on the selected object never reaches camera-controls. */
+/** Capture-phase ownership gate. A selected-object press stays camera-owned until it exceeds
+ * the tap threshold; only then does the transform gesture take exclusive ownership. */
 export function createViewerGestures(options: GestureOptions): ViewerGestures {
   const starts = new Map<number, Point>();
+  const candidates = new Map<number, TransformCandidate>();
   const owned = new Set<number>();
+  let activeTransform: ActiveTransform | undefined;
   let lastTap: Point | undefined;
 
   const down = (event: PointerEvent) => {
@@ -37,20 +55,51 @@ export function createViewerGestures(options: GestureOptions): ViewerGestures {
     starts.set(event.pointerId, point);
     const [x, y] = pointerNdc(options.canvas, event.clientX, event.clientY);
     const selected = options.selectedMesh();
-    if (options.gizmo.active || (selected && options.meshAt(x, y) === selected)) {
+    const object = options.selectedObject();
+    if (options.gizmo.active) {
       owned.add(event.pointerId);
       options.controls.setEnabled(false);
       event.stopImmediatePropagation();
+    } else if (selected && object && selected.name === object.id && options.meshAt(x, y) === selected) {
+      candidates.set(event.pointerId, { object, start: point });
     }
   };
   const move = (event: PointerEvent) => {
-    if (owned.has(event.pointerId) || options.gizmo.active) event.stopImmediatePropagation();
+    if (activeTransform?.pointerId === event.pointerId) {
+      const [x, y] = pointerNdc(options.canvas, event.clientX, event.clientY);
+      if (activeTransform.mode === 'move') options.gizmo.moveTo(x, y, options.camera);
+      else {
+        const width = Math.max(options.canvas.getBoundingClientRect().width, 1);
+        options.gizmo.rotateBy((event.clientX - activeTransform.startX) / width * Math.PI * 2);
+      }
+      event.stopImmediatePropagation();
+      return;
+    }
+    if (owned.has(event.pointerId) || options.gizmo.active) {
+      event.stopImmediatePropagation();
+      return;
+    }
+    const candidate = candidates.get(event.pointerId);
+    if (!candidate || Math.hypot(event.clientX - candidate.start.x, event.clientY - candidate.start.y) <= TAP_MAX_DISTANCE_PX) return;
+    const [x, y] = pointerNdc(options.canvas, event.clientX, event.clientY);
+    const mode = options.transformMode();
+    options.gizmo.begin(candidate.object, mode, x, y, options.camera);
+    activeTransform = { pointerId: event.pointerId, mode, startX: event.clientX };
+    candidates.delete(event.pointerId);
+    owned.add(event.pointerId);
+    options.controls.setEnabled(false);
+    event.stopImmediatePropagation();
   };
   const up = (event: PointerEvent) => {
     const start = starts.get(event.pointerId);
     starts.delete(event.pointerId);
+    candidates.delete(event.pointerId);
     if (owned.delete(event.pointerId)) {
-      if (owned.size === 0 && !options.gizmo.active) options.controls.setEnabled(true);
+      if (activeTransform?.pointerId === event.pointerId) {
+        options.gizmo.end();
+        activeTransform = undefined;
+      }
+      if (owned.size === 0) options.controls.setEnabled(true);
       event.stopImmediatePropagation();
       return;
     }
@@ -68,9 +117,16 @@ export function createViewerGestures(options: GestureOptions): ViewerGestures {
     options.onSelect(options.meshAt(x, y)?.name || undefined);
   };
   const cancel = (event: PointerEvent) => {
+    const wasOwned = owned.has(event.pointerId) || activeTransform?.pointerId === event.pointerId;
     starts.delete(event.pointerId);
+    candidates.delete(event.pointerId);
     owned.delete(event.pointerId);
-    if (owned.size === 0 && !options.gizmo.active) options.controls.setEnabled(true);
+    if (activeTransform?.pointerId === event.pointerId) {
+      options.gizmo.end();
+      activeTransform = undefined;
+    }
+    if (owned.size === 0) options.controls.setEnabled(true);
+    if (wasOwned) event.stopImmediatePropagation();
   };
 
   options.canvas.addEventListener('pointerdown', down, true);
@@ -83,6 +139,9 @@ export function createViewerGestures(options: GestureOptions): ViewerGestures {
     options.canvas.removeEventListener('pointermove', move, true);
     options.canvas.removeEventListener('pointerup', up, true);
     options.canvas.removeEventListener('pointercancel', cancel, true);
-    starts.clear(); owned.clear(); options.controls.setEnabled(true);
+    starts.clear(); candidates.clear(); owned.clear();
+    if (options.gizmo.active) options.gizmo.end();
+    activeTransform = undefined;
+    options.controls.setEnabled(true);
   } };
 }

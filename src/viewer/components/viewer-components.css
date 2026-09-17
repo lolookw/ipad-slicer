@@ -9,6 +9,16 @@
   border-radius: var(--radius-lg);
   background: var(--color-surface);
 }
+.viewer-transform-modes {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + var(--space-3));
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
 .viewer-disabled-action { position: relative; }
 .viewer-disabled-action [role='tooltip'] {
   position: absolute;

@@ -48,6 +48,9 @@ export const es = {
   viewer: {
     workspace: 'Espacio de trabajo del modelo', importStl: 'Importar STL', buildPlate: 'Placa de impresión 3D', plateObjects: 'Objetos de la placa', objectCount: '{count}/{limit} objetos',
     toolbar: 'Herramientas del objeto seleccionado',
+    interactionMode: 'Modo de transformación táctil',
+    moveMode: 'Mover',
+    rotateMode: 'Girar',
     deselect: 'Deseleccionar',
     layFlat: 'Apoyar en una cara',
     layFlatPending: 'Esta función se habilitará después de integrar el motor en la fase 7.',
