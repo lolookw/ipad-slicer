@@ -3,7 +3,7 @@
   "repository": "https://github.com/SoftFever/OrcaSlicer",
   "tag": "v2.4.2",
   "commit": "8500fcdccaa10b5099ac20d252af3a7c560046f1",
-  "configSha256": "a80849907855f56dcbab4bbec0039c526b534bc03876d19e7d79679f1f5759c5",
+  "configSha256": "f9acdbcdea46c5de34f2a0f21c3bb0c1c3fc08b9a8777007b0471b87114cb82c",
   "files": [
     {
       "path": "Anycubic.json",
@@ -51,9 +51,24 @@
       "sha256": "488a97828a5753e4435ab5e9e222516e6f7df710f25310085e40471287bba7b8"
     },
     {
+      "path": "Anycubic/machine/Anycubic Kobra 3 0.4 nozzle.json",
+      "bytes": 4863,
+      "sha256": "84f0658c4b3d417addaefc8b41de61b5fd0f007d5e25d9b52c01a58c76396ffe"
+    },
+    {
+      "path": "Anycubic/machine/Anycubic Vyper 0.4 nozzle.json",
+      "bytes": 2832,
+      "sha256": "062463e178c45b2ca32249422cb13debc7936b3406e2a3bf46edf1aa3f058700"
+    },
+    {
       "path": "Anycubic/machine/fdm_machine_common.json",
       "bytes": 2160,
       "sha256": "3638e91deaf66617a190bec5e9b484910fba0773ae167b07de992273274c5c66"
+    },
+    {
+      "path": "Anycubic/process/0.12mm Detail @Anycubic Kobra 3 0.4 nozzle.json",
+      "bytes": 9110,
+      "sha256": "e43a166446877e0061506e9935a27c9ea0b5101e36cc5667a6479403fd71a31b"
     },
     {
       "path": "Anycubic/process/0.15mm Optimal @Anycubic Kobra2.json",
@@ -61,14 +76,39 @@
       "sha256": "e3f035cfe7c5b4534e2f8cb5846f795290b4118673ef4f0a56b9a1b887e5e380"
     },
     {
+      "path": "Anycubic/process/0.15mm Optimal @Anycubic Vyper.json",
+      "bytes": 3324,
+      "sha256": "41a1aa0e7a15a32345f09fbf07ad7e54021cd32b534d5f7b87c798dfc1e21d83"
+    },
+    {
+      "path": "Anycubic/process/0.20mm Standard @Anycubic Kobra 3 0.4 nozzle.json",
+      "bytes": 9108,
+      "sha256": "85862371c435b9f5213236f1730dc2029a20a5c944fd0acabbf114795caad401"
+    },
+    {
       "path": "Anycubic/process/0.20mm Standard @Anycubic Kobra2.json",
       "bytes": 3350,
       "sha256": "d90aace76adc4a0de200d4373a24232bc81760d26841a160c58e385b83d38a45"
     },
     {
+      "path": "Anycubic/process/0.20mm Standard @Anycubic Vyper.json",
+      "bytes": 3321,
+      "sha256": "bd5dd1b5156ecac8fad34b761f90f25d5add40dc8cf077479da6986917e910be"
+    },
+    {
+      "path": "Anycubic/process/0.24mm Draft @Anycubic Kobra 3 0.4 nozzle.json",
+      "bytes": 9102,
+      "sha256": "a863013af000d4d7a827f25320f8e7dd6b4da39ec8c9f442850e49a14678dcb1"
+    },
+    {
       "path": "Anycubic/process/0.30mm Draft @Anycubic Kobra2.json",
       "bytes": 3347,
       "sha256": "0fb3a0a08f51c733a30ae25a932e021c0849c54a7a44eb38998c1b51bb98b88e"
+    },
+    {
+      "path": "Anycubic/process/0.30mm Draft @Anycubic Vyper.json",
+      "bytes": 3318,
+      "sha256": "67bb255968756c7ce6c8e22327a98edfe85fdec97706a035735e32bc64f59a26"
     },
     {
       "path": "Anycubic/process/fdm_process_common.json",
@@ -106,6 +146,11 @@
       "sha256": "4a49666461182e6115ffdfcd1cdd146d6a721954dc97878e857af6467cb632d1"
     },
     {
+      "path": "BBL/filament/Generic ABS @BBL A1.json",
+      "bytes": 570,
+      "sha256": "8631fbf9968cc21e299be9c8f104bc713f23cb22701ce0cd7267a158e89d865e"
+    },
+    {
       "path": "BBL/filament/Generic ABS.json",
       "bytes": 513,
       "sha256": "8a62703d8fb44d4c84782d828e3888c5d92db35f3081ce05b916e7ca828589c2"
@@ -114,6 +159,11 @@
       "path": "BBL/filament/Generic PETG @base.json",
       "bytes": 1316,
       "sha256": "a8742f2dc6f1d73f8affe69eb12fefe3e16f0da5e7054c09cea400c145398708"
+    },
+    {
+      "path": "BBL/filament/Generic PETG @BBL A1.json",
+      "bytes": 493,
+      "sha256": "d298c608983d2f7f3966601296884b51e5410aa4251ed768d6b7bc0ecde4e52b"
     },
     {
       "path": "BBL/filament/Generic PETG.json",
@@ -126,9 +176,44 @@
       "sha256": "85ebc04bd25c236322547d6d95f5a074ce4cab53cf975392e1f6b2c1fb74d406"
     },
     {
+      "path": "BBL/filament/Generic PLA @BBL A1.json",
+      "bytes": 547,
+      "sha256": "594edb0e8a694378137ca1071a2a12e1a373b3f359f87a0b7ae0081e43f49d9e"
+    },
+    {
       "path": "BBL/filament/Generic PLA.json",
       "bytes": 1176,
       "sha256": "d8ff56f56066bcbc810411ebc0f6763cc9f12de752d781da9ad7c29534ae2314"
+    },
+    {
+      "path": "BBL/filament/P1P/Generic ABS @BBL P1P.json",
+      "bytes": 2034,
+      "sha256": "ef796f592b9c2a842fe02744f5232333e4a9ff7339610dab8a75192594191f7f"
+    },
+    {
+      "path": "BBL/filament/P1P/Generic PETG @BBL P1P.json",
+      "bytes": 1958,
+      "sha256": "4b73469fed06486de21920e58ad228ac74e0f969b2df25ff7baa09a7f333e1e8"
+    },
+    {
+      "path": "BBL/filament/P1P/Generic PLA @BBL P1P.json",
+      "bytes": 2027,
+      "sha256": "63d5f934d8ff193ee44ede76bb7343245f9fded2c329e874f619ba2c70a6c3d7"
+    },
+    {
+      "path": "BBL/machine/Bambu Lab A1 0.4 nozzle.json",
+      "bytes": 24973,
+      "sha256": "34612480ad2671d81e037eef400f6246e72e3490e6e32f42a1b913187f7f6de9"
+    },
+    {
+      "path": "BBL/machine/Bambu Lab P1P 0.4 nozzle.json",
+      "bytes": 17710,
+      "sha256": "83c427289530b1aae3b6e749c244c2c5d03bf23b633725c684d07af4f8413ec9"
+    },
+    {
+      "path": "BBL/machine/Bambu Lab P1S 0.4 nozzle.json",
+      "bytes": 17739,
+      "sha256": "3e72ef1682406940986edb1ebd7d3b2c99afe59789b9c9389ffbdf6831e07b6a"
     },
     {
       "path": "BBL/machine/Bambu Lab X1 Carbon 0.4 nozzle.json",
@@ -146,14 +231,44 @@
       "sha256": "cdcaa5e5061934a9b960c94e203cc7d1e3b869a407182644f2dda9fdcbf5c2b3"
     },
     {
+      "path": "BBL/process/0.12mm Fine @BBL A1.json",
+      "bytes": 536,
+      "sha256": "87bd08c9d4bcadb3b69a873285307f7284b4a25af290d3cafc2958ff3d9fcf08"
+    },
+    {
+      "path": "BBL/process/0.12mm Fine @BBL P1P.json",
+      "bytes": 2323,
+      "sha256": "d9244309bd8c65e5f2f30bb7987ef64433322df71b456d31525c87a0ef4ba20e"
+    },
+    {
       "path": "BBL/process/0.12mm Fine @BBL X1C.json",
       "bytes": 2448,
       "sha256": "878f3d602935753d4f66ab94dc7e3631dc104f5138ba74cc4ab7d255405171b1"
     },
     {
+      "path": "BBL/process/0.20mm Standard @BBL A1.json",
+      "bytes": 491,
+      "sha256": "dd2d5e127a579d177a9d95f62868bba8c123c1eee79e576821916b43533c2eb2"
+    },
+    {
+      "path": "BBL/process/0.20mm Standard @BBL P1P.json",
+      "bytes": 2276,
+      "sha256": "dbe1991bbb62e08c221feae56542f2305c93483a67798957e324e60ffb991a44"
+    },
+    {
       "path": "BBL/process/0.20mm Standard @BBL X1C.json",
       "bytes": 2453,
       "sha256": "1b2b5e890d042ba34abe317cd443fd1190e095912240dc65ce8596558cdc7453"
+    },
+    {
+      "path": "BBL/process/0.24mm Draft @BBL A1.json",
+      "bytes": 541,
+      "sha256": "bfac08b7320c222902f7a9526502a3c13552b0f5a4b9eb66cc80153c6b04b0dd"
+    },
+    {
+      "path": "BBL/process/0.24mm Draft @BBL P1P.json",
+      "bytes": 2326,
+      "sha256": "e2d878d225ad3dcca559e56cf265e71fe2e8c7b3c994673723fab806ad91a7d7"
     },
     {
       "path": "BBL/process/0.24mm Draft @BBL X1C.json",
@@ -191,14 +306,29 @@
       "sha256": "dfe169eef40c967e9db2d22d20683c2eecb67381929121d1dfbf6450bd9823d3"
     },
     {
+      "path": "Creality/filament/Creality Generic ABS @Ender-3V3-all.json",
+      "bytes": 650,
+      "sha256": "4b780589ca01b24a701b6b0741981e569201ebceaa54d8ab13ccef5adaf7c333"
+    },
+    {
       "path": "Creality/filament/Creality Generic ABS.json",
       "bytes": 2234,
       "sha256": "fa97c6addfd38ba115f4e86b2a0b610698d6b6263f98a93ad302ed51c34727ef"
     },
     {
+      "path": "Creality/filament/Creality Generic PETG @Ender-3V3-all.json",
+      "bytes": 1064,
+      "sha256": "d40f1bcc70751fa3aee363ac23918592c049b1d504c369a5e203b6f8ec88db25"
+    },
+    {
       "path": "Creality/filament/Creality Generic PETG.json",
       "bytes": 2634,
       "sha256": "a5c6020074f9840b57bf87d63de84bd105c0daafc05364cb8e85f9883bef44fa"
+    },
+    {
+      "path": "Creality/filament/Creality Generic PLA @Ender-3V3-all.json",
+      "bytes": 975,
+      "sha256": "d92fcca1dbd164421e2100409415814901be988a30f618fc7f8c9c1b6397e331"
     },
     {
       "path": "Creality/filament/Creality Generic PLA.json",
@@ -231,6 +361,16 @@
       "sha256": "3f823c644c6f72ce58423465f1a84cc898f9a9f714703fec9c07d2cbc2e25788"
     },
     {
+      "path": "Creality/machine/Creality Ender-3 V3 0.4 nozzle.json",
+      "bytes": 2435,
+      "sha256": "19d8607ab97c1781fdcb5704adfd384c2bafb0c0ad34a53ee26d0d339353cf6e"
+    },
+    {
+      "path": "Creality/machine/Creality K1 (0.4 nozzle).json",
+      "bytes": 4358,
+      "sha256": "d22c9cb8ee2992f6cfa8cf67fc304bfd861db92fb9645f88eb0683590050fc89"
+    },
+    {
       "path": "Creality/machine/fdm_creality_common.json",
       "bytes": 3317,
       "sha256": "8fd81a564fb43a2cde9018124de07f2005bdd8e8f8be0873c6a571bff6e44160"
@@ -246,14 +386,49 @@
       "sha256": "ecf5ee03ab19c5e9e5e8df5af6e16cd131efdbd63922b6ffc76c7157b5b0ea67"
     },
     {
+      "path": "Creality/process/0.12mm Fine @Creality Ender3V3 0.4 nozzle.json",
+      "bytes": 3703,
+      "sha256": "e64dc1afda641198a0ef661366f4d1940bad9f8542b7d7c96cff0ae101a895ff"
+    },
+    {
+      "path": "Creality/process/0.12mm Fine @Creality K1 (0.4 nozzle).json",
+      "bytes": 3702,
+      "sha256": "4280244809b361624f8563a74cd419672c194bc3a0880c84a302270ad82698da"
+    },
+    {
       "path": "Creality/process/0.20mm Standard @Creality Ender3V2.json",
       "bytes": 3346,
       "sha256": "ae204169e940dd03744e7aad124e8f881c3b59f28dab6910c4fe7ab318cbdb76"
     },
     {
+      "path": "Creality/process/0.20mm Standard @Creality Ender3V3 0.4 nozzle.json",
+      "bytes": 3704,
+      "sha256": "dc309dfa4baca645a1a23210e012b71f386ffb0fd986245cd14d2d5283e528e7"
+    },
+    {
+      "path": "Creality/process/0.20mm Standard @Creality K1 (0.4 nozzle).json",
+      "bytes": 8940,
+      "sha256": "96baf4eab5dd8240d6ccb2bdfa40ddb6d44585d9963a5fda8a49b8c559b020e3"
+    },
+    {
       "path": "Creality/process/0.24mm Draft @Creality Ender3V2.json",
       "bytes": 3345,
       "sha256": "6ecf23f62ce785dadd5f1db31259fd448d2da84335598c0fd8a716fc0055b7c1"
+    },
+    {
+      "path": "Creality/process/0.24mm Draft @Creality Ender3V3 0.4 nozzle.json",
+      "bytes": 3702,
+      "sha256": "2af8463dc0650933854c9f2ce75b6dcc4f7abb1cacc09d216e05004ff6542595"
+    },
+    {
+      "path": "Creality/process/0.24mm Draft @Creality K1 (0.4 nozzle).json",
+      "bytes": 9046,
+      "sha256": "dbf0b721f1198932f95a8f147ccfcec26d3eb0d445456dc0906a885bae2f4de8"
+    },
+    {
+      "path": "Creality/process/fdm_process_common_klipper.json",
+      "bytes": 346,
+      "sha256": "f242429205f8bbf0935aae842c5928a5ee4c1b42c1b169b88cfb1c9f87777dba"
     },
     {
       "path": "Creality/process/fdm_process_common.json",
@@ -331,9 +506,19 @@
       "sha256": "5d6b91626b4943c3bcab7fd4c688b979715c33f242025ba5d83e3332347894fa"
     },
     {
+      "path": "Elegoo/machine/EN3SERIES/Elegoo Neptune 3 Pro 0.4 nozzle.json",
+      "bytes": 2906,
+      "sha256": "541e13c252460af477c7cc59cca07e6ced0da7255c77f8d835a25ec37a9b7233"
+    },
+    {
       "path": "Elegoo/machine/EN4SERIES/Elegoo Neptune 4 0.4 nozzle.json",
       "bytes": 3230,
       "sha256": "c5ae90179e5e429d5445ee17a55a8a75b1a8033e5504c55627e98a91f3b2db42"
+    },
+    {
+      "path": "Elegoo/machine/EN4SERIES/Elegoo Neptune 4 Pro 0.4 nozzle.json",
+      "bytes": 1073,
+      "sha256": "b8f089d82b587291251716d1cacda8c6b352007c891b65b6a552773335e0ff73"
     },
     {
       "path": "Elegoo/machine/fdm_elegoo_3dp_001_common.json",
@@ -341,9 +526,29 @@
       "sha256": "305c5826b25413f8257d8dec529ac691d2f4bb899fb391dbebbec576d9dcc00b"
     },
     {
+      "path": "Elegoo/machine/fdm_elegoo_common.json",
+      "bytes": 2725,
+      "sha256": "db0ed1d893d949bbcaed388e292263d4a0c75240e2058547a923d327510af276"
+    },
+    {
       "path": "Elegoo/machine/fdm_machine_common.json",
       "bytes": 2229,
       "sha256": "374fe18ac4503dfa15018cb9a6609a4e80c2167a1a4203b615cc48b053a680b0"
+    },
+    {
+      "path": "Elegoo/process/EN3SERIES/0.12mm Fine @Elegoo N3Pro 0.4 nozzle.json",
+      "bytes": 408,
+      "sha256": "ce4557b2e27b5d011514fc0a44c60ed1938cc674427a313b2091956613d889e9"
+    },
+    {
+      "path": "Elegoo/process/EN3SERIES/0.20mm Standard @Elegoo N3Pro 0.4 nozzle.json",
+      "bytes": 1020,
+      "sha256": "74d39928d729e716fc96aa67442c9067cec9927a98bdb6e651cdf8141eaa5616"
+    },
+    {
+      "path": "Elegoo/process/EN3SERIES/0.24mm Draft @Elegoo N3Pro 0.4 nozzle.json",
+      "bytes": 318,
+      "sha256": "357ede832d921c615a734e16803ee82c5eb5642d97d0402439c35eb048354b30"
     },
     {
       "path": "Elegoo/process/EN4SERIES/0.12mm Fine @Elegoo N4 0.4 nozzle.json",
@@ -351,14 +556,29 @@
       "sha256": "00cc540ab4feff1cfcee733db70f6f54fb0534ac7b90b1922ef873139ee293da"
     },
     {
+      "path": "Elegoo/process/EN4SERIES/0.12mm Fine @Elegoo N4Pro 0.4 nozzle.json",
+      "bytes": 370,
+      "sha256": "59f80278cfc2f94960b080544dc1e076cab99c5d1f2dd41382c3365fa7e59b14"
+    },
+    {
       "path": "Elegoo/process/EN4SERIES/0.20mm Standard @Elegoo N4 0.4 nozzle.json",
       "bytes": 581,
       "sha256": "7f9e5a77637204d3a50a3f2b70ca4ea349f7f318ce3d854d29d533e1dc399363"
     },
     {
+      "path": "Elegoo/process/EN4SERIES/0.20mm Standard @Elegoo N4Pro 0.4 nozzle.json",
+      "bytes": 594,
+      "sha256": "cae4d067404e2c92083c548aedab4e84ea368d0b5893467cb8fa0ce5b361a1ba"
+    },
+    {
       "path": "Elegoo/process/EN4SERIES/0.24mm Draft @Elegoo N4 0.4 nozzle.json",
       "bytes": 292,
       "sha256": "414cefc2f77d8695473b264c905febb53dc63a91f0041e903533ebdf2d9c9b5a"
+    },
+    {
+      "path": "Elegoo/process/EN4SERIES/0.24mm Draft @Elegoo N4Pro 0.4 nozzle.json",
+      "bytes": 301,
+      "sha256": "0eca01239a35449f1539403381d68e1160196b2540f31539ad8e8e232ce22f0e"
     },
     {
       "path": "Elegoo/process/fdm_process_common.json",
@@ -411,9 +631,19 @@
       "sha256": "94900004a0ca515e73796268397d623cf45bbdb1e619c2bb294f3b2b452bffba"
     },
     {
+      "path": "Prusa/filament/Prusa Generic ABS.json",
+      "bytes": 1096,
+      "sha256": "79768423c92dfe6a1921316b50590c30c92c90b1f8e31b9c7a7e46937e812006"
+    },
+    {
       "path": "Prusa/filament/Prusa Generic PETG @MK4.json",
       "bytes": 1610,
       "sha256": "e57251877b1b104e40af5dab63fb3f7ad3d1628b6bc22134ddca4b56e35d7061"
+    },
+    {
+      "path": "Prusa/filament/Prusa Generic PETG.json",
+      "bytes": 1607,
+      "sha256": "7148fc7bc53983ec6644196b2e91c50bfcb3434e6951b7ffca3f7ac60f13b376"
     },
     {
       "path": "Prusa/filament/Prusa Generic PLA @MK4.json",
@@ -421,9 +651,24 @@
       "sha256": "6ab1647a945a46666f701986287c3c69cc1b541a996833eb7485a13378b89df8"
     },
     {
+      "path": "Prusa/filament/Prusa Generic PLA.json",
+      "bytes": 1138,
+      "sha256": "56c9c3eea993da107a79c269a90e143e400060c2af09d0307b05b4847b9db145"
+    },
+    {
       "path": "Prusa/machine/fdm_machine_common.json",
       "bytes": 2077,
       "sha256": "425414a679781f78a9d0f861b167cb136e4e5a2d1b6bc214b38ae1b9e0e1b86b"
+    },
+    {
+      "path": "Prusa/machine/Prusa MINI 0.4 nozzle.json",
+      "bytes": 3120,
+      "sha256": "2423a7c560f1dfa12f413a20b368f0af1cd64f08077d1b75398146f0fcb4ba9b"
+    },
+    {
+      "path": "Prusa/machine/Prusa MK3S 0.4 nozzle.json",
+      "bytes": 3010,
+      "sha256": "d2215fda90050c27bf39cc3e3edb2da2c7b42c65be57cabbbd31980c4a2313c8"
     },
     {
       "path": "Prusa/machine/Prusa MK4 0.4 nozzle.json",
@@ -434,6 +679,16 @@
       "path": "Prusa/process/0.12mm Standard @MK4.json",
       "bytes": 389,
       "sha256": "0559531214184ba22decae1654acde26c00ad065ebd8546d2e5cb8d9fad32082"
+    },
+    {
+      "path": "Prusa/process/0.20mm Standard @MINI.json",
+      "bytes": 647,
+      "sha256": "0c9440b030407f3834d8314acd281d4808c51d29dd4956de6a95ce376f127d4b"
+    },
+    {
+      "path": "Prusa/process/0.20mm Standard @MK3S.json",
+      "bytes": 498,
+      "sha256": "16f125e8db1d20a0fdc9ca51de745869f709b953144d904a3dfb26f883118c70"
     },
     {
       "path": "Prusa/process/0.20mm Standard @MK4.json",
@@ -474,6 +729,16 @@
       "path": "Voron/machine/Voron 2.4 250 0.4 nozzle.json",
       "bytes": 491,
       "sha256": "952e1211e61cbd1c22e52eb58e85300a073d1a0cc32d25343f6c230c04d76090"
+    },
+    {
+      "path": "Voron/machine/Voron 2.4 300 0.4 nozzle.json",
+      "bytes": 491,
+      "sha256": "8fd63a9d54c42639065c8bedd4573f75e2c93bd79e168a6ef5b630da38a4f74a"
+    },
+    {
+      "path": "Voron/machine/Voron Trident 300 0.4 nozzle.json",
+      "bytes": 499,
+      "sha256": "b5b67a3512eb405feb9b8b2bfa3e5f65eb8cf6d4c452e4a2d06b25608838566b"
     },
     {
       "path": "Voron/process/0.12mm Fine @Voron.json",
