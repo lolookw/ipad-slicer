@@ -5,7 +5,6 @@ export interface PlateObjectMessage { meshId: string; transform: Float32Array; e
 
 export type ToWorker =
   | { t: 'init'; prefer: Variant }
-  | { t: 'slice'; stl: ArrayBuffer; name: string }
   | { t: 'config'; requestId: string; configHash: string; nativeJson: string }
   | { t: 'mesh'; requestId: string; meshId: string; generation: number; blob: Blob }
   | { t: 'releaseMesh'; requestId: string; meshId: string; generation: number }
@@ -17,8 +16,6 @@ export type ToWorker =
 export type RequestStage = 'config' | 'mesh' | 'slice' | 'prepare' | 'statistics' | 'cancel';
 export type FromWorker =
   | { t: 'ready'; variant: Variant; loadPath: 'streaming' | 'buffered'; loadMs: number; probe?: string }
-  | { t: 'progress'; pct: number; heapBytes: number; stage?: string }
-  | { t: 'done'; gcode: ArrayBuffer; sliceMs: number; peakHeapBytes: number }
   | { t: 'error'; stage: 'load' | 'probe' | 'profile' | 'slice' | 'export'; message: string }
   | { t: 'accepted'; requestId: string; kind: 'config' | 'mesh' | 'releaseMesh' | 'cancel'; generation?: number }
   | { t: 'sliceMultiResult'; requestId: string; gcode: ArrayBuffer; statistics: unknown; sliceMs: number; peakHeapBytes: number }
@@ -55,7 +52,6 @@ function engineTransform(value: unknown): value is EngineTransform {
 export function isToWorker(value: unknown): value is ToWorker {
   if (!record(value)) return false;
   if (value.t === 'init') return variant(value.prefer);
-  if (value.t === 'slice') return value.stl instanceof ArrayBuffer && typeof value.name === 'string';
   if (!text(value.requestId)) return false;
   switch (value.t) {
     case 'config': return text(value.configHash) && typeof value.nativeJson === 'string';
@@ -73,8 +69,6 @@ export function isFromWorker(value: unknown): value is FromWorker {
   if (!record(value)) return false;
   switch (value.t) {
     case 'ready': return variant(value.variant) && nonnegative(value.loadMs) && (value.loadPath === 'streaming' || value.loadPath === 'buffered');
-    case 'progress': return nonnegative(value.pct) && value.pct <= 100 && nonnegative(value.heapBytes) && (value.stage === undefined || typeof value.stage === 'string');
-    case 'done': return value.gcode instanceof ArrayBuffer && nonnegative(value.sliceMs) && nonnegative(value.peakHeapBytes);
     case 'error': return typeof value.stage === 'string' && ['load', 'probe', 'profile', 'slice', 'export'].includes(value.stage) && typeof value.message === 'string';
     case 'accepted': return text(value.requestId) && ['config', 'mesh', 'releaseMesh', 'cancel'].includes(String(value.kind)) && (value.generation === undefined || integer(value.generation));
     case 'sliceMultiResult': return text(value.requestId) && value.gcode instanceof ArrayBuffer && nonnegative(value.sliceMs) && nonnegative(value.peakHeapBytes);

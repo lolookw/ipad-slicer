@@ -1,4 +1,3 @@
-import { resolve } from 'node:path';
 import solid from 'vite-plugin-solid';
 import { defineConfig } from 'vitest/config';
 
@@ -16,16 +15,7 @@ const isTest = Boolean(process.env.VITEST);
 
 export default defineConfig({
   plugins: [solid({ hot: !isTest })],
-  build: {
-    target: 'es2022',
-    rollupOptions: {
-      // The app is the entry point; the spike harness stays reachable at /harness.html until slice 5b.
-      input: {
-        app: resolve(import.meta.dirname, 'index.html'),
-        harness: resolve(import.meta.dirname, 'harness.html'),
-      },
-    },
-  },
+  build: { target: 'es2022' },
   worker: {
     format: 'es',
   },

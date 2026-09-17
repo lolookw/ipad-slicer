@@ -1,15 +1,13 @@
-import profile from '../../profiles/ender3v2-020-pla.json';
 import { fetchEngineManifest, type Variant } from '../engine/manifest';
 import { MT_THREADS, probeThreading, type ProbeResult } from '../engine/probe';
 import { createInstantiateWasm } from '../engine/stream-loader';
-import { checkStatus, getLastStatistics, initSession, preparePlate, sliceStl, sliceStlMulti, type OrcaModule } from './engine-bridge.mjs';
+import { getLastStatistics, initSession, preparePlate, sliceStlMulti, type OrcaModule } from './engine-bridge.mjs';
 import { isToWorker, type FromWorker } from './protocol';
 import { WorkerMeshCache } from './mesh-cache';
 
 type Stage = Extract<FromWorker, { t: 'error' }>['stage'];
 const post = (message: FromWorker, transfer: Transferable[] = []) => self.postMessage(message, { transfer });
 let engine: OrcaModule | undefined;
-let legacySession = 0;
 let configuredSession = 0;
 let configuredHash: string | undefined;
 let loading = false;
@@ -49,39 +47,9 @@ async function initialize(prefer: Variant, setStage: (stage: Stage) => void) {
     }
     const modulePromise = Promise.resolve().then(() => factory(options)) as Promise<OrcaModule>;
     const [module] = await Promise.race([Promise.all([modulePromise, hook.completion]), aborted]);
-    setStage('profile');
-    legacySession = initSession(module, JSON.stringify(profile));
     engine = module;
     post({ t: 'ready', variant: probe.variant, ...info, probe: probe.reason });
   } finally { URL.revokeObjectURL(url); }
-}
-
-function slice(module: OrcaModule, stl: ArrayBuffer, setStage: (stage: Stage) => void) {
-  let peakHeapBytes = 0;
-  const progress = (pct: number, text?: string) => {
-    const heapBytes = module.HEAPU8.buffer.byteLength;
-    peakHeapBytes = Math.max(peakHeapBytes, heapBytes);
-    post({ t: 'progress', pct, heapBytes, stage: text });
-  };
-  let callback = 0;
-  try {
-    if (module.addFunction) {
-      callback = module.addFunction((pct, text) => progress(pct, text ? module.UTF8ToString(text) : undefined), 'viii');
-      checkStatus(module, legacySession, module._onewasm_set_progress_callback(legacySession, callback, 0));
-    }
-    progress(0);
-    const start = performance.now();
-    const gcode = sliceStl(module, legacySession, new Uint8Array(stl));
-    const sliceMs = performance.now() - start;
-    progress(100);
-    setStage('export');
-    post({ t: 'done', gcode, sliceMs, peakHeapBytes }, [gcode]);
-  } finally {
-    if (callback) {
-      module._onewasm_set_progress_callback(legacySession, 0, 0);
-      module.removeFunction?.(callback);
-    }
-  }
 }
 
 function requireEngine(): OrcaModule {
@@ -102,7 +70,7 @@ async function readMeshes(generation: number, objects: { meshId: string }[]): Pr
   return meshes.read(generation, objects.map(object => object.meshId));
 }
 
-async function handleV2(message: Exclude<import('./protocol').ToWorker, { t: 'init' | 'slice' }>): Promise<void> {
+async function handleV2(message: Exclude<import('./protocol').ToWorker, { t: 'init' }>): Promise<void> {
   const module = requireEngine();
   if (message.t === 'config') {
     configure(module, message.configHash, message.nativeJson);
@@ -152,9 +120,6 @@ self.addEventListener('message', async (event: MessageEvent<unknown>) => {
       if (loading || engine) throw new Error('Engine already initialized or loading');
       loading = true;
       try { await initialize(event.data.prefer, setStage); } finally { loading = false; }
-    } else if (event.data.t === 'slice') {
-      stage = 'slice';
-      slice(requireEngine(), event.data.stl, setStage);
     } else {
       const requestStage = event.data.t === 'preparePlate' ? 'prepare' : event.data.t === 'getStatistics' ? 'statistics' :
         event.data.t === 'sliceMulti' ? 'slice' : event.data.t === 'releaseMesh' ? 'mesh' : event.data.t;

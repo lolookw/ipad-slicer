@@ -88,9 +88,9 @@ test('the layout switches between regular and compact widths', async ({ page }) 
   await expect(page.locator('.layout')).toHaveAttribute('data-layout', 'compact');
 });
 
-test('the spike harness is still reachable until slice 5b', async ({ page }) => {
-  await page.goto('/harness.html');
-  await expect(page.locator('#engine-status')).toBeVisible();
+test('the spike harness is gone after slice 5b', async ({ request }) => {
+  const response = await request.get('/harness.html');
+  expect(response.status()).toBe(404);
 });
 
 test('IndexedDB presets survive reload and a JSON round trip', async ({ page }) => {
