@@ -33,7 +33,7 @@ async function configureEngine(page: import('@playwright/test').Page) {
 
 test('the app shell loads cross-origin isolated', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('.title')).toHaveText('iPad Slicer');
+  await expect(page.locator('.title')).toHaveText('SliceAr');
   expect(await page.evaluate(() => self.crossOriginIsolated)).toBe(true);
 });
 
@@ -241,11 +241,16 @@ test('prepare failure preserves every prior object transform', async ({ page }) 
   expect(await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')))).toEqual(before);
 });
 
-test('a configured imported plate completes a real multi-object slice', async ({ page }) => {
+test('a configured imported plate slices, shows estimates and downloads G-code', async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto('/'); await configureEngine(page); await importStl(page, 'slice-round-trip.stl', binaryBoxStl());
   await page.getByRole('button', { name: 'Slice', exact: true }).click();
-  await expect(page.getByTestId('slice-result')).toContainText('Slice complete', { timeout: 45_000 });
+  await expect(page.getByTestId('slice-result')).toContainText('Print time', { timeout: 45_000 });
+  await expect(page.getByTestId('slice-result')).toContainText('Filament mass');
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Save G-code', exact: true }).click();
+  expect((await download).suggestedFilename()).toBe('slice-round-trip.gcode');
+  await expect(page.locator('.diagnostics-sheet')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeEnabled();
 });
 

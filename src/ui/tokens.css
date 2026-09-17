@@ -1,9 +1,13 @@
 :root, [data-theme='light'] {
   color-scheme: light;
-  --color-bg: #f2f3f7; --color-surface: #fff; --color-text: #171820; --color-muted: #525666;
-  --color-primary: #2459bd; --color-danger: #b42332; --color-on-accent: #fff; --color-border: #858998;
+  --color-bg: #f4f6fb; --color-surface: #fff; --color-surface-sunken: #eef1f8; --color-text: #12141c; --color-muted: #5b6072;
+  --color-primary: #2f6fed; --color-primary-strong: #1d54c9; --color-primary-soft: #e8f0ff;
+  --color-danger: #d33a4b; --color-danger-soft: #fdeaec; --color-success: #1f9d5c; --color-on-accent: #fff;
+  --color-border: #dde1ec; --color-border-strong: #c3c8d8;
   --space-1: 8px; --space-2: 16px; --space-3: 24px; --space-4: 32px;
-  --radius-sm: 8px; --radius-lg: 16px; --font-body: system-ui, sans-serif; --font-size-body: 17px;
+  --radius-sm: 10px; --radius-md: 14px; --radius-lg: 20px;
+  --font-body: -apple-system, 'SF Pro Display', 'Inter', system-ui, sans-serif; --font-size-body: 17px;
+  --shadow-card: 0 1px 2px #12141c0f, 0 8px 24px -8px #12141c1a; --shadow-raised: 0 12px 32px -12px #2f6fed40;
   --touch-target-min: 44px; --hit: var(--touch-target-min);
   --safe-top: env(safe-area-inset-top, 0px); --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px); --safe-left: env(safe-area-inset-left, 0px);
@@ -11,26 +15,43 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    --color-bg: #171820; --color-surface: #252733; --color-text: #f5f6fa; --color-muted: #c2c5d1;
-    --color-primary: #94baff; --color-danger: #ff9da7; --color-on-accent: #171820; --color-border: #8d93a6;
+    --color-bg: #0f1117; --color-surface: #1a1d27; --color-surface-sunken: #14161e; --color-text: #f2f3f8; --color-muted: #a2a7ba;
+    --color-primary: #6d9bff; --color-primary-strong: #8fb4ff; --color-primary-soft: #1c2c4d;
+    --color-danger: #ff8b96; --color-danger-soft: #3a1f26; --color-success: #4fd889; --color-on-accent: #0f1117;
+    --color-border: #2a2e3c; --color-border-strong: #3a3f52;
+    --shadow-card: 0 1px 2px #00000030, 0 8px 24px -8px #00000060; --shadow-raised: 0 12px 32px -12px #6d9bff40;
   }
 }
 [data-theme='dark'] {
   color-scheme: dark;
-  --color-bg: #171820; --color-surface: #252733; --color-text: #f5f6fa; --color-muted: #c2c5d1;
-  --color-primary: #94baff; --color-danger: #ff9da7; --color-on-accent: #171820; --color-border: #8d93a6;
+  --color-bg: #0f1117; --color-surface: #1a1d27; --color-surface-sunken: #14161e; --color-text: #f2f3f8; --color-muted: #a2a7ba;
+  --color-primary: #6d9bff; --color-primary-strong: #8fb4ff; --color-primary-soft: #1c2c4d;
+  --color-danger: #ff8b96; --color-danger-soft: #3a1f26; --color-success: #4fd889; --color-on-accent: #0f1117;
+  --color-border: #2a2e3c; --color-border-strong: #3a3f52;
+  --shadow-card: 0 1px 2px #00000030, 0 8px 24px -8px #00000060; --shadow-raised: 0 12px 32px -12px #6d9bff40;
 }
 .ui-safe-area { padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left); }
 .ui-target { box-sizing: border-box; min-width: max(44px, var(--hit)); min-height: max(44px, var(--hit)); font: var(--font-size-body) var(--font-body); touch-action: manipulation; }
 .ui-target:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
 .ui-target:disabled { opacity: .5; cursor: not-allowed; }
-.ui-button, .ui-segmented button, .ui-stepper input { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-1); background: var(--color-surface); color: var(--color-text); }
-.ui-button[data-variant='primary'], .ui-segmented [aria-checked='true'] { background: var(--color-primary); color: var(--color-on-accent); }
-.ui-button[data-variant='danger'] { background: var(--color-danger); color: var(--color-on-accent); }
+.ui-button, .ui-segmented button, .ui-stepper input {
+  border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-1);
+  background: var(--color-surface); color: var(--color-text); font-weight: 500;
+  transition: background-color .15s ease, border-color .15s ease, box-shadow .15s ease, transform .1s ease;
+}
+.ui-button:hover:not(:disabled) { border-color: var(--color-border-strong); }
+.ui-button:active:not(:disabled) { transform: scale(.97); }
+.ui-button[data-variant='primary'] {
+  background: linear-gradient(180deg, var(--color-primary), var(--color-primary-strong));
+  border-color: var(--color-primary-strong); color: var(--color-on-accent); box-shadow: var(--shadow-raised);
+}
+.ui-segmented [aria-checked='true'] { background: var(--color-primary); color: var(--color-on-accent); border-color: var(--color-primary-strong); }
+.ui-button[data-variant='danger'] { background: var(--color-danger); border-color: var(--color-danger); color: var(--color-on-accent); }
+.ui-button[data-variant='secondary'] { background: var(--color-surface-sunken); }
 .ui-button[data-variant='ghost'] { background: transparent; border-color: transparent; }
-.ui-button[data-size='large'] { min-height: 56px; padding-inline: var(--space-3); }
-.ui-backdrop { position: fixed; inset: 0; z-index: 100; background: #0007; }
-.ui-sheet, .ui-popover { box-sizing: border-box; background: var(--color-surface); color: var(--color-text); border-radius: var(--radius-lg); padding: var(--space-2); overflow: auto; overscroll-behavior: contain; }
+.ui-button[data-size='large'] { min-height: 56px; padding-inline: var(--space-3); border-radius: var(--radius-md); }
+.ui-backdrop { position: fixed; inset: 0; z-index: 100; background: #10131fb3; backdrop-filter: blur(2px); }
+.ui-sheet, .ui-popover { box-sizing: border-box; background: var(--color-surface); color: var(--color-text); border-radius: var(--radius-lg); padding: var(--space-2); overflow: auto; overscroll-behavior: contain; box-shadow: var(--shadow-card); }
 .ui-sheet { position: absolute; bottom: 0; width: 100%; padding-bottom: max(var(--space-2), var(--safe-bottom)); padding-left: max(var(--space-2), var(--safe-left)); padding-right: max(var(--space-2), var(--safe-right)); max-height: calc(100dvh - var(--safe-top)); }
 .ui-handle { display: block; width: 100%; touch-action: none; }
 .ui-popover { position: fixed; z-index: 101; max-width: calc(100vw - 16px); max-height: calc(100dvh - 16px); border: 1px solid var(--color-border); }

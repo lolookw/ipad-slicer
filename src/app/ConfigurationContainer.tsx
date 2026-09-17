@@ -17,6 +17,7 @@ import { configuration, resolvedSettings, settingsIssues, validationContext } fr
 import { useApp } from './AppProvider';
 import type { TranslationKey } from '../i18n';
 import { prepareCurrentPlate } from '../viewer/gizmo';
+import { DiagnosticsSheet } from '../diagnostics/DiagnosticsSheet';
 
 function requireNumber(value: number, min: number, max: number, label: string): void {
   if (!Number.isFinite(value) || value < min || value > max) throw new Error(`${label} must be between ${min} and ${max}.`);
@@ -115,5 +116,9 @@ export function ConfigurationContainer() {
     <Show when={configuration.notice.get()}><p role="status">{configuration.notice.get()}</p></Show>
     <details><summary>{t('configuration.custom.heading')}</summary><CustomPrinterForm labels={{ heading: t('configuration.custom.heading'), name: t('configuration.custom.name'), width: t('configuration.custom.width'), depth: t('configuration.custom.depth'), height: t('configuration.custom.height'), nozzle: t('configuration.custom.nozzle'), flavor: t('configuration.custom.flavor'), start: t('configuration.custom.start'), end: t('configuration.custom.end'), heated: t('configuration.custom.heated'), save: t('configuration.custom.save'), disclaimer: t('configuration.notSmokeTested') }} onSubmit={makeCustom} /></details>
     <details><summary>{t('configuration.presets.heading')}</summary><PresetTransfer labels={{ heading: t('configuration.presets.heading'), json: t('configuration.presets.json'), import: t('configuration.presets.import'), export: t('configuration.presets.export') }} onImport={importPresets} onExport={exportPreset} /></details>
+    <Show when={configuration.mode.get() === 'advanced'}><details class="diagnostics"><summary>{t('diagnostics.heading')}</summary><DiagnosticsSheet labels={{
+      heading: t('diagnostics.heading'), isolation: t('diagnostics.isolation'), variant: t('diagnostics.variant'), auto: t('preferences.auto'), st: t('diagnostics.st'), mt: t('diagnostics.mt'),
+      unavailableMt: t('diagnostics.unavailableMt'), export: t('diagnostics.export'), recent: t('diagnostics.recent'), load: t('diagnostics.load'), slice: t('diagnostics.slice'), heap: t('diagnostics.heap'),
+    }} /></details></Show>
   </div>;
 }

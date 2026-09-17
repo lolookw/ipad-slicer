@@ -1,7 +1,7 @@
 import type { Variant } from './manifest';
 import { isFromWorker, type FromWorker, type PlateObjectMessage, type ToWorker } from '../worker/protocol';
 import type { EngineTransform } from '../viewer/transforms';
-import { binaries } from '../app/stores';
+import { binaries, engine } from '../app/stores';
 import { hasMtFailure, markMtFailure, preferredVariant, retryMt, type KeyValueStorage, type VariantPreference } from '../slice/crash-marker';
 
 type Pending = { resolve: (message: FromWorker) => void; reject: (reason: Error) => void };
@@ -10,7 +10,9 @@ type RequestMessage = Exclude<ToWorker, { t: 'init' | 'slice' }>;
 type WithoutRequestId<T> = T extends { requestId: string } ? Omit<T, 'requestId'> : never;
 export interface SliceResult { gcode: ArrayBuffer; statistics: unknown; sliceMs: number; peakHeapBytes: number; variant: Variant; loadMs: number }
 interface SliceJob { nativeJson: string; objects: readonly PlateObjectMessage[]; stale: boolean; resolve: (value: SliceResult | undefined) => void; reject: (error: Error) => void }
-export interface EngineClientOptions { preference?: VariantPreference; buildId?: string; storage?: KeyValueStorage }
+export interface EngineClientOptions { preference?: VariantPreference; buildId?: string; storage?: KeyValueStorage; onReady?: (variant: Variant) => void }
+export const ENGINE_VARIANT_STORAGE_KEY = 'ipad-slicer:engine-variant';
+export const resolveVariantPreference = (value: string | null): VariantPreference => value === 'st' || value === 'mt' ? value : 'auto';
 
 export class EngineClient {
   private worker?: WorkerLike;
@@ -25,12 +27,14 @@ export class EngineClient {
   private readonly preference: VariantPreference;
   private readonly buildId: string;
   private readonly storage?: KeyValueStorage;
+  private readonly onReady?: (variant: Variant) => void;
 
   constructor(private readonly source: (meshId: string) => Blob | undefined,
     private readonly createWorker: () => WorkerLike = () => new Worker(new URL('../worker/engine.worker.ts', import.meta.url), { type: 'module' }),
     options: EngineClientOptions = {}) {
     this.preference = options.preference ?? 'auto'; this.buildId = options.buildId ?? 'wasm-v2.4.2-patch19';
     this.storage = options.storage ?? (typeof localStorage === 'undefined' ? undefined : localStorage);
+    this.onReady = options.onReady;
   }
 
   private onMessage = (event: MessageEvent<unknown>) => {
@@ -62,7 +66,7 @@ export class EngineClient {
       worker.onerror = (event) => { if (prefer === 'mt') markMtFailure(this.storage, this.buildId); reject(new Error(event.message || 'Engine worker crashed while loading')); };
       const ready = (event: MessageEvent<unknown>) => {
         if (!isFromWorker(event.data)) return;
-        if (event.data.t === 'ready') { worker.removeEventListener('message', ready); worker.onerror = this.onWorkerError; this.variant = event.data.variant; this.loadMs = event.data.loadMs; resolve(); }
+        if (event.data.t === 'ready') { worker.removeEventListener('message', ready); worker.onerror = this.onWorkerError; this.variant = event.data.variant; this.loadMs = event.data.loadMs; this.onReady?.(event.data.variant); resolve(); }
         else if (event.data.t === 'error') { worker.removeEventListener('message', ready); if (prefer === 'mt') markMtFailure(this.storage, this.buildId); reject(new Error(event.data.message)); }
       };
       worker.addEventListener('message', ready);
@@ -161,4 +165,9 @@ async function sha256(value: string): Promise<string> {
   return [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-export const engineClient = new EngineClient(meshId => binaries.getMesh(meshId));
+const browserStorage = typeof localStorage === 'undefined' ? undefined : localStorage;
+export const engineClient = new EngineClient(meshId => binaries.getMesh(meshId), undefined, {
+  storage: browserStorage,
+  preference: resolveVariantPreference(browserStorage?.getItem(ENGINE_VARIANT_STORAGE_KEY) ?? null),
+  onReady: variant => engine.variant.set(variant),
+});

@@ -1,4 +1,4 @@
-export type SaveMethod = 'share' | 'download' | 'cancelled';
+export type SaveMethod = 'share' | 'download';
 export interface SaveDeps {
   navigator?: Pick<Navigator, 'share' | 'canShare'> | Partial<Pick<Navigator, 'share' | 'canShare'>>;
   document?: Pick<Document, 'createElement' | 'body'>;
@@ -24,9 +24,6 @@ export async function saveFile(data: ArrayBuffer | string, fileName: string, mim
         await navigator.share({ files: [file] });
         return { method: 'share', mimeType, bytes };
       } catch (error) {
-        if (typeof error === 'object' && error !== null && 'name' in error && error.name === 'AbortError') {
-          return { method: 'cancelled', mimeType, bytes };
-        }
         // Keep the reason so callers can log why sharing fell back to a download.
         const details = typeof error === 'object' && error !== null ? error as { name?: unknown; message?: unknown } : undefined;
         const name = details?.name ? String(details.name) : String(error);

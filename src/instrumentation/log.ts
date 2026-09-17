@@ -17,6 +17,9 @@ export interface LogOptions {
   now?: () => number;
 }
 
+export const LOG_STORAGE_KEY = 'ipad-slicer:log';
+export const LEGACY_LOG_STORAGE_KEY = 'ipad-slicer:spike-log';
+
 function defaultStorage(): StorageLike | undefined {
   try {
     return globalThis.localStorage;
@@ -34,7 +37,7 @@ function isEntry(value: unknown): value is LogEntry {
 
 export function createLog(options: LogOptions = {}) {
   const storage = options.storage ?? defaultStorage();
-  const key = options.key ?? 'ipad-slicer:spike-log';
+  const key = options.key ?? LOG_STORAGE_KEY;
   const capacity = options.capacity ?? 500;
   const now = options.now ?? Date.now;
   if (!Number.isSafeInteger(capacity) || capacity < 1) {
@@ -43,7 +46,15 @@ export function createLog(options: LogOptions = {}) {
 
   let buffer: LogEntry[] = [];
   try {
-    const saved: unknown = JSON.parse(storage?.getItem(key) ?? '[]');
+    let raw = storage?.getItem(key);
+    if (options.key === undefined && raw === null) {
+      raw = storage?.getItem(LEGACY_LOG_STORAGE_KEY) ?? null;
+      if (raw !== null) {
+        storage?.setItem(key, raw);
+        storage?.removeItem(LEGACY_LOG_STORAGE_KEY);
+      }
+    }
+    const saved: unknown = JSON.parse(raw ?? '[]');
     if (Array.isArray(saved) && saved.every(isEntry)) {
       buffer = saved.slice(-capacity);
     }
@@ -77,3 +88,5 @@ export function createLog(options: LogOptions = {}) {
     },
   };
 }
+
+export const diagnosticsLog = createLog();

@@ -217,7 +217,7 @@ saveButton.addEventListener('click', () => {
     (result) => {
       record('gcode-save', result);
       if (result.shareError) record('engine-error', { stage: 'export', message: `Share failed, used download: ${result.shareError}` });
-      setStatus(result.method === 'cancelled' ? 'Save cancelled' : `Saved ${fileName} via ${result.method}`);
+      setStatus(`Saved ${fileName} via ${result.method}`);
     },
     (error: unknown) => {
       const message = error instanceof Error ? error.message : String(error);

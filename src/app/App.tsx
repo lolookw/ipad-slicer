@@ -6,6 +6,7 @@ import type { Locale, TranslationKey } from '../i18n';
 import type { Theme } from './theme';
 import { ConfigurationContainer } from './ConfigurationContainer';
 import { ViewerWorkspace } from '../viewer/ViewerWorkspace';
+import { SliceActivity, SliceResults, type SliceResultLabels } from '../slice/components/SliceResults';
 
 const STEPS: { id: Step; label: TranslationKey }[] = [
   { id: 'import', label: 'steps.import' },
@@ -44,8 +45,14 @@ function StepBar(): JSX.Element {
 
 function StepPane(): JSX.Element {
   const app = useApp();
+  const resultLabels = (): SliceResultLabels => ({ time: app.t('results.time'), mass: app.t('results.mass'), cost: app.t('results.cost'), layers: app.t('results.layers'),
+    unavailable: app.t('results.unavailable'), priceBasis: app.t('results.priceBasis'), requested: app.t('results.requested'), effective: app.t('results.effective'),
+    stale: app.t('results.stale'), slicing: app.t('results.slicing'), preparing: app.t('results.preparing'), ready: app.t('results.ready'),
+    finishing: app.t('configuration.finishing'), save: app.t('results.save') });
+  const results = () => <Show when={app.result.state.summary}>{summary => <SliceResults summary={summary()} stale={app.result.state.stale} currency={app.prefs.currency.get()} labels={resultLabels()} onSave={app.saveResult} />}</Show>;
   return (
     <section class="pane" aria-live="polite">
+      <SliceActivity active={app.result.state.status === 'slicing'} variant={app.engine.variant.get()} finishing={app.result.state.finishingPreviousSlice} labels={resultLabels()} />
       <Show when={app.flow.step.get() === 'import'}>
         <p>{app.t('panes.import')}</p>
       </Show>
@@ -56,12 +63,11 @@ function StepPane(): JSX.Element {
       </Show>
       <Show when={app.flow.step.get() === 'preview'}>
         <p>{app.t('panes.preview')}</p>
-        <Show when={app.result.state.status === 'success'}>
-          <output data-testid="slice-result">{app.t('configuration.sliceComplete')}: {app.result.state.summary?.layerCount ?? 0}</output>
-        </Show>
+        {results()}
       </Show>
       <Show when={app.flow.step.get() === 'save'}>
         <p>{app.t('panes.save')}</p>
+        {results()}
       </Show>
     </section>
   );

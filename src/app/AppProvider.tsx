@@ -11,6 +11,8 @@ import { plate } from './stores/plate';
 import { encodeEngineTransforms, toEngineTransform } from '../viewer/transforms';
 import { engineClient } from '../engine/client';
 import { summarizeSlice } from '../slice/summary';
+import { diagnosticsLog } from '../instrumentation/log';
+import { gcodeFileName, saveGcode } from '../export/save-gcode';
 
 /** iPad regular width (sidebar + canvas) versus compact width (stacked with sheets). */
 const REGULAR_WIDTH = '(min-width: 700px)';
@@ -84,15 +86,25 @@ function createAppValue() {
         const summary = summarizeSlice(sliced.gcode, sliced.statistics, settings, Number.isFinite(price) ? price : undefined, prefs.currency.get());
         binaries.putResult('current', sliced.gcode); result.succeed(attempt, summary, { variant: sliced.variant, loadMs: sliced.loadMs,
           sliceMs: sliced.sliceMs, peakHeapBytes: sliced.peakHeapBytes, at: Date.now() });
+        diagnosticsLog.append('slice-done', { variant: sliced.variant, loadMs: sliced.loadMs, sliceMs: sliced.sliceMs,
+          peakHeapBytes: sliced.peakHeapBytes, gcodeBytes: sliced.gcode.byteLength });
         flow.hasResult.set(true); engine.state.set('ready'); engine.variant.set(sliced.variant); flow.step.set('preview');
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
+        diagnosticsLog.append('engine-error', { stage: 'slice', message, variant: engine.variant.get() });
         result.fail(attempt, message); flow.hasResult.set(false); engine.state.set('error'); engine.message.set(message);
       }
     },
     cancelSlice(): void {
       const canceled = engineClient.cancelSlice(); result.cancel(canceled.finishingPreviousSlice);
       binaries.deleteResult('current'); flow.hasResult.set(false); engine.state.set('idle');
+      diagnosticsLog.append('slice-cancel', { variant: engine.variant.get(), finishingPreviousSlice: canceled.finishingPreviousSlice });
+    },
+    saveResult(): void {
+      const gcode = binaries.getResult('current'); if (!gcode) return;
+      const fileName = gcodeFileName(plate.state.objects[0]?.name ?? 'model.stl');
+      void saveGcode(gcode, fileName).then(saved => diagnosticsLog.append('gcode-save', saved), error =>
+        diagnosticsLog.append('engine-error', { stage: 'export', message: error instanceof Error ? error.message : String(error) }));
     },
     reachableSteps,
     /** Navigation is refused for steps the flow has not unlocked yet. */

@@ -2,7 +2,7 @@ import type { Dictionary } from './en';
 
 export const es = {
   app: {
-    title: 'Slicer para iPad',
+    title: 'SliceAr',
     stepsLabel: 'Pasos de laminado',
     engine: 'Motor',
     configurationError: 'Importa un modelo y elige un perfil compatible antes de laminar.',
@@ -18,6 +18,15 @@ export const es = {
     configure: 'La impresora, el material y la calidad se configuran aquí. El modo simple es el predeterminado.',
     preview: 'La placa y, después de laminar, la vista previa aparecen aquí.',
     save: 'Guarda el G-code en Archivos o compártelo.',
+  },
+  results: {
+    time: 'Tiempo de impresión', mass: 'Masa de filamento', cost: 'Costo estimado', layers: 'Capas', unavailable: 'No disponible',
+    priceBasis: 'Precio del filamento', requested: 'Ajustes solicitados', effective: 'Ajustes efectivos de salida', stale: 'Los ajustes o la placa cambiaron; volvé a laminar antes de confiar en este resultado.',
+    slicing: 'Laminando', preparing: 'Preparando motor', ready: 'Motor listo', save: 'Guardar G-code',
+  },
+  diagnostics: {
+    heading: 'Diagnósticos', isolation: 'Aislamiento de origen cruzado', variant: 'Variante del motor', st: 'Un hilo', mt: 'Multihilo',
+    unavailableMt: 'El modo multihilo no está disponible en este dispositivo.', export: 'Exportar diagnósticos', recent: 'Eventos recientes', load: 'Carga del motor', slice: 'Tiempo de laminado', heap: 'Memoria máxima',
   },
   preferences: {
     heading: 'Preferencias',

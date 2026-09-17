@@ -15,7 +15,7 @@ it('summarizes the latest events without treating errors or progress as complete
   log.append('slice-progress', { heapBytes: 999 });
   log.append('unrelated', null);
   expect(summarizeLog(log.entries())).toEqual({
-    loadPath: 'streaming', loadMs: 100, gcodeBytes: 200, sliceMs: 300, peakHeapBytes: 400, lastSave: 'cancelled',
+    loadPath: 'streaming', loadMs: 100, gcodeBytes: 200, sliceMs: 300, peakHeapBytes: 400, variant: 'mt', lastSave: 'cancelled',
   });
 });
 

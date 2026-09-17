@@ -1,6 +1,6 @@
 {
-  "name": "iPad Slicer Spike",
-  "short_name": "Slicer",
+  "name": "SliceAr",
+  "short_name": "SliceAr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

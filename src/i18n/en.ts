@@ -1,6 +1,6 @@
 export const en = {
   app: {
-    title: 'iPad Slicer',
+    title: 'SliceAr',
     stepsLabel: 'Slicing steps',
     engine: 'Engine',
     configurationError: 'Import a model and choose a compatible profile before slicing.',
@@ -16,6 +16,15 @@ export const en = {
     configure: 'Printer, material and quality live here. Simple mode is the default.',
     preview: 'The plate and, after slicing, the toolpath preview appear here.',
     save: 'Save the G-code to Files or share it.',
+  },
+  results: {
+    time: 'Print time', mass: 'Filament mass', cost: 'Estimated cost', layers: 'Layers', unavailable: 'Unavailable',
+    priceBasis: 'Filament price', requested: 'Requested settings', effective: 'Effective output settings', stale: 'Settings or plate changed; slice again before relying on this result.',
+    slicing: 'Slicing', preparing: 'Preparing engine', ready: 'Engine ready', save: 'Save G-code',
+  },
+  diagnostics: {
+    heading: 'Diagnostics', isolation: 'Cross-origin isolated', variant: 'Engine variant', st: 'Single-thread', mt: 'Multithread',
+    unavailableMt: 'Multithread is unavailable on this device.', export: 'Export diagnostics', recent: 'Recent events', load: 'Engine load', slice: 'Slice time', heap: 'Peak heap',
   },
   preferences: {
     heading: 'Preferences',

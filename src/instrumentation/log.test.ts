@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createLog } from './log';
+import { createLog, LEGACY_LOG_STORAGE_KEY, LOG_STORAGE_KEY } from './log';
 import type { StorageLike } from './log';
 
 class MemoryStorage implements StorageLike {
@@ -15,7 +15,7 @@ class MemoryStorage implements StorageLike {
   }
 }
 
-const key = 'ipad-slicer:spike-log';
+const key = LOG_STORAGE_KEY;
 afterEach(() => vi.unstubAllGlobals());
 
 describe('createLog', () => {
@@ -59,6 +59,14 @@ describe('createLog', () => {
     expect(createLog({ storage, key: 'custom', capacity: 1 }).entries())
       .toEqual([{ ts: 42, type: 'done', data: { sliceMs: 100 } }]);
     expect(createLog({ storage }).entries()).toEqual([]);
+  });
+
+  it('imports the legacy key once without losing entries', () => {
+    const storage = new MemoryStorage();
+    storage.setItem(LEGACY_LOG_STORAGE_KEY, '[{"ts":1,"type":"slice-done"}]');
+    expect(createLog({ storage }).entries()).toEqual([{ ts: 1, type: 'slice-done' }]);
+    expect(storage.getItem(LOG_STORAGE_KEY)).toContain('slice-done');
+    expect(storage.getItem(LEGACY_LOG_STORAGE_KEY)).toBeNull();
   });
 
   it.each(['broken{', '{}', 'null', '42', '[null]', '[{"ts":"bad","type":"x"}]'])

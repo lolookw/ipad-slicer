@@ -2,7 +2,7 @@ import { render } from 'solid-js/web';
 import { waitFor } from '@solidjs/testing-library';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { App } from './App';
-import { flow } from './stores';
+import { configuration, flow, result } from './stores';
 
 let dispose: (() => void) | undefined;
 let host: HTMLDivElement;
@@ -13,6 +13,8 @@ beforeEach(() => {
   flow.hasModel.set(false);
   flow.hasResult.set(false);
   flow.step.set('configure');
+  result.reset();
+  configuration.mode.set('simple');
   host = document.createElement('div');
   document.body.append(host);
   dispose = render(() => <App />, host);
@@ -72,4 +74,15 @@ it('applies and persists explicit appearance changes', () => {
 it('exposes the STL file picker from the real application shell', () => {
   const picker = host.querySelector<HTMLInputElement>('input[type="file"]');
   expect(picker?.accept).toContain('.stl');
+});
+
+it('blocks an invalid slice and keeps diagnostics out of the simple flow', () => {
+  expect(host.querySelector<HTMLButtonElement>('.slice-action')?.disabled).toBe(true);
+  expect(host.querySelector('.diagnostics-sheet')).toBeNull();
+});
+
+it('exposes diagnostics only after Advanced settings is selected', () => {
+  expect(host.querySelector('.diagnostics-sheet')).toBeNull();
+  configuration.mode.set('advanced');
+  expect(host.querySelector('.diagnostics-sheet')).not.toBeNull();
 });

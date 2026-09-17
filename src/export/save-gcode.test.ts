@@ -35,13 +35,22 @@ it('selects the second G-code MIME when the first cannot be shared', async () =>
   expect(vi.mocked(deps.navigator!.share!).mock.calls[0]![0]!.files![0]!.type).toBe('application/octet-stream');
 });
 
-it('returns cancelled without downloading when the sheet is dismissed', async () => {
+it('passes engine-produced binary bytes unchanged and leaves the source buffer intact', async () => {
+  const { deps } = fakes();
+  const gcode = Uint8Array.from([0, 255, 10, 71, 49]).buffer;
+  await saveGcode(gcode, 'exact.gcode', deps);
+  const file = vi.mocked(deps.navigator!.share!).mock.calls[0]![0]!.files![0]!;
+  expect([...new Uint8Array(await file.arrayBuffer())]).toEqual([0, 255, 10, 71, 49]);
+  expect([...new Uint8Array(gcode)]).toEqual([0, 255, 10, 71, 49]);
+});
+
+it('downloads the exact bytes when the share sheet is dismissed', async () => {
   const { deps, document } = fakes();
   vi.mocked(deps.navigator!.share!).mockRejectedValue({ name: 'AbortError' });
   expect(await saveGcode(new ArrayBuffer(2), 'cube.gcode', deps))
-    .toEqual({ method: 'cancelled', mimeType: 'text/x.gcode', bytes: 2 });
-  expect(deps.createObjectURL).not.toHaveBeenCalled();
-  expect(document.createElement).not.toHaveBeenCalled();
+    .toEqual({ method: 'download', mimeType: 'text/x.gcode', bytes: 2, shareError: 'AbortError' });
+  expect(deps.createObjectURL).toHaveBeenCalled();
+  expect(document.createElement).toHaveBeenCalledWith('a');
 });
 
 it.each(['NotAllowedError', 'missing share', 'missing canShare', 'unshareable'])('downloads on %s', async (reason) => {
