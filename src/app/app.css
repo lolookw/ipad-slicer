@@ -1,7 +1,10 @@
 :root {
   --touch-target-min: 44px;
   --app-gap: 1rem;
-  color-scheme: light dark;
+  /* color-scheme is set per-theme in tokens.css ([data-theme='light'|'dark']); an unconditional
+   * value here would load after tokens.css and win the cascade, letting native form-control
+   * chrome (checkboxes, the <select> popup) follow the OS preference instead of the user's
+   * explicit Light/Dark choice. */
 }
 
 body {
@@ -143,7 +146,7 @@ select {
 .control-entry button[aria-pressed='true'], .mode-switch button[aria-pressed='true'], .slice-action { background: var(--color-primary); color: var(--color-on-accent); }
 .mode-switch, .control-entry[role='group'], .settings-form > div { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .settings-panels details { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0.5rem; }
-.settings-panels summary { min-height: var(--touch-target-min); display: flex; align-items: center; font-weight: 600; }
+summary { min-height: var(--touch-target-min); display: flex; align-items: center; font-weight: 600; }
 .setting-row { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; align-items: end; }
 .settings-form textarea { min-height: 6rem; }
 .field-error, .validation-errors { color: var(--color-danger); }

@@ -48,7 +48,7 @@ test('every visible English and Spanish control meets the 44pt touch target', as
   await page.goto('/');
   for (const locale of ['en', 'es']) {
     await page.locator('select').filter({ has: page.locator('option[value="es"]') }).selectOption(locale);
-    for (const control of await page.locator('button:visible, select:visible, input:visible, textarea:visible').all()) {
+    for (const control of await page.locator('button:visible, select:visible, input:visible, textarea:visible, summary:visible').all()) {
       const box = await control.boundingBox();
       expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
       expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
