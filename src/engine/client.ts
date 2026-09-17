@@ -3,6 +3,7 @@ import { isFromWorker, type FromWorker, type PlateObjectMessage, type ToWorker }
 import type { EngineTransform } from '../viewer/transforms';
 import { binaries, engine } from '../app/stores';
 import { hasMtFailure, markMtFailure, preferredVariant, retryMt, type KeyValueStorage, type VariantPreference } from '../slice/crash-marker';
+import type { ErrorCode } from '../i18n/en';
 
 type Pending = { resolve: (message: FromWorker) => void; reject: (reason: Error) => void };
 export type WorkerLike = Pick<Worker, 'postMessage' | 'addEventListener' | 'removeEventListener' | 'terminate' | 'onerror'>;
@@ -11,6 +12,9 @@ type WithoutRequestId<T> = T extends { requestId: string } ? Omit<T, 'requestId'
 export interface SliceResult { gcode: ArrayBuffer; statistics: unknown; sliceMs: number; peakHeapBytes: number; variant: Variant; loadMs: number }
 interface SliceJob { nativeJson: string; objects: readonly PlateObjectMessage[]; stale: boolean; resolve: (value: SliceResult | undefined) => void; reject: (error: Error) => void }
 export interface EngineClientOptions { preference?: VariantPreference; buildId?: string; storage?: KeyValueStorage; onReady?: (variant: Variant) => void }
+export class EngineClientError extends Error {
+  constructor(readonly code: ErrorCode, readonly values?: Record<string, string | number>) { super(code); }
+}
 export const ENGINE_VARIANT_STORAGE_KEY = 'ipad-slicer:engine-variant';
 export const resolveVariantPreference = (value: string | null): VariantPreference => value === 'st' || value === 'mt' ? value : 'auto';
 
@@ -89,7 +93,7 @@ export class EngineClient {
 
   private async upload(objects: readonly PlateObjectMessage[]): Promise<void> {
     for (const { meshId } of objects) if (this.uploaded.get(meshId) !== this.generation) {
-      const blob = this.source(meshId); if (!blob) throw new Error(`Missing mesh ${meshId}`);
+      const blob = this.source(meshId); if (!blob) throw new EngineClientError('mesh-missing', { meshId });
       await this.request({ t: 'mesh', meshId, generation: this.generation, blob });
       this.uploaded.set(meshId, this.generation);
     }
@@ -101,7 +105,7 @@ export class EngineClient {
     await this.request({ t: 'config', configHash, nativeJson });
     await this.upload(objects);
     const result = await this.request({ t: 'preparePlate', configHash, generation: this.generation, operation, objects: [...objects] });
-    if (result.t !== 'preparePlateResult' || result.transforms.length !== objects.length) throw new Error('Invalid preparation result');
+    if (result.t !== 'preparePlateResult' || result.transforms.length !== objects.length) throw new EngineClientError('invalid-preparation-result');
     return result.transforms;
   }
 
@@ -133,7 +137,7 @@ export class EngineClient {
     await this.request({ t: 'config', configHash, nativeJson: job.nativeJson });
     await this.upload(job.objects);
     const response = await this.request({ t: 'sliceMulti', configHash, generation: this.generation, objects: [...job.objects] });
-    if (response.t !== 'sliceMultiResult' || !this.variant) throw new Error('Invalid slice result');
+    if (response.t !== 'sliceMultiResult' || !this.variant) throw new EngineClientError('invalid-slice-result');
     return { ...response, variant: this.variant, loadMs: this.loadMs };
   }
 

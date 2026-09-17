@@ -10,15 +10,18 @@ import { createViewerGestures, type ViewerGestures } from './gestures';
 import { importFileToPlate } from './plate-import';
 import { createViewer, type Viewer } from './scene';
 import { engineClient } from '../engine/client';
+import { useApp } from '../app/AppProvider';
+import type { CodedError } from '../i18n/en';
 import './workspace.css';
 
 export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> }): JSX.Element {
+  const app = useApp();
   let canvas!: HTMLCanvasElement;
   let viewer: Viewer | undefined;
   let controls: ViewerCameraControls | undefined;
   let gestures: ViewerGestures | undefined;
   const gizmo = createGizmo();
-  const [error, setError] = createSignal<string>();
+  const [error, setError] = createSignal<string | CodedError>();
   const [busy, setBusy] = createSignal(false);
   const knownIds = new Set<string>();
 
@@ -51,7 +54,7 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
       });
       sync(); viewer.start();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'The 3D viewer could not start.');
+      setError(reason instanceof Error && reason.message ? reason.message : 'viewer-start-failed');
     }
   });
 
@@ -67,18 +70,21 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
     setBusy(false); sync();
   };
 
-  return <section class="viewer-workspace" aria-label="Model workspace">
+  const objectCount = () => app.t('viewer.objectCount').replace('{count}', String(plate.state.objects.length))
+    .replace('{limit}', String(props.tierDecision().limits.objects));
+
+  return <section class="viewer-workspace" aria-label={app.t('viewer.workspace')}>
     <header class="viewer-import">
-      <label class="viewer-import-button"><span>Import STL</span>
-        <input aria-label="Import STL" type="file" accept=".stl,model/stl,application/sla" multiple
+      <label class="viewer-import-button"><span>{app.t('viewer.importStl')}</span>
+        <input aria-label={app.t('viewer.importStl')} type="file" accept=".stl,model/stl,application/sla" multiple
           disabled={busy()} onChange={event => { void importFiles(event.currentTarget.files); event.currentTarget.value = ''; }} />
       </label>
-      <span>{plate.state.objects.length}/{props.tierDecision().limits.objects} objects</span>
+      <span>{objectCount()}</span>
     </header>
-    <Show when={error()}><p class="viewer-error" role="alert">{error()}</p></Show>
-    <div class="viewer-stage"><canvas ref={canvas} data-testid="viewer-canvas" aria-label="3D build plate" /></div>
+    <Show when={error()}>{failure => <p class="viewer-error" role="alert">{app.translateError(failure())}</p>}</Show>
+    <div class="viewer-stage"><canvas ref={canvas} data-testid="viewer-canvas" aria-label={app.t('viewer.buildPlate')} /></div>
     <Show when={plate.state.objects.length}>
-      <nav class="viewer-objects" aria-label="Plate objects">
+      <nav class="viewer-objects" aria-label={app.t('viewer.plateObjects')}>
         <For each={plate.state.objects}>{object =>
           <button type="button" aria-pressed={plate.state.selectedId === object.id}
             data-transform={JSON.stringify(object.transform)} onClick={() => plate.select(object.id)}>{object.name}</button>}

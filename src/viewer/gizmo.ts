@@ -37,9 +37,9 @@ const MIN_SCALE = 0.01;
 /** Prepares a complete plate snapshot and commits only after a valid full result is received. */
 export async function prepareCurrentPlate(operation: 1 | 2 | 3): Promise<void> {
   const settings = resolvedSettings();
-  if (!settings) throw new Error('Choose a compatible printer, filament and quality before preparing the plate.');
+  if (!settings) throw new Error('prepare-configuration-missing');
   const snapshot = plate.state.objects.map(object => ({ id: object.id, transform: object.transform }));
-  if (!snapshot.length) throw new Error('Import at least one model before preparing the plate.');
+  if (!snapshot.length) throw new Error('prepare-model-missing');
   const messages = snapshot.map(object => ({ meshId: object.id,
     transform: encodeEngineTransforms([toEngineTransform(object.transform, operation === 2)]), extruderId: 1 }));
   const prepared = await engineClient.prepare(JSON.stringify(settings), messages, operation);

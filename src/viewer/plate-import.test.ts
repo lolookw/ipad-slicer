@@ -12,8 +12,8 @@ beforeEach(() => { plate.clear(); binaries.clear(); flow.hasModel.set(false); })
 
 describe('plate import wiring', () => {
   it('enforces calibrated object and aggregate triangle limits', () => {
-    expect(validateImportBudget(4, 4, 1, limits)).toContain('at most 4 objects');
-    expect(validateImportBudget(1, 90, 11, limits)).toContain('at most 100 triangles');
+    expect(validateImportBudget(4, 4, 1, limits)).toEqual({ code: 'tier-limit-objects', values: { limit: 4 } });
+    expect(validateImportBudget(1, 90, 11, limits)).toEqual({ code: 'tier-limit-triangles', values: { limit: 100 } });
     expect(validateImportBudget(1, 90, 10, limits)).toBeUndefined();
   });
 
@@ -34,9 +34,9 @@ describe('plate import wiring', () => {
     const first = await importFileToPlate(new File(['ok'], 'first.stl'), limits, async () => ({ ok: true, meshBuffers: mesh }));
     expect(first.ok).toBe(true);
     const snapshot = JSON.stringify(plate.state.objects);
-    const invalid = await importFileToPlate(new File(['bad'], 'bad.stl'), limits, async () => ({ ok: false, error: 'Invalid STL' }));
+    const invalid = await importFileToPlate(new File(['bad'], 'bad.stl'), limits, async () => ({ ok: false, error: { code: 'stl-invalid-format' } }));
     const oversized = await importFileToPlate(new File(['large'], 'large.stl'), { ...limits, triangles: 1 }, async () => ({ ok: true, meshBuffers: mesh }));
-    expect(invalid).toEqual({ ok: false, error: 'Invalid STL' });
+    expect(invalid).toEqual({ ok: false, error: { code: 'stl-invalid-format' } });
     expect(oversized.ok).toBe(false);
     expect(JSON.stringify(plate.state.objects)).toBe(snapshot);
     if (first.ok) { releaseMesh(first.id); binaries.release(first.id); }

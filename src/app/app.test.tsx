@@ -63,6 +63,20 @@ it('translates visible errors live and persists the locale', async () => {
   expect(document.documentElement.lang).toBe('es');
 });
 
+it('explains when a model is imported without a valid printer configuration', () => {
+  flow.hasModel.set(true);
+  expect(host.querySelector('.configuration-error[role="alert"]')?.textContent).toContain('compatible printer');
+});
+
+it('shows and live-translates a coded slice failure', async () => {
+  const attempt = result.start(); result.fail(attempt, 'invalid-slice-result');
+  expect(host.querySelector('.slice-error[role="alert"]')?.textContent).toBe('Invalid slice result');
+  const language = host.querySelector<HTMLSelectElement>('select[aria-label="Language"]')!;
+  language.value = 'es'; language.dispatchEvent(new Event('change', { bubbles: true }));
+  await waitFor(() => expect(host.querySelector('.slice-error[role="alert"]')?.textContent).toBe('El resultado de laminado no es válido'));
+  result.start(); expect(host.querySelector('.slice-error[role="alert"]')).toBeNull();
+});
+
 it('applies and persists explicit appearance changes', () => {
   const theme = host.querySelector<HTMLSelectElement>('select[aria-label="Appearance"]');
   theme!.value = 'dark';

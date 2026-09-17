@@ -63,6 +63,14 @@ test('Spanish persists and visible errors translate without changing user data',
   await page.reload();
   await expect(page.getByLabel('Idioma')).toHaveValue('es');
   await expect(page.getByRole('navigation', { name: 'Pasos de laminado' })).toBeVisible();
+  await page.getByLabel('Importar STL').setInputFiles({ name: 'roto.stl', mimeType: 'model/stl', buffer: Buffer.from([1, 2, 3]) });
+  await expect(page.getByRole('alert').filter({ hasText: 'El archivo STL está vacío' })).toBeVisible();
+});
+
+test('an imported model without a printer gets configuration guidance', async ({ page }) => {
+  await page.goto('/'); await importStl(page, 'needs-profile.stl');
+  await expect(page.getByRole('alert').filter({ hasText: 'compatible printer' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Slice', exact: true })).toBeDisabled();
 });
 
 test('a stored dark preference is applied during first paint', async ({ page }) => {
@@ -183,7 +191,7 @@ test('STL imports remain independently selectable and an invalid file preserves 
   await page.getByRole('button', { name: 'first.stl', exact: true }).click();
   await expect(page.getByRole('button', { name: 'first.stl', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.getByLabel('Import STL').setInputFiles({ name: 'broken.stl', mimeType: 'model/stl', buffer: Buffer.from([1, 2, 3]) });
-  await expect(page.getByRole('alert')).toContainText(/STL/i);
+  await expect(page.getByRole('alert').filter({ hasText: /STL/i })).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button')).toHaveCount(2);
   await expect(page.getByRole('button', { name: 'first.stl', exact: true })).toHaveAttribute('aria-pressed', 'true');
 });
@@ -239,6 +247,30 @@ test('prepare failure preserves every prior object transform', async ({ page }) 
   await page.getByRole('button', { name: 'Orient and arrange' }).click();
   await expect(page.locator('.configuration-ui p[role="status"]')).toContainText(/failed|error|fetch|engine/i, { timeout: 20_000 });
   expect(await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')))).toEqual(before);
+});
+
+test('a slice engine failure is visible in the main flow', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.route('**/engine/wasm-v2.4.2-patch19*/**', route => route.abort('failed'));
+  await page.goto('/'); await configureEngine(page); await importStl(page, 'slice-failure.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Slice', exact: true }).click();
+  await expect(page.locator('.slice-error[role="alert"]')).toContainText(/failed|error|fetch|engine/i, { timeout: 20_000 });
+});
+
+test('Advanced diagnostics exposes multithread retry and clears the sticky marker', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'hardwareConcurrency', { value: 8 });
+    Object.defineProperty(navigator, 'gpu', { value: {} });
+    localStorage.setItem('ipad-slicer:mt-failed:wasm-v2.4.2-patch19', '1');
+    localStorage.setItem('ipad-slicer:crash-marker', '1');
+  });
+  await page.goto('/'); await expect(page.locator('.active-tier')).toContainText('Standard');
+  await page.getByRole('button', { name: 'Advanced', exact: true }).click();
+  await page.locator('summary').filter({ hasText: 'Diagnostics' }).click();
+  await page.getByRole('button', { name: 'Retry multithread', exact: true }).click();
+  await expect(page.getByRole('alert').filter({ hasText: 'Multithread retry enabled' })).toBeVisible();
+  expect(await page.evaluate(() => [localStorage.getItem('ipad-slicer:mt-failed:wasm-v2.4.2-patch19'), localStorage.getItem('ipad-slicer:crash-marker')])).toEqual([null, null]);
+  await expect(page.locator('.active-tier')).toContainText('Full');
 });
 
 test('a configured imported plate slices, shows estimates and downloads G-code', async ({ page }) => {

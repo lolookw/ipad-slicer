@@ -61,7 +61,7 @@ describe('EngineClient mesh generations', () => {
   it('rejects a missing mesh before sending the plate operation', async () => {
     const worker = new FakeWorker();
     const client = new EngineClient(id => id === 'a' ? new Blob(['a']) : undefined, () => worker);
-    await expect(client.prepare('{}', objects, 3)).rejects.toThrow('Missing mesh b');
+    await expect(client.prepare('{}', objects, 3)).rejects.toMatchObject({ code: 'mesh-missing', values: { meshId: 'b' } });
     expect(worker.messages.some(message => message.t === 'preparePlate')).toBe(false);
   });
 

@@ -58,8 +58,12 @@ function StepPane(): JSX.Element {
       </Show>
       <Show when={app.flow.step.get() === 'configure'}>
         <p>{app.t('panes.configure')}</p>
-        <Show when={!app.flow.hasModel.get()}><p class="configuration-error" role="alert">{app.t('app.configurationError')}</p></Show>
+        <Show when={!app.flow.hasModel.get()}><p class="configuration-error" role="alert">{app.t('app.modelRequired')}</p></Show>
+        <Show when={app.flow.hasModel.get() && !app.resolvedSettings()}><p class="configuration-error" role="alert">{app.t('app.configurationRequired')}</p></Show>
         <ConfigurationContainer />
+      </Show>
+      <Show when={app.result.state.status === 'error' && (app.sliceFailure() ?? app.result.state.error)}>{failure =>
+        <p class="slice-error" role="alert">{app.translateError(failure())}</p>}
       </Show>
       <Show when={app.flow.step.get() === 'preview'}>
         <p>{app.t('panes.preview')}</p>

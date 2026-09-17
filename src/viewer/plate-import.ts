@@ -4,18 +4,19 @@ import { plate } from '../app/stores/plate';
 import { putMeshBuffers } from './geometry-cache';
 import { importStlFile, type ImportStlResult } from './mesh.worker';
 import { IDENTITY_TRANSFORM } from './transforms';
+import type { CodedError } from '../i18n/en';
 
 export type ImportLimits = TierDecision['limits'];
-export type PlateImportResult = { ok: true; id: string } | { ok: false; error: string };
+export type PlateImportResult = { ok: true; id: string } | { ok: false; error: CodedError };
 
 export function validateImportBudget(
   currentObjects: number,
   currentTriangles: number,
   importedTriangles: number,
   limits: ImportLimits,
-): string | undefined {
-  if (currentObjects + 1 > limits.objects) return `This performance tier supports at most ${limits.objects} objects.`;
-  if (currentTriangles + importedTriangles > limits.triangles) return `This performance tier supports at most ${limits.triangles.toLocaleString()} triangles.`;
+): CodedError | undefined {
+  if (currentObjects + 1 > limits.objects) return { code: 'tier-limit-objects', values: { limit: limits.objects } };
+  if (currentTriangles + importedTriangles > limits.triangles) return { code: 'tier-limit-triangles', values: { limit: limits.triangles } };
   return undefined;
 }
 

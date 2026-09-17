@@ -1,5 +1,6 @@
 import { createContext, createEffect, createMemo, createSignal, on, onCleanup, onMount, useContext, type JSX } from 'solid-js';
 import { createI18n, LOCALE_STORAGE_KEY, resolveLocale, type Locale } from '../i18n';
+import { ERROR_CODES, type CodedError, type ErrorCode } from '../i18n/en';
 import { binaries, configuration, engine, flow, prefs, reachableSteps, resolvedSettings, result, settingsIssues, type Step } from './stores';
 import { sliceInputFingerprint } from './stores/result';
 import { browserThemeEnvironment, createThemeController, resolveTheme, THEME_STORAGE_KEY, type Theme } from './theme';
@@ -10,6 +11,7 @@ import { hasBlockingIssues } from '../settings/validate';
 import { plate } from './stores/plate';
 import { encodeEngineTransforms, toEngineTransform } from '../viewer/transforms';
 import { engineClient } from '../engine/client';
+import { EngineClientError } from '../engine/client';
 import { summarizeSlice } from '../slice/summary';
 import { diagnosticsLog } from '../instrumentation/log';
 import { gcodeFileName, saveGcode } from '../export/save-gcode';
@@ -37,11 +39,23 @@ function createAppValue() {
   prefs.tier.set(resolveTier(storage?.getItem(TIER_STORAGE_KEY) ?? null));
 
   const i18n = createI18n(prefs.locale.get);
+  const [sliceFailure, setSliceFailure] = createSignal<string | CodedError>();
+  const [tierRevision, setTierRevision] = createSignal(0);
+  const translateError = (error: string | CodedError): string => {
+    const coded = typeof error === 'string'
+      ? (ERROR_CODES.includes(error as ErrorCode) ? { code: error as ErrorCode } : undefined)
+      : error;
+    if (!coded) return error as string;
+    let message = i18n.t(`errors.${coded.code}`);
+    for (const [key, value] of Object.entries(coded.values ?? {})) message = message.replace(`{${key}}`,
+      typeof value === 'number' ? value.toLocaleString(prefs.locale.get()) : value);
+    return message;
+  };
   const themeEnvironment = browserThemeEnvironment();
   const themeController = themeEnvironment ? createThemeController(themeEnvironment) : undefined;
   const [initialTierSignals] = createSignal<TierSignals>(browserTierSignals());
   const tierDecision = createMemo(() => {
-    engine.state.get(); engine.variant.get();
+    engine.state.get(); engine.variant.get(); tierRevision();
     const crashMarker = storage?.getItem(CRASH_MARKER_STORAGE_KEY) === '1';
     return decideTier(prefs.tier.get(), { ...initialTierSignals(), crashMarker });
   });
@@ -55,6 +69,7 @@ function createAppValue() {
   createEffect(() => storage?.setItem(TIER_STORAGE_KEY, prefs.tier.get()));
   createEffect(on(() => sliceInputFingerprint(resolvedSettings(), plate.state.objects),
     () => result.markStale(), { defer: true }));
+  createEffect(on(() => result.state.status, status => { if (status !== 'error') setSliceFailure(undefined); }, { defer: true }));
   onMount(() => {
     void openSettingsDatabase().then(database => database.close()).catch(() => undefined);
     void configuration.loadIndex();
@@ -67,12 +82,16 @@ function createAppValue() {
     engine,
     binaries,
     configuration,
+    resolvedSettings,
     result,
+    sliceFailure,
     isRegular,
     t: i18n.t,
+    translateError,
     tierDecision,
     setLocale(locale: Locale): void { prefs.locale.set(locale); },
     setTheme(theme: Theme): void { prefs.theme.set(theme); },
+    retryMultithread(): void { engineClient.retryMultithread(); setTierRevision(value => value + 1); },
     async startSlice(): Promise<void> {
       const settings = resolvedSettings(); const issues = settingsIssues();
       if (!settings || hasBlockingIssues(issues) || !plate.state.objects.length) return;
@@ -90,9 +109,12 @@ function createAppValue() {
           peakHeapBytes: sliced.peakHeapBytes, gcodeBytes: sliced.gcode.byteLength });
         flow.hasResult.set(true); engine.state.set('ready'); engine.variant.set(sliced.variant); flow.step.set('preview');
       } catch (error) {
+        const failure = error instanceof EngineClientError ? { code: error.code, values: error.values }
+          : error instanceof Error ? error.message : String(error);
         const message = error instanceof Error ? error.message : String(error);
         diagnosticsLog.append('engine-error', { stage: 'slice', message, variant: engine.variant.get() });
-        result.fail(attempt, message); flow.hasResult.set(false); engine.state.set('error'); engine.message.set(message);
+        result.fail(attempt, typeof failure === 'string' ? failure : failure.code); setSliceFailure(failure);
+        flow.hasResult.set(false); engine.state.set('error'); engine.message.set(message);
       }
     },
     cancelSlice(): void {

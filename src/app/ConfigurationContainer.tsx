@@ -17,6 +17,7 @@ import { configuration, resolvedSettings, settingsIssues, validationContext } fr
 import { useApp } from './AppProvider';
 import type { TranslationKey } from '../i18n';
 import { prepareCurrentPlate } from '../viewer/gizmo';
+import { EngineClientError } from '../engine/client';
 import { DiagnosticsSheet } from '../diagnostics/DiagnosticsSheet';
 
 function requireNumber(value: number, min: number, max: number, label: string): void {
@@ -55,7 +56,7 @@ export function ConfigurationContainer() {
     search: t('configuration.search'), printer: t('configuration.printer'), filament: t('configuration.filament'), quality: t('configuration.quality'),
     loading: t('configuration.loading'), unavailable: t('configuration.notSmokeTested'), draft: t('configuration.draft'), standard: t('configuration.standard'), fine: t('configuration.fine'),
   });
-  const settingsLabels = () => ({ modeSimple: t('configuration.simple'), modeAdvanced: t('configuration.advanced'), infill: t('settings.infillDensity.label'), supports: t('settings.supports.label'),
+  const settingsLabels = () => ({ mode: t('configuration.settingsMode'), modeSimple: t('configuration.simple'), modeAdvanced: t('configuration.advanced'), infill: t('settings.infillDensity.label'), supports: t('settings.supports.label'),
     supportType: t('settings.supportType.label'), brimType: t('settings.brimType.label'), brimWidth: t('settings.brimWidth.label'), arrange: t('configuration.arrange'),
     estimates: t('configuration.estimates'), unavailable: t('configuration.unavailable'), reset: t('configuration.reset'), plateWide: t('configuration.plateWide'),
     categories: { quality: t('configuration.categories.quality'), strength: t('configuration.categories.strength'), speed: t('configuration.categories.speed'), support: t('configuration.categories.support'), others: t('configuration.categories.others') },
@@ -105,7 +106,8 @@ export function ConfigurationContainer() {
       <SettingsPanels mode={configuration.mode.get()} values={resolvedSettings()} overrides={configuration.overrides.get()} labels={settingsLabels()}
         onMode={configuration.mode.set} onChange={(key, value) => configuration.setOverride(key, value)} onReset={key => configuration.resetOverride(key)}
         onArrange={() => void prepareCurrentPlate(2).then(() => configuration.notice.set(t('configuration.arrangeComplete')),
-          error => configuration.notice.set(error instanceof Error ? error.message : String(error)))} />
+          error => configuration.notice.set(app.translateError(error instanceof EngineClientError ? { code: error.code, values: error.values }
+            : error instanceof Error ? error.message : String(error))))} />
     </div>
     <Show when={settingsIssues().length}><ul class="validation-errors" role="alert">{settingsIssues().map(issue => <li>{t('configuration.invalidSetting')}: <code>{issue.key}</code></li>)}</ul></Show>
     <button class="ui-target slice-action" type="button" disabled={app.engine.state.get() !== 'slicing' && (!app.flow.hasModel.get() || !resolvedSettings() || hasBlockingIssues(settingsIssues()))}
@@ -113,12 +115,12 @@ export function ConfigurationContainer() {
       {t(app.engine.state.get() === 'slicing' ? 'configuration.cancel' : 'configuration.slice')}
     </button>
     <Show when={app.result.state.finishingPreviousSlice}><p role="status">{t('configuration.finishing')}</p></Show>
-    <Show when={configuration.notice.get()}><p role="status">{configuration.notice.get()}</p></Show>
+    <Show when={configuration.notice.get()}>{notice => <p role="status">{app.translateError(notice())}</p>}</Show>
     <details><summary>{t('configuration.custom.heading')}</summary><CustomPrinterForm labels={{ heading: t('configuration.custom.heading'), name: t('configuration.custom.name'), width: t('configuration.custom.width'), depth: t('configuration.custom.depth'), height: t('configuration.custom.height'), nozzle: t('configuration.custom.nozzle'), flavor: t('configuration.custom.flavor'), start: t('configuration.custom.start'), end: t('configuration.custom.end'), heated: t('configuration.custom.heated'), save: t('configuration.custom.save'), disclaimer: t('configuration.notSmokeTested') }} onSubmit={makeCustom} /></details>
     <details><summary>{t('configuration.presets.heading')}</summary><PresetTransfer labels={{ heading: t('configuration.presets.heading'), json: t('configuration.presets.json'), import: t('configuration.presets.import'), export: t('configuration.presets.export') }} onImport={importPresets} onExport={exportPreset} /></details>
     <Show when={configuration.mode.get() === 'advanced'}><details class="diagnostics"><summary>{t('diagnostics.heading')}</summary><DiagnosticsSheet labels={{
       heading: t('diagnostics.heading'), isolation: t('diagnostics.isolation'), variant: t('diagnostics.variant'), auto: t('preferences.auto'), st: t('diagnostics.st'), mt: t('diagnostics.mt'),
-      unavailableMt: t('diagnostics.unavailableMt'), export: t('diagnostics.export'), recent: t('diagnostics.recent'), load: t('diagnostics.load'), slice: t('diagnostics.slice'), heap: t('diagnostics.heap'),
-    }} /></details></Show>
+      unavailableMt: t('diagnostics.unavailableMt'), retryMt: t('diagnostics.retryMt'), retryMtSuccess: t('diagnostics.retryMtSuccess'), export: t('diagnostics.export'), recent: t('diagnostics.recent'), load: t('diagnostics.load'), slice: t('diagnostics.slice'), heap: t('diagnostics.heap'),
+    }} retryMultithread={app.retryMultithread} /></details></Show>
   </div>;
 }

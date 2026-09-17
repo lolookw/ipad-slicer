@@ -37,7 +37,6 @@ describe('parseStlBuffer', () => {
     const file = { arrayBuffer: async () => new Uint8Array([1, 2, 3]).buffer } as File;
     const result = await importStlFile(file);
 
-    expect(result).toEqual({ ok: false, error: expect.any(String) });
-    if (!result.ok) expect(result.error.length).toBeGreaterThan(0);
+    expect(result).toEqual({ ok: false, error: { code: 'stl-empty' } });
   });
 });

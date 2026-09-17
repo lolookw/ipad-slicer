@@ -14,6 +14,7 @@ const pack: PrinterPack = {
 };
 const index: CatalogIndex = { schema: 1, orcaTag: 'v2.4.2', engineRelease: 'test', vendors: [{ id: 'acme', name: 'Acme', models: [{ id: 'printer', name: 'One', nozzle: 0.4, pack: 'one.json', bytes: 1, sha256: '0'.repeat(64) }] }] };
 const labels: SettingsLabels = {
+  mode: 'Settings mode',
   modeSimple: 'Simple', modeAdvanced: 'Advanced', infill: 'Infill', supports: 'Supports', supportType: 'Support type', brimType: 'Brim type', brimWidth: 'Brim width', arrange: 'Arrange', estimates: 'Estimates', unavailable: 'Unavailable', reset: 'Reset', plateWide: 'Plate-wide',
   categories: { quality: 'Quality', strength: 'Strength', speed: 'Speed', support: 'Support', others: 'Others' }, setting: key => key,
 };

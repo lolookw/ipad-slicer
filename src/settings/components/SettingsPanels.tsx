@@ -6,7 +6,7 @@ import type { Quality } from '../ladder';
 import { selectedBedTemperatureKey } from '../virtual';
 
 export interface SettingsLabels {
-  modeSimple: string; modeAdvanced: string; infill: string; supports: string; supportType: string;
+  mode: string; modeSimple: string; modeAdvanced: string; infill: string; supports: string; supportType: string;
   brimType: string; brimWidth: string; arrange: string; estimates: string; unavailable: string;
   reset: string; plateWide: string; categories: Record<AdvancedCategory, string>;
   setting: (key: SettingKey) => string;
@@ -51,7 +51,7 @@ export function SettingsPanels(props: SettingsPanelProps) {
     props.onChange(key, definition.vector ? [value] : value);
   };
   return <section class="settings-panels">
-    <div class="mode-switch" role="group" aria-label="Settings mode">
+    <div class="mode-switch" role="group" aria-label={props.labels.mode}>
       <button class="ui-target" type="button" aria-pressed={props.mode === 'simple'} onClick={() => props.onMode('simple')}>{props.labels.modeSimple}</button>
       <button class="ui-target" type="button" aria-pressed={props.mode === 'advanced'} onClick={() => props.onMode('advanced')}>{props.labels.modeAdvanced}</button>
     </div>

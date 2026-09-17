@@ -22,12 +22,12 @@ function parseInWorker(buffer: ArrayBuffer): Promise<MeshBuffers> {
       reject(error);
     };
 
-    worker.onerror = (event) => fail(new Error(event.message || 'The STL worker failed to initialize.'));
-    worker.onmessageerror = () => fail(new Error('The STL worker returned an unreadable response.'));
+    worker.onerror = () => fail(new Error('worker-failed'));
+    worker.onmessageerror = () => fail(new Error('worker-unreadable'));
     worker.onmessage = (event: MessageEvent<ImportStlResult>) => {
       worker.terminate();
       if (event.data.ok) resolve(event.data.meshBuffers);
-      else reject(new Error(event.data.error));
+      else reject(new Error(event.data.error.code));
     };
 
     // Keep the source buffer available for the synchronous fallback if the worker fails.
@@ -44,9 +44,8 @@ export async function importStlFile(file: File): Promise<ImportStlResult> {
     } catch {
       return parseStlBuffer(buffer);
     }
-  } catch (error) {
-    const message = error instanceof Error && error.message ? error.message : 'The STL file could not be read.';
-    return { ok: false, error: message };
+  } catch {
+    return { ok: false, error: { code: 'stl-read-failed' } };
   }
 }
 

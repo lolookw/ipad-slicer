@@ -1,9 +1,19 @@
+export const ERROR_CODES = [
+  'viewer-start-failed', 'stl-empty', 'stl-no-triangles', 'stl-invalid-normals', 'stl-unsupported-buffers',
+  'stl-invalid-numbers', 'stl-invalid-bounds', 'stl-invalid-format', 'stl-read-failed', 'worker-failed',
+  'worker-unreadable', 'tier-limit-objects', 'tier-limit-triangles', 'prepare-configuration-missing',
+  'prepare-model-missing', 'mesh-missing', 'invalid-preparation-result', 'invalid-slice-result',
+] as const;
+export type ErrorCode = typeof ERROR_CODES[number];
+export interface CodedError { code: ErrorCode; values?: Record<string, string | number> }
+
 export const en = {
   app: {
     title: 'SliceAr',
     stepsLabel: 'Slicing steps',
     engine: 'Engine',
-    configurationError: 'Import a model and choose a compatible profile before slicing.',
+    modelRequired: 'Import a model before slicing.',
+    configurationRequired: 'Choose a compatible printer, filament and quality before slicing.',
   },
   steps: {
     import: 'Import',
@@ -24,7 +34,8 @@ export const en = {
   },
   diagnostics: {
     heading: 'Diagnostics', isolation: 'Cross-origin isolated', variant: 'Engine variant', st: 'Single-thread', mt: 'Multithread',
-    unavailableMt: 'Multithread is unavailable on this device.', export: 'Export diagnostics', recent: 'Recent events', load: 'Engine load', slice: 'Slice time', heap: 'Peak heap',
+    unavailableMt: 'Multithread is unavailable on this device.', retryMt: 'Retry multithread', retryMtSuccess: 'Multithread retry enabled.',
+    export: 'Export diagnostics', recent: 'Recent events', load: 'Engine load', slice: 'Slice time', heap: 'Peak heap',
   },
   preferences: {
     heading: 'Preferences',
@@ -42,6 +53,7 @@ export const en = {
     activeTier: 'Active tier',
   },
   viewer: {
+    workspace: 'Model workspace', importStl: 'Import STL', buildPlate: '3D build plate', plateObjects: 'Plate objects', objectCount: '{count}/{limit} objects',
     toolbar: 'Selected object tools',
     deselect: 'Deselect',
     layFlat: 'Lay flat',
@@ -68,7 +80,7 @@ export const en = {
     draft: 'Draft', standard: 'Standard', fine: 'Fine', simple: 'Simple', advanced: 'Advanced', arrange: 'Orient and arrange',
     arrangePending: 'Orient and arrange becomes available after importing a model.', arrangeComplete: 'Plate orientation and arrangement updated.', estimates: 'Estimated time, filament and cost', reset: 'Reset to preset',
     plateWide: 'Support and brim settings apply to the whole plate. Per-object controls are not available.', notSmokeTested: 'User printer — not individually smoke-tested',
-    slice: 'Slice', cancel: 'Cancel slice', finishing: 'Finishing previous slice', sliceComplete: 'Slice complete (layers)', incomplete: 'Choose a compatible printer, filament and quality before slicing.', invalidSetting: 'Invalid setting', selectPrinterFirst: 'Select a printer before importing a preset.',
+    slice: 'Slice', cancel: 'Cancel slice', finishing: 'Finishing previous slice', sliceComplete: 'Slice complete (layers)', incomplete: 'Choose a compatible printer, filament and quality before slicing.', settingsMode: 'Settings mode', invalidSetting: 'Invalid setting', selectPrinterFirst: 'Select a printer before importing a preset.',
     profileUnavailable: 'The printer profile is unavailable. Try again.', invalidCustom: 'The custom printer is invalid and was not saved.', invalidImport: 'The preset could not be imported; current settings were kept.',
     imported: 'Preset imported.', importedWithNotices: 'Preset imported. Unsupported settings were omitted.', customSaved: 'Custom printer saved. Choose a compatible filament and quality to continue.',
     categories: { quality: 'Quality', strength: 'Strength', speed: 'Speed', support: 'Support', others: 'Others' },
@@ -90,6 +102,26 @@ export const en = {
     gcodeFlavor: { label: 'G-code flavor' }, beforeLayerGcode: { label: 'Before-layer G-code' }, layerChangeGcode: { label: 'Layer-change G-code' },
     startGcode: { label: 'Start G-code' }, endGcode: { label: 'End G-code' }, filamentCost: { label: 'Filament cost' }, filamentDensity: { label: 'Filament density' },
   },
+  errors: {
+    'viewer-start-failed': 'The 3D viewer could not start.',
+    'stl-empty': 'The STL file is empty or too short.',
+    'stl-no-triangles': 'The STL file does not contain valid triangles.',
+    'stl-invalid-normals': 'The STL file does not contain valid vertex normals.',
+    'stl-unsupported-buffers': 'The STL file produced unsupported mesh buffers.',
+    'stl-invalid-numbers': 'The STL file contains invalid numeric values.',
+    'stl-invalid-bounds': 'The STL file bounds could not be computed.',
+    'stl-invalid-format': 'The STL file could not be parsed.',
+    'stl-read-failed': 'The STL file could not be read.',
+    'worker-failed': 'The STL worker failed to initialize.',
+    'worker-unreadable': 'The STL worker returned an unreadable response.',
+    'tier-limit-objects': 'This performance tier supports at most {limit} objects.',
+    'tier-limit-triangles': 'This performance tier supports at most {limit} triangles.',
+    'prepare-configuration-missing': 'Choose a compatible printer, filament and quality before preparing the plate.',
+    'prepare-model-missing': 'Import at least one model before preparing the plate.',
+    'mesh-missing': 'Missing mesh {meshId}',
+    'invalid-preparation-result': 'Invalid preparation result',
+    'invalid-slice-result': 'Invalid slice result',
+  } satisfies Record<ErrorCode, string>,
 } as const;
 
 type WidenStrings<T> = T extends string ? string : { readonly [K in keyof T]: WidenStrings<T[K]> };
