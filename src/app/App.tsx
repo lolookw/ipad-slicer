@@ -80,6 +80,8 @@ function StepPane(): JSX.Element {
 function Preferences(): JSX.Element {
   const app = useApp();
   return (
+    <details class="preferences-menu">
+    <summary aria-label={app.t('preferences.heading')}><span aria-hidden="true">⚙</span></summary>
     <fieldset class="preferences">
       <legend>{app.t('preferences.heading')}</legend>
       <label>{app.t('preferences.language')}
@@ -107,6 +109,7 @@ function Preferences(): JSX.Element {
       </label>
       <output class="active-tier">{app.t('preferences.activeTier')}: {app.t(TIER_LABELS[app.tierDecision().tier])}</output>
     </fieldset>
+    </details>
   );
 }
 

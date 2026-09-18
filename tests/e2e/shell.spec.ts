@@ -14,6 +14,11 @@ async function importStl(page: import('@playwright/test').Page, name: string, bu
   await expect(page.getByRole('button', { name, exact: true })).toBeVisible();
 }
 
+async function openPreferences(page: import('@playwright/test').Page) {
+  const menu = page.locator('.preferences-menu');
+  if (!(await menu.evaluate((el) => (el as HTMLDetailsElement).open))) await menu.locator('summary').click();
+}
+
 async function selectedMeshPoint(page: import('@playwright/test').Page, objectName: string) {
   const object = page.getByRole('button', { name: objectName, exact: true });
   const canvas = page.getByTestId('viewer-canvas');
@@ -62,6 +67,7 @@ test('locked steps stay disabled and Configure is the default', async ({ page })
 test('every visible English and Spanish control meets the 44pt touch target', async ({ page }) => {
   await page.goto('/');
   for (const locale of ['en', 'es']) {
+    await openPreferences(page);
     await page.locator('select').filter({ has: page.locator('option[value="es"]') }).selectOption(locale);
     for (const control of await page.locator('button:visible, select:visible, input:visible, textarea:visible, summary:visible').all()) {
       const box = await control.boundingBox();
@@ -73,9 +79,11 @@ test('every visible English and Spanish control meets the 44pt touch target', as
 
 test('Spanish persists and visible errors translate without changing user data', async ({ page }) => {
   await page.goto('/');
+  await openPreferences(page);
   await page.getByLabel('Language').selectOption('es');
   await expect(page.getByRole('alert')).toContainText('Importa un modelo');
   await page.reload();
+  await openPreferences(page);
   await expect(page.getByLabel('Idioma')).toHaveValue('es');
   await expect(page.getByRole('navigation', { name: 'Pasos de laminado' })).toBeVisible();
   await page.getByLabel('Importar STL').setInputFiles({ name: 'roto.stl', mimeType: 'model/stl', buffer: Buffer.from([1, 2, 3]) });
@@ -99,6 +107,7 @@ test('a stored dark preference is applied during first paint', async ({ page }) 
 test('Full selection falls back when feature signals are insufficient', async ({ page }) => {
   await page.addInitScript(() => Object.defineProperty(navigator, 'hardwareConcurrency', { value: 2 }));
   await page.goto('/');
+  await openPreferences(page);
   await page.getByLabel('Performance').selectOption('full');
   await expect(page.locator('.active-tier')).toContainText('Standard');
 });
