@@ -1,11 +1,18 @@
-.viewer-workspace { display: grid; gap: .5rem; margin: 1rem; padding: .75rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); }
-.viewer-import { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
-.viewer-import-button { display: grid; gap: .25rem; }
-.viewer-import-button input, .viewer-objects button { box-sizing: border-box; min-width: 44px; min-height: 44px; padding: .5rem .75rem; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text); }
-.viewer-stage { min-height: 240px; height: min(42dvh, 420px); }
-.viewer-stage canvas { width: 100%; height: 100%; display: block; touch-action: none; border-radius: var(--radius-sm); }
+.viewer-workspace { display: flex; flex-direction: column; gap: .75rem; margin: 0; padding: .75rem; box-sizing: border-box; border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); min-width: 0; }
+.viewer-import { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: 0 .25rem; font-size: .9375rem; color: var(--color-muted); }
+.viewer-import > :last-child { font-variant-numeric: tabular-nums; }
+.viewer-import-button { position: relative; display: flex; align-items: center; gap: .75rem; font-weight: 600; color: var(--color-text); }
+/* The native file input keeps its accessible label; its button is restyled as the primary "Add" action. */
+.viewer-import-button input { box-sizing: border-box; width: 8.5rem; min-width: 44px; min-height: 44px; padding: 0; border: 0; background: transparent; color: transparent; font-size: 0; cursor: pointer; }
+.viewer-import-button input::file-selector-button { box-sizing: border-box; min-height: 44px; margin: 0; padding: 0 1rem; border: 0; border-radius: var(--radius-sm); background: var(--color-primary); color: var(--color-on-accent); font: 600 .9375rem var(--font-body); cursor: pointer; }
+.viewer-import-button input:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; border-radius: var(--radius-sm); }
+.viewer-objects button { box-sizing: border-box; min-width: 44px; min-height: 44px; padding: .5rem 1rem; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); color: var(--color-text); font: 500 .9375rem var(--font-body); }
+.viewer-stage { flex: 1 1 auto; position: relative; min-height: 320px; height: min(52dvh, 620px); overflow: hidden; border-radius: var(--radius-md); }
+.viewer-stage canvas { width: 100%; height: 100%; display: block; touch-action: none; border-radius: var(--radius-md); }
 .viewer-objects { display: flex; gap: .5rem; overflow-x: auto; }
-.viewer-objects button { flex: 0 0 auto; background: var(--color-surface); color: var(--color-text); }
-.viewer-objects button[aria-pressed='true'] { border-width: 3px; border-color: var(--color-primary); }
-.viewer-error { margin: 0; color: var(--color-danger); }
-@media (max-width: 699px) { .viewer-workspace { margin: .5rem; } .viewer-stage { min-height: 180px; height: 30dvh; } }
+.viewer-objects:empty { display: none; }
+.viewer-objects button { flex: 0 0 auto; }
+.viewer-objects button[aria-pressed='true'] { border-width: 2px; border-color: var(--color-primary); background: var(--color-primary-soft); color: var(--color-primary); font-weight: 600; }
+.viewer-error { margin: 0; padding: .625rem .875rem; border-radius: var(--radius-sm); background: var(--color-danger-soft); color: var(--color-danger); font-size: .9375rem; }
+@media (min-width: 1000px) { .viewer-stage { height: auto; min-height: 320px; } }
+@media (max-width: 699px) { .viewer-workspace { padding: .5rem; } .viewer-stage { min-height: 260px; height: 46dvh; } }
