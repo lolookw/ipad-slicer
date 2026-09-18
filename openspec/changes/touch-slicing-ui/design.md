@@ -142,7 +142,7 @@ Full = WebGL2 ∧ texture ≥ 16384 ∧ (cores ≥ 6 ∨ `navigator.gpu`), with 
 | `@solid-primitives/i18n` | MIT | <1 KB (unverified) | |
 | `three` (pinned to the fork's peer; research says `^0.178`, i.e. `0.178.x`) | MIT | ~150 KB used subset (unverified) | one copy only |
 | `camera-controls` | MIT | ~15 KB (unverified) | |
-| ChestnutLabs `gcode-preview` | MIT | unverified, lazy chunk | npm name unverified; else a git dependency pinned to a commit |
+| `@chestnutlabs/gcode-preview-element` 0.20.1 (fork of remcoder/gcode-preview, verified 2026-09-18) | MIT | 62 KB unpacked, lazy chunk | npm package, pinned exact; peer `three ^0.178.0`; `npm ls three` shows one deduped 0.178.0. Do NOT use the unscoped `gcode-preview` (remcoder, needs three ^0.159) |
 | `idb` | ISC | ~1.2 KB (unverified) | |
 | `@playwright/test`, `@solidjs/testing-library`, `jsdom` | Apache-2.0 / MIT / MIT | dev | |
 
@@ -244,6 +244,6 @@ The PRs are chained auto-chain, stacked to main. At ≤800 changed lines a slice
 - [ ] **Per-object brim/supports**: API 0.2 `slice_stl_multi` accepts only transforms and extruder ids, with no per-object config. MVP fallback: these settings apply to the whole plate and the per-object UI stays hidden unless PR 4b's contract check finds a path. A true per-object version needs an engine build or a product decision.
 - [ ] Transform rotation units, Euler order, and offset origin (PR 4b contract check).
 - [ ] Whether session re-init leaks heap (the design avoids calling `init` twice on one session; watch heap across slices in diagnostics).
-- [ ] `gcode-preview` fork: npm name, custom element API (properties and dispose), exact three peer range.
+- [x] `gcode-preview` fork: npm `@chestnutlabs/gcode-preview-element@0.20.1`; tag `gcode-preview` (`defineGcodePreview()`); properties `source` (Uint8Array/ArrayBuffer/File), `layerRange` [start,end], `quality` ('auto'|'lines'|'tubes'), `tube`, `theme`, `colorMode`, `buildVolume`, `showTravel`, `hiddenFeatureRoles`, `adjacentLayers`, `progressivePreview`; dispose is implicit: `disconnectedCallback` calls `controller.dispose()`, and reconnect builds a fresh controller. Peer three `^0.178.0`. STILL OPEN: demonstrating real buffer release on layer-window changes in a browser (done in 10.2/10.6 probe).
 - [ ] Generic filament presets for Voron (empty `filament_list`) and exact BBL/Prusa generic names.
 - [ ] iPad Safari `hardwareConcurrency` value (Full threshold is provisional); mt and SW isolation on iPadOS 17/18.
