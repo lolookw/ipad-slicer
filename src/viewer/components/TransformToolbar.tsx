@@ -38,23 +38,37 @@ export interface TransformToolbarProps {
   onLayFlat: () => void;
 }
 
+const Svg = (props: { d: string }) => <svg viewBox="0 0 24 24" aria-hidden="true"><path d={props.d} /></svg>;
+const ICONS = {
+  move: 'M12 3v18M3 12h18M12 3l-3 3M12 3l3 3M12 21l-3-3M12 21l3-3M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3',
+  rotate: 'M20 12a8 8 0 1 1-2.5-5.8M20 4v5h-5',
+  flat: 'M4 19h16M7 15h10V9H7z',
+  rotX: 'M4 12h16M15 7l5 5-5 5',
+  rotY: 'M12 4v16M7 9l5-5 5 5',
+  scale: 'M15 4h5v5M9 20H4v-5M20 4l-6 6M4 20l6-6',
+  duplicate: 'M9 9h11v11H9zM5 15V5h10',
+  delete: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  reset: 'M4 12a8 8 0 1 0 2.5-5.8M4 4v5h5',
+  close: 'M6 6l12 12M18 6L6 18',
+};
+
 export function TransformToolbar(props: TransformToolbarProps) {
   return <Show when={props.object}>{object => <>
     <div class="viewer-transform-toolbar" role="toolbar" aria-label={props.labels.toolbar}>
       <span class="viewer-transform-modes" role="group" aria-label={props.labels.interactionMode}>
-        <Button variant={props.transformMode === 'move' ? 'primary' : 'secondary'} aria-pressed={props.transformMode === 'move'}
+        <Button icon={<Svg d={ICONS.move} />} variant={props.transformMode === 'move' ? 'primary' : 'secondary'} aria-pressed={props.transformMode === 'move'}
           onClick={() => props.onTransformMode('move')}>{props.labels.moveMode}</Button>
-        <Button variant={props.transformMode === 'rotate' ? 'primary' : 'secondary'} aria-pressed={props.transformMode === 'rotate'}
+        <Button icon={<Svg d={ICONS.rotate} />} variant={props.transformMode === 'rotate' ? 'primary' : 'secondary'} aria-pressed={props.transformMode === 'rotate'}
           onClick={() => props.onTransformMode('rotate')}>{props.labels.rotateMode}</Button>
       </span>
-      <Button onClick={props.onLayFlat}>{props.labels.layFlat}</Button>
-      <Button variant="secondary" onClick={() => props.onRotate('x')}>{props.labels.rotateX}</Button>
-      <Button variant="secondary" onClick={() => props.onRotate('y')}>{props.labels.rotateY}</Button>
-      <Button variant="secondary" onClick={props.onScaleOpen}>{props.labels.scale}</Button>
-      <Button variant="secondary" onClick={props.onDuplicate}>{props.labels.duplicate}</Button>
-      <Button variant="danger" onClick={props.onDelete}>{props.labels.delete}</Button>
-      <Button variant="secondary" onClick={props.onReset}>{props.labels.reset}</Button>
-      <Button variant="secondary" onClick={props.onDeselect} aria-label={props.labels.deselect}>✕</Button>
+      <Button variant="secondary" icon={<Svg d={ICONS.flat} />} onClick={props.onLayFlat}>{props.labels.layFlat}</Button>
+      <Button variant="secondary" icon={<Svg d={ICONS.rotX} />} onClick={() => props.onRotate('x')}>{props.labels.rotateX}</Button>
+      <Button variant="secondary" icon={<Svg d={ICONS.rotY} />} onClick={() => props.onRotate('y')}>{props.labels.rotateY}</Button>
+      <Button variant="secondary" icon={<Svg d={ICONS.scale} />} onClick={props.onScaleOpen}>{props.labels.scale}</Button>
+      <Button variant="secondary" icon={<Svg d={ICONS.duplicate} />} onClick={props.onDuplicate}>{props.labels.duplicate}</Button>
+      <Button variant="danger" icon={<Svg d={ICONS.delete} />} onClick={props.onDelete}>{props.labels.delete}</Button>
+      <Button variant="secondary" icon={<Svg d={ICONS.reset} />} onClick={props.onReset}>{props.labels.reset}</Button>
+      <Button variant="secondary" onClick={props.onDeselect} aria-label={props.labels.deselect} icon={<Svg d={ICONS.close} />} />
     </div>
     <ScaleSheet open={props.scaleOpen} object={object()} labels={props.labels} onClose={props.onScaleClose} onTransform={props.onTransform} />
   </>}</Show>;

@@ -1,13 +1,13 @@
 :root, [data-theme='light'] {
   color-scheme: light;
-  --color-bg: #f4f6fb; --color-surface: #fff; --color-surface-sunken: #eef1f8; --color-text: #12141c; --color-muted: #5b6072;
-  --color-primary: #2f6fed; --color-primary-strong: #1d54c9; --color-primary-soft: #e8f0ff;
+  --color-bg: #f3f5f9; --color-surface: #fff; --color-surface-sunken: #f0f3f8; --color-text: #10131c; --color-muted: #566076;
+  --color-primary: #1a64f0; --color-primary-strong: #114fc4; --color-primary-soft: #e6eeff;
   --color-danger: #d33a4b; --color-danger-soft: #fdeaec; --color-success: #1f9d5c; --color-on-accent: #fff;
-  --color-border: #dde1ec; --color-border-strong: #c3c8d8;
+  --color-border: #e2e6ee; --color-border-strong: #c3c9d8;
   --space-1: 8px; --space-2: 16px; --space-3: 24px; --space-4: 32px;
-  --radius-sm: 10px; --radius-md: 14px; --radius-lg: 20px;
-  --font-body: -apple-system, 'SF Pro Display', 'Inter', system-ui, sans-serif; --font-size-body: 17px;
-  --shadow-card: 0 1px 2px #12141c0f, 0 8px 24px -8px #12141c1a; --shadow-raised: 0 12px 32px -12px #2f6fed40;
+  --radius-sm: 10px; --radius-md: 14px; --radius-lg: 18px;
+  --font-body: -apple-system, 'SF Pro Text', 'Inter', system-ui, sans-serif; --font-size-body: 16px;
+  --shadow-card: 0 1px 2px #10131c0a, 0 6px 20px -10px #10131c1f; --shadow-raised: 0 8px 20px -10px #1a64f066;
   --touch-target-min: 44px; --hit: var(--touch-target-min);
   --safe-top: env(safe-area-inset-top, 0px); --safe-right: env(safe-area-inset-right, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px); --safe-left: env(safe-area-inset-left, 0px);
@@ -42,7 +42,7 @@
 .ui-button:hover:not(:disabled) { border-color: var(--color-border-strong); }
 .ui-button:active:not(:disabled) { transform: scale(.97); }
 .ui-button[data-variant='primary'] {
-  background: linear-gradient(180deg, var(--color-primary), var(--color-primary-strong));
+  background: var(--color-primary);
   border-color: var(--color-primary-strong); color: var(--color-on-accent); box-shadow: var(--shadow-raised);
 }
 .ui-segmented [aria-checked='true'] { background: var(--color-primary); color: var(--color-on-accent); border-color: var(--color-primary-strong); }
