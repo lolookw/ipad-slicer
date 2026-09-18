@@ -85,9 +85,10 @@ it('applies and persists explicit appearance changes', () => {
   expect(localStorage.getItem('ipad-slicer:theme')).toBe('dark');
 });
 
-it('exposes the STL file picker from the real application shell', () => {
+it('exposes an unrestricted file picker (iPadOS greys out files when accept lists .stl)', () => {
   const picker = host.querySelector<HTMLInputElement>('input[type="file"]');
-  expect(picker?.accept).toContain('.stl');
+  expect(picker).not.toBeNull();
+  expect(picker?.accept).toBe('');
 });
 
 it('blocks an invalid slice and keeps diagnostics out of the simple flow', () => {

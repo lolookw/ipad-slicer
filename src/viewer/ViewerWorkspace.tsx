@@ -79,7 +79,7 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
   return <section class="viewer-workspace" aria-label={app.t('viewer.workspace')}>
     <header class="viewer-import">
       <label class="viewer-import-button"><span>{app.t('viewer.importStl')}</span>
-        <input aria-label={app.t('viewer.importStl')} type="file" accept=".stl,model/stl,application/sla" multiple
+        <input aria-label={app.t('viewer.importStl')} type="file" multiple
           disabled={busy()} onChange={event => { void importFiles(event.currentTarget.files); event.currentTarget.value = ''; }} />
       </label>
       <span>{objectCount()}</span>
