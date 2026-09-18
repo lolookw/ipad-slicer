@@ -1,12 +1,18 @@
-import { Show } from 'solid-js';
+import { For, Show } from 'solid-js';
 import type { PlateObject } from '../../app/stores/plate';
 import { Button } from '../../ui/Button';
+import type { AxisLock } from '../axis';
 import type { ObjectTransform } from '../transforms';
 import type { TransformGestureMode } from '../gestures';
 import { ScaleSheet, type ScaleSheetLabels } from './ScaleSheet';
 import './viewer-components.css';
 
 export interface TransformToolbarLabels extends ScaleSheetLabels {
+  axisLock: string;
+  axisFree: string;
+  axisX: string;
+  axisY: string;
+  axisZ: string;
   toolbar: string;
   interactionMode: string;
   moveMode: string;
@@ -25,6 +31,9 @@ export interface TransformToolbarProps {
   object?: PlateObject;
   scaleOpen: boolean;
   labels: TransformToolbarLabels;
+  axisLock: AxisLock;
+  onAxisLock: (axis: AxisLock) => void;
+  readout?: string;
   transformMode: TransformGestureMode;
   onTransformMode: (mode: TransformGestureMode) => void;
   onScaleOpen: () => void;
@@ -61,6 +70,12 @@ export function TransformToolbar(props: TransformToolbarProps) {
         <Button icon={<Svg d={ICONS.rotate} />} variant={props.transformMode === 'rotate' ? 'primary' : 'secondary'} aria-pressed={props.transformMode === 'rotate'}
           onClick={() => props.onTransformMode('rotate')}>{props.labels.rotateMode}</Button>
       </span>
+      <span class="viewer-axis-lock" role="group" aria-label={props.labels.axisLock}>
+        <For each={['free', 'x', 'y', 'z'] as const}>{axis =>
+          <Button variant="secondary" data-axis={axis} aria-pressed={props.axisLock === axis}
+            onClick={() => props.onAxisLock(axis)}>{({ free: props.labels.axisFree, x: props.labels.axisX, y: props.labels.axisY, z: props.labels.axisZ })[axis]}</Button>
+        }</For>
+      </span>
       <Button variant="secondary" icon={<Svg d={ICONS.flat} />} onClick={props.onLayFlat}>{props.labels.layFlat}</Button>
       <Button variant="secondary" icon={<Svg d={ICONS.rotX} />} onClick={() => props.onRotate('x')}>{props.labels.rotateX}</Button>
       <Button variant="secondary" icon={<Svg d={ICONS.rotY} />} onClick={() => props.onRotate('y')}>{props.labels.rotateY}</Button>
@@ -70,6 +85,7 @@ export function TransformToolbar(props: TransformToolbarProps) {
       <Button variant="secondary" icon={<Svg d={ICONS.reset} />} onClick={props.onReset}>{props.labels.reset}</Button>
       <Button variant="secondary" onClick={props.onDeselect} aria-label={props.labels.deselect} icon={<Svg d={ICONS.close} />} />
     </div>
+    <Show when={props.readout}>{value => <output class="viewer-transform-readout">{value()}</output>}</Show>
     <ScaleSheet open={props.scaleOpen} object={object()} labels={props.labels} onClose={props.onScaleClose} onTransform={props.onTransform} />
   </>}</Show>;
 }

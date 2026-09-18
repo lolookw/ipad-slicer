@@ -5,6 +5,7 @@ import type { TransformToolbarLabels } from './TransformToolbar';
 import { PlateObjectToolbar } from './ViewerToolbarContainer';
 
 const labels: TransformToolbarLabels = {
+  axisLock: 'Axis lock', axisFree: 'Free', axisX: 'X', axisY: 'Y', axisZ: 'Z',
   toolbar: 'Object tools', interactionMode: 'Touch transform mode', moveMode: 'Move', rotateMode: 'Rotate',
   deselect: 'Deselect', layFlat: 'Lay flat', rotateX: 'Rotate X', rotateY: 'Rotate Y',
   scale: 'Scale', duplicate: 'Duplicate', delete: 'Delete', reset: 'Reset', title: 'Object size', close: 'Close', size: 'Largest dimension',
@@ -112,4 +113,19 @@ it('uses the sheet-open size as the absolute 100 percent baseline', () => {
   commitSize(50);
 
   expect(plate.state.objects[0]!.transform.scale).toEqual([0.5, 0.5, 0.5]);
+});
+
+it('defaults to Free and exposes colored axis lock buttons with pressed state', () => {
+  plate.addObject(object('first'));
+  const onAxisLock = vi.fn();
+  render(() => <PlateObjectToolbar labels={labels} onAxisLock={onAxisLock} />);
+  expect(screen.getByRole('group', { name: 'Axis lock' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: /^Free$/ }).getAttribute('aria-pressed')).toBe('true');
+  for (const axis of ['X', 'Y', 'Z']) {
+    const button = screen.getByRole('button', { name: new RegExp(`^${axis}$`) });
+    expect(button.getAttribute('aria-pressed')).toBe('false');
+    expect(button.getAttribute('data-axis')).toBe(axis.toLowerCase());
+    fireEvent.click(button);
+    expect(onAxisLock).toHaveBeenLastCalledWith(axis.toLowerCase());
+  }
 });

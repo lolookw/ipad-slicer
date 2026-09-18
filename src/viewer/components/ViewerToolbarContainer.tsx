@@ -6,12 +6,16 @@ import { TransformToolbar, type TransformToolbarLabels } from './TransformToolba
 import { prepareCurrentPlate } from '../gizmo';
 import { EngineClientError } from '../../engine/client';
 import type { CodedError } from '../../i18n/en';
+import type { AxisLock } from '../axis';
 import type { TransformGestureMode } from '../gestures';
 
 export function PlateObjectToolbar(props: {
   labels: TransformToolbarLabels;
   onPrepareError?: (message: string) => void;
   translateError?: (error: string | CodedError) => string;
+  axisLock?: AxisLock;
+  onAxisLock?: (axis: AxisLock) => void;
+  readout?: string;
   transformMode?: TransformGestureMode;
   onTransformMode?: (mode: TransformGestureMode) => void;
 }) {
@@ -23,6 +27,7 @@ export function PlateObjectToolbar(props: {
     return props.translateError ? props.translateError(coded) : typeof coded === 'string' ? coded : coded.code;
   };
   return <TransformToolbar object={object()} scaleOpen={scaleOpen()} labels={props.labels}
+    axisLock={props.axisLock ?? 'free'} onAxisLock={props.onAxisLock ?? (() => undefined)} readout={props.readout}
     transformMode={props.transformMode ?? 'move'} onTransformMode={props.onTransformMode ?? (() => undefined)}
     onScaleOpen={() => setScaleOpen(true)} onScaleClose={() => setScaleOpen(false)}
     onRotate={axis => { const selected = object(); if (selected) plate.rotate90(selected.id, axis); }}
@@ -34,10 +39,11 @@ export function PlateObjectToolbar(props: {
     onLayFlat={() => void prepareCurrentPlate(1).catch(error => props.onPrepareError?.(translate(error)))} />;
 }
 
-export function ViewerToolbarContainer(props: { transformMode: TransformGestureMode; onTransformMode: (mode: TransformGestureMode) => void }) {
+export function ViewerToolbarContainer(props: { axisLock: AxisLock; onAxisLock: (axis: AxisLock) => void; readout?: string; transformMode: TransformGestureMode; onTransformMode: (mode: TransformGestureMode) => void }) {
   const app = useApp();
   const { t } = app;
   const labels = (): TransformToolbarLabels => ({
+    axisLock: t('viewer.axisLock'), axisFree: t('viewer.axisFree'), axisX: t('viewer.axisX'), axisY: t('viewer.axisY'), axisZ: t('viewer.axisZ'),
     toolbar: t('viewer.toolbar'), interactionMode: t('viewer.interactionMode'), moveMode: t('viewer.moveMode'), rotateMode: t('viewer.rotateMode'),
     deselect: t('viewer.deselect'), layFlat: t('viewer.layFlat'),
     rotateX: t('viewer.rotateX'), rotateY: t('viewer.rotateY'), scale: t('viewer.scale'), duplicate: t('viewer.duplicate'),
@@ -45,6 +51,6 @@ export function ViewerToolbarContainer(props: { transformMode: TransformGestureM
     unit: t('viewer.unit'), suspicious: t('viewer.suspiciousSize'), multiply25_4: t('viewer.multiply25_4'),
     multiply1000: t('viewer.multiply1000'), divide10: t('viewer.divide10'), keep: t('viewer.keepEntered'), resize: t('viewer.resizeSheet'),
   });
-  return <PlateObjectToolbar labels={labels()} transformMode={props.transformMode} onTransformMode={props.onTransformMode}
+  return <PlateObjectToolbar labels={labels()} axisLock={props.axisLock} onAxisLock={props.onAxisLock} readout={props.readout} transformMode={props.transformMode} onTransformMode={props.onTransformMode}
     translateError={app.translateError} onPrepareError={message => configuration.notice.set(message)} />;
 }

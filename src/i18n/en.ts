@@ -55,6 +55,7 @@ export const en = {
   viewer: {
     workspace: 'Model workspace', importStl: 'Import STL', buildPlate: '3D build plate', plateObjects: 'Plate objects', objectCount: '{count}/{limit} objects',
     toolbar: 'Selected object tools',
+    axisLock: 'Axis lock', axisFree: 'Free', axisX: 'X', axisY: 'Y', axisZ: 'Z',
     interactionMode: 'Touch transform mode',
     moveMode: 'Move',
     rotateMode: 'Rotate',

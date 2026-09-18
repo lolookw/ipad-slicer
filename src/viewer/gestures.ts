@@ -1,5 +1,6 @@
 import type { Mesh, PerspectiveCamera } from 'three';
 import type { PlateObject } from '../app/stores/plate';
+import type { AxisLock } from './axis';
 import type { Gizmo } from './gizmo';
 import type { ViewerCameraControls } from './camera';
 
@@ -29,6 +30,7 @@ export interface GestureOptions {
   selectedMesh: () => Mesh | undefined;
   selectedObject: () => PlateObject | undefined;
   transformMode: () => TransformGestureMode;
+  axisLock?: () => AxisLock;
   meshAt: (xNdc: number, yNdc: number) => Mesh | undefined;
   onSelect: (id: string | undefined) => void;
   onFit: () => void;
@@ -83,7 +85,7 @@ export function createViewerGestures(options: GestureOptions): ViewerGestures {
     if (!candidate || Math.hypot(event.clientX - candidate.start.x, event.clientY - candidate.start.y) <= TAP_MAX_DISTANCE_PX) return;
     const [x, y] = pointerNdc(options.canvas, event.clientX, event.clientY);
     const mode = options.transformMode();
-    options.gizmo.begin(candidate.object, mode, x, y, options.camera);
+    options.gizmo.begin(candidate.object, mode, x, y, options.camera, options.axisLock?.());
     activeTransform = { pointerId: event.pointerId, mode, startX: event.clientX };
     candidates.delete(event.pointerId);
     owned.add(event.pointerId);

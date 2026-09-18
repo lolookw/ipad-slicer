@@ -48,3 +48,17 @@
 .viewer-scale-sheet input { width: 10rem; }
 .viewer-size-suggestion { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-2); }
 .viewer-size-suggestion div { flex-wrap: wrap; }
+
+.viewer-axis-lock { display: flex; flex-direction: column; gap: 4px; padding: 4px 0; border-bottom: 1px solid var(--color-border); }
+.viewer-transform-toolbar .viewer-axis-lock .ui-button { min-height: 44px; min-width: 44px; font-size: 0.875rem; font-weight: 700; }
+.viewer-transform-toolbar .viewer-axis-lock .ui-button[data-axis='x'] { color: #ef4444; }
+.viewer-transform-toolbar .viewer-axis-lock .ui-button[data-axis='y'] { color: #22c55e; }
+.viewer-transform-toolbar .viewer-axis-lock .ui-button[data-axis='z'] { color: #3b82f6; }
+.viewer-transform-toolbar .viewer-axis-lock .ui-button[data-axis='x'][aria-pressed='true'] { background: #ef4444; color: #fff; }
+.viewer-transform-toolbar .viewer-axis-lock .ui-button[data-axis='y'][aria-pressed='true'] { background: #22c55e; color: #fff; }
+.viewer-transform-toolbar .viewer-axis-lock .ui-button[data-axis='z'][aria-pressed='true'] { background: #3b82f6; color: #fff; }
+.viewer-transform-readout {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 10; pointer-events: none;
+  padding: 6px 12px; border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card);
+  font-variant-numeric: tabular-nums; font-weight: 600;
+}

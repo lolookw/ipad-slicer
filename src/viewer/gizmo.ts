@@ -1,4 +1,5 @@
 import { Mesh, Plane, Raycaster, Vector2, Vector3, type PerspectiveCamera } from 'three';
+import { AXIS_INDEX, formatMoveReadout, formatRotateReadout, keepAbovePlate, moveAlongAxis, rotateAroundAxis, verticalDragDistance, type AxisLock } from './axis';
 import { plate, type PlateObject } from '../app/stores/plate';
 import { resolvedSettings } from '../app/stores/configuration';
 import { engineClient } from '../engine/client';
@@ -10,6 +11,10 @@ interface GizmoSession {
   objectId: string;
   mode: GizmoMode;
   startTransform: ObjectTransform;
+  axis: AxisLock;
+  bounds: PlateObject['bounds'];
+  startNdcY: number;
+  liftDistance: number;
   /** 'move' only: the bed-plane point (world mm) under the pointer when the gesture began. */
   startPoint: Vector3;
 }
@@ -20,7 +25,7 @@ export interface Gizmo {
    * gizmo behavior row: "controls.enabled=false until it ends"). */
   readonly active: boolean;
   readonly lockedObjectId: string | undefined;
-  begin(object: PlateObject, mode: GizmoMode, ndcX: number, ndcY: number, camera: PerspectiveCamera): void;
+  begin(object: PlateObject, mode: GizmoMode, ndcX: number, ndcY: number, camera: PerspectiveCamera, axis?: AxisLock): void;
   /** 'move' gestures only. Absolute pointer position each call (not incremental) to avoid drift. */
   moveTo(ndcX: number, ndcY: number, camera: PerspectiveCamera): void;
   /** 'rotate' gestures only. Cumulative angle about Z since `begin()`, not a per-call delta. */
@@ -65,17 +70,19 @@ export function hitsSelected(ndcX: number, ndcY: number, camera: PerspectiveCame
  * Deliberately app-internal: all math is on `ObjectTransform` (transforms.ts), never the
  * engine's stride-11 encoding, which stays gated behind the task 7.1 contract check.
  */
-export function createGizmo(): Gizmo {
+export function createGizmo(onReadout?: (value: string | undefined) => void): Gizmo {
   let session: GizmoSession | undefined;
   return {
     get active() { return session !== undefined; },
     get lockedObjectId() { return session?.objectId; },
-    begin(object, mode, ndcX, ndcY, camera) {
+    begin(object, mode, ndcX, ndcY, camera, axis = 'free') {
       // Deep-copied on purpose: `object` may be a live store reference, and every rotateBy/scaleBy
       // call below recomputes from this snapshot (cumulative-since-begin, not a per-call delta) —
       // a live reference would drift as plate.updateTransform mutates the store mid-gesture.
       session = {
         objectId: object.id,
+        axis, bounds: object.bounds, startNdcY: ndcY,
+        liftDistance: camera.position.distanceTo(new Vector3(...object.transform.position)),
         mode,
         startTransform: {
           position: [...object.transform.position],
@@ -89,16 +96,27 @@ export function createGizmo(): Gizmo {
     moveTo(ndcX, ndcY, camera) {
       if (!session || session.mode !== 'move') return;
       const point = bedPoint(ndcX, ndcY, camera);
-      if (!point) return;
-      const [x, y, z] = session.startTransform.position;
-      const dx = point.x - session.startPoint.x;
-      const dy = point.y - session.startPoint.y;
-      plate.updateTransform(session.objectId, { ...session.startTransform, position: [x + dx, y + dy, z] });
+      if (!point && session.axis !== 'z') return;
+      const delta: [number, number, number] = [
+        (point?.x ?? session.startPoint.x) - session.startPoint.x,
+        (point?.y ?? session.startPoint.y) - session.startPoint.y,
+        verticalDragDistance(ndcY - session.startNdcY, session.liftDistance, camera.fov),
+      ];
+      const next = moveAlongAxis(session.startTransform, delta, session.axis, session.bounds);
+      plate.updateTransform(session.objectId, next, { dropToBed: session.axis === 'free' });
+      if (session.axis !== 'free') {
+        const index = AXIS_INDEX[session.axis];
+        const change = next.position[index] - session.startTransform.position[index];
+        onReadout?.(formatMoveReadout(session.axis, change));
+      }
     },
     rotateBy(radiansSinceBegin) {
       if (!session || session.mode !== 'rotate') return;
-      const [rx, ry, rz] = session.startTransform.rotation;
-      plate.updateTransform(session.objectId, { ...session.startTransform, rotation: [rx, ry, rz + radiansSinceBegin] });
+      const next = rotateAroundAxis(session.startTransform, radiansSinceBegin, session.axis);
+      plate.updateTransform(session.objectId, session.axis === 'free' ? next : keepAbovePlate(next, session.bounds),
+        { dropToBed: session.axis === 'free' });
+      const axis = session.axis === 'free' ? 'z' : session.axis;
+      onReadout?.(formatRotateReadout(axis, next.rotation[AXIS_INDEX[axis]]));
     },
     scaleBy(factorSinceBegin) {
       if (!session || session.mode !== 'scale') return;
@@ -106,6 +124,6 @@ export function createGizmo(): Gizmo {
       const [sx, sy, sz] = session.startTransform.scale;
       plate.updateTransform(session.objectId, { ...session.startTransform, scale: [sx * multiplier, sy * multiplier, sz * multiplier] });
     },
-    end() { session = undefined; },
+    end() { session = undefined; onReadout?.(undefined); },
   };
 }

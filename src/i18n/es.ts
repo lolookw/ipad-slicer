@@ -48,6 +48,7 @@ export const es = {
   viewer: {
     workspace: 'Espacio de trabajo del modelo', importStl: 'Importar STL', buildPlate: 'Placa de impresión 3D', plateObjects: 'Objetos de la placa', objectCount: '{count}/{limit} objetos',
     toolbar: 'Herramientas del objeto seleccionado',
+    axisLock: 'Bloqueo de eje', axisFree: 'Libre', axisX: 'X', axisY: 'Y', axisZ: 'Z',
     interactionMode: 'Modo de transformación táctil',
     moveMode: 'Mover',
     rotateMode: 'Girar',

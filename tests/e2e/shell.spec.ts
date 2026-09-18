@@ -258,8 +258,33 @@ test('selected-object taps, move drags, and rotate-mode drags commit through rea
   await expect.poll(() => object.getAttribute('data-transform')).not.toBe(beforeMove);
   const afterMove = await object.getAttribute('data-transform');
 
+  const axisLock = page.getByRole('group', { name: 'Axis lock', exact: true });
+  await expect(axisLock.getByRole('button', { name: 'Free', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  for (const control of await axisLock.getByRole('button').all()) {
+    const target = await control.boundingBox();
+    expect(target!.width).toBeGreaterThanOrEqual(44);
+    expect(target!.height).toBeGreaterThanOrEqual(44);
+  }
+  await page.getByRole('button', { name: 'Reset', exact: true }).click();
+  await axisLock.getByRole('button', { name: 'X', exact: true }).click();
+  await expect(axisLock.getByRole('button', { name: 'X', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  const lockedStart = await selectedMeshPoint(page, 'touch-transform.stl');
+  const beforeLockedMove = JSON.parse((await object.getAttribute('data-transform'))!);
+  await page.mouse.move(lockedStart.x, lockedStart.y);
+  await page.mouse.down();
+  await page.mouse.move(lockedStart.x + 12, lockedStart.y);
+  await page.mouse.move(lockedStart.x + 36, lockedStart.y + 18);
+  await page.mouse.up();
+  await expect.poll(async () => JSON.parse((await object.getAttribute('data-transform'))!).position[0]).not.toBeCloseTo(beforeLockedMove.position[0]);
+  const afterLockedMove = JSON.parse((await object.getAttribute('data-transform'))!);
+  expect(afterLockedMove.position.slice(1)).toEqual(beforeLockedMove.position.slice(1));
+  expect(afterLockedMove.rotation).toEqual(beforeLockedMove.rotation);
+  expect(afterLockedMove.scale).toEqual(beforeLockedMove.scale);
+
   await page.getByRole('button', { name: 'Reset', exact: true }).click();
   await page.getByRole('button', { name: 'Rotate', exact: true }).click();
+  await axisLock.getByRole('button', { name: 'Z', exact: true }).click();
+  await expect(axisLock.getByRole('button', { name: 'Z', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('button', { name: 'Rotate', exact: true })).toHaveAttribute('aria-pressed', 'true');
   const rotateStart = await selectedMeshPoint(page, 'touch-transform.stl');
   const beforeRotate = JSON.parse((await object.getAttribute('data-transform'))!);
@@ -271,6 +296,9 @@ test('selected-object taps, move drags, and rotate-mode drags commit through rea
   await page.mouse.up();
   await expect.poll(async () => JSON.parse((await object.getAttribute('data-transform'))!).rotation[2]).not.toBeCloseTo(beforeRotate.rotation[2]);
   const afterRotate = JSON.parse((await object.getAttribute('data-transform'))!);
+  expect(afterRotate.rotation.slice(0, 2)).toEqual(beforeRotate.rotation.slice(0, 2));
+  expect(afterRotate.position).toEqual(beforeRotate.position);
+  expect(afterRotate.scale).toEqual(beforeRotate.scale);
   expect(afterRotate.rotation[2] / (Math.PI / 2)).not.toBeCloseTo(Math.round(afterRotate.rotation[2] / (Math.PI / 2)));
   expect(await object.getAttribute('data-transform')).not.toBe(afterMove);
 });

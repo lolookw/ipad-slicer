@@ -1,8 +1,9 @@
-import { AmbientLight, Color, DirectionalLight, Group, Mesh, MeshStandardMaterial, PerspectiveCamera, Raycaster, Scene, Vector2 } from 'three';
+import { AmbientLight, AxesHelper, BufferGeometry, Color, DirectionalLight, Float32BufferAttribute, Group, LineBasicMaterial, LineSegments, Mesh, MeshStandardMaterial, PerspectiveCamera, Raycaster, Scene, Vector2 } from 'three';
 import type { PlateObject } from '../app/stores/plate';
 import { createBed, type BedSize } from './bed';
 import { getGeometry } from './geometry-cache';
 import { createRenderer, rendererLimits, type ViewerRenderer } from './renderer';
+import { AXIS_COLORS } from './axis';
 import { applyTransform } from './transforms';
 import type { TierDecision } from '../app/tier/decide';
 
@@ -28,6 +29,22 @@ export interface Viewer {
 const SELECTED_COLOR = 0x60a5fa;
 const DEFAULT_COLOR = 0x9ca3af;
 
+/** Unit-length X/Y/Z lines in both directions through the origin; scaled and moved onto the selected object. */
+function createSelectionAxes(): Group {
+  const group = new Group();
+  group.name = 'selection-axes';
+  group.visible = false;
+  const ends: [number, number, number][] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  (['x', 'y', 'z'] as const).forEach((axis, index) => {
+    const end = ends[index]!;
+    const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute([-end[0], -end[1], -end[2], ...end], 3));
+    const line = new LineSegments(geometry, new LineBasicMaterial({ color: AXIS_COLORS[axis], depthTest: false, transparent: true }));
+    line.renderOrder = 10;
+    group.add(line);
+  });
+  return group;
+}
+
 /**
  * Owns the Scene/Camera/Renderer and a minimal on-demand render loop (not a constant RAF render):
  * a frame is only drawn when an onFrame callback reports a change or requestRender() was called.
@@ -45,6 +62,11 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
   const key = new DirectionalLight(0xffffff, 0.8); key.position.set(200, -200, 400); scene.add(key);
 
   const bed = createBed(bedSize); scene.add(bed);
+  const origin = new AxesHelper(30); // X red, Y green, Z blue, at the plate corner
+  origin.position.set(-bedSize.widthMm / 2, -bedSize.depthMm / 2, 0);
+  origin.name = 'origin-axes';
+  scene.add(origin);
+  const selectionAxes = createSelectionAxes(); scene.add(selectionAxes);
   const objects = new Group(); objects.name = 'objects'; scene.add(objects);
   const meshes = new Map<string, Mesh>();
   const raycaster = new Raycaster();
@@ -107,6 +129,14 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
         mesh.removeFromParent();
         (mesh.material as MeshStandardMaterial).dispose();
         meshes.delete(id);
+      }
+      const selected = selectedId ? next.find(object => object.id === selectedId) : undefined;
+      selectionAxes.visible = Boolean(selected && meshes.has(selected.id));
+      if (selected) {
+        const [sx, sy, sz] = selected.transform.scale;
+        const reach = Math.max(...selected.bounds.max.map((v, i) => Math.max(Math.abs(v), Math.abs(selected.bounds.min[i]!)) * [sx, sy, sz][i]!)) + 15;
+        selectionAxes.position.set(...selected.transform.position);
+        selectionAxes.scale.setScalar(reach);
       }
       dirty = true;
     },

@@ -5,6 +5,7 @@ import { plate } from '../app/stores/plate';
 import { attachCameraControls, type ViewerCameraControls } from './camera';
 import { ViewerToolbarContainer } from './components/ViewerToolbarContainer';
 import { releaseMesh } from './geometry-cache';
+import type { AxisLock } from './axis';
 import { createGizmo } from './gizmo';
 import { createViewerGestures, type TransformGestureMode, type ViewerGestures } from './gestures';
 import { importFileToPlate } from './plate-import';
@@ -20,7 +21,9 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
   let viewer: Viewer | undefined;
   let controls: ViewerCameraControls | undefined;
   let gestures: ViewerGestures | undefined;
-  const gizmo = createGizmo();
+  const [readout, setReadout] = createSignal<string>();
+  const [axisLock, setAxisLock] = createSignal<AxisLock>('free');
+  const gizmo = createGizmo(setReadout);
   const [error, setError] = createSignal<string | CodedError>();
   const [busy, setBusy] = createSignal(false);
   const [transformMode, setTransformMode] = createSignal<TransformGestureMode>('move');
@@ -50,7 +53,7 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
         canvas, camera: viewer.camera, controls, gizmo,
         selectedMesh: () => viewer?.meshFor(plate.state.selectedId ?? ''),
         selectedObject: () => plate.state.objects.find(object => object.id === plate.state.selectedId),
-        transformMode,
+        transformMode, axisLock,
         meshAt: (x, y) => viewer?.meshAt(x, y),
         onSelect: id => plate.select(id),
         onFit: () => { if (viewer && controls && plate.state.objects.length) void controls.fit(viewer.objectRoot); },
@@ -88,7 +91,7 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
     <div class="viewer-stage" style={{ position: 'relative' }}>
       <canvas ref={canvas} data-testid="viewer-canvas" aria-label={app.t('viewer.buildPlate')} />
       <Show when={plate.state.objects.length}>
-        <ViewerToolbarContainer transformMode={transformMode()} onTransformMode={setTransformMode} />
+        <ViewerToolbarContainer axisLock={axisLock()} onAxisLock={setAxisLock} readout={readout()} transformMode={transformMode()} onTransformMode={setTransformMode} />
       </Show>
     </div>
     <Show when={plate.state.objects.length}>
