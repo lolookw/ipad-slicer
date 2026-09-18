@@ -244,7 +244,7 @@ test('selected-object taps, move drags, and rotate-mode drags commit through rea
   expect(box).not.toBeNull();
 
   const selectedPoint = await selectedMeshPoint(page, 'touch-transform.stl');
-  await page.mouse.click(box!.x + 2, box!.y + 2);
+  await page.getByRole('button', { name: 'Deselect', exact: true }).click();
   await expect(object).toHaveAttribute('aria-pressed', 'false');
 
   const moveStart = await selectedMeshPoint(page, 'touch-transform.stl');
