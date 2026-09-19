@@ -1,0 +1,3 @@
+# Hash-pinned catalog files must never get line-ending conversion.
+public/catalog/** -text
+catalog.presets.lock.json -text
