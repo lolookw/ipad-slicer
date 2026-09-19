@@ -1,4 +1,5 @@
 import { createStore, produce } from 'solid-js/store';
+import type { ObjectMaterial } from '../../viewer/import-types';
 import { dropToBed, IDENTITY_TRANSFORM, rotate90, type LocalBounds, type ObjectTransform } from '../../viewer/transforms';
 
 export interface PlateObject {
@@ -10,6 +11,10 @@ export interface PlateObject {
    * buffers live in src/viewer/geometry-cache.ts, never in this store (see design.md: three.js
    * objects, ArrayBuffers and Blobs never go in a Solid store — proxies break or copy them). */
   bounds: LocalBounds;
+  /** 1-based extruder/filament slot from the source file, when declared. Informational until multi-material printing exists. */
+  extruder?: number;
+  /** Colors/materials declared by the source file. An object may carry several; nothing assumes a single material. */
+  materials?: ObjectMaterial[];
 }
 
 export interface PlateState { objects: PlateObject[]; selectedId: string | undefined }

@@ -8,11 +8,10 @@ import { releaseMesh } from './geometry-cache';
 import type { AxisLock } from './axis';
 import { createGizmo } from './gizmo';
 import { createViewerGestures, type TransformGestureMode, type ViewerGestures } from './gestures';
-import { importFileToPlate } from './plate-import';
+import { importSession } from './import-session';
 import { createViewer, type Viewer } from './scene';
 import { engineClient } from '../engine/client';
 import { useApp } from '../app/AppProvider';
-import type { CodedError } from '../i18n/en';
 import './workspace.css';
 
 export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> }): JSX.Element {
@@ -24,8 +23,9 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
   const [readout, setReadout] = createSignal<string>();
   const [axisLock, setAxisLock] = createSignal<AxisLock>('free');
   const gizmo = createGizmo(setReadout);
-  const [error, setError] = createSignal<string | CodedError>();
-  const [busy, setBusy] = createSignal(false);
+  const [startError, setStartError] = createSignal<string>();
+  const error = () => startError() ?? (flow.step.get() !== 'import' ? importSession.error() : undefined);
+  const busy = importSession.busy;
   const [transformMode, setTransformMode] = createSignal<TransformGestureMode>('move');
   const knownIds = new Set<string>();
 
@@ -60,20 +60,15 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
       });
       sync(); viewer.start();
     } catch (reason) {
-      setError(reason instanceof Error && reason.message ? reason.message : 'viewer-start-failed');
+      setStartError(reason instanceof Error && reason.message ? reason.message : 'viewer-start-failed');
     }
   });
 
   onCleanup(() => { gestures?.dispose(); controls?.dispose(); viewer?.dispose(); });
 
   const importFiles = async (files: FileList | null) => {
-    if (!files?.length) return;
-    setBusy(true); setError(undefined);
-    for (const file of Array.from(files)) {
-      const result = await importFileToPlate(file, props.tierDecision().limits);
-      if (!result.ok) { setError(result.error); break; }
-    }
-    setBusy(false); sync();
+    await importSession.importFiles(files ? Array.from(files) : [], props.tierDecision().limits);
+    sync();
   };
 
   const objectCount = () => app.t('viewer.objectCount').replace('{count}', String(plate.state.objects.length))
@@ -81,8 +76,8 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
 
   return <section class="viewer-workspace" aria-label={app.t('viewer.workspace')}>
     <header class="viewer-import">
-      <label class="viewer-import-button"><span>{app.t('viewer.importStl')}</span>
-        <input aria-label={app.t('viewer.importStl')} type="file" multiple
+      <label class="viewer-import-button"><span>{app.t('viewer.importModel')}</span>
+        <input aria-label={app.t('viewer.importModel')} type="file" multiple
           disabled={busy()} onChange={event => { void importFiles(event.currentTarget.files); event.currentTarget.value = ''; }} />
       </label>
       <span>{objectCount()}</span>

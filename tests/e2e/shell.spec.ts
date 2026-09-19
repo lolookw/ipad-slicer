@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { strToU8, zipSync } from 'fflate';
 
 function binaryTriangleStl(): Buffer {
   const buffer = Buffer.alloc(134);
@@ -10,7 +11,7 @@ function binaryTriangleStl(): Buffer {
 }
 
 async function importStl(page: import('@playwright/test').Page, name: string, buffer = binaryTriangleStl()) {
-  await page.getByLabel('Import STL').setInputFiles({ name, mimeType: 'model/stl', buffer });
+  await page.getByLabel('Import model').setInputFiles({ name, mimeType: 'model/stl', buffer });
   await expect(page.getByRole('button', { name, exact: true })).toBeVisible();
 }
 
@@ -86,7 +87,7 @@ test('Spanish persists and visible errors translate without changing user data',
   await openPreferences(page);
   await expect(page.getByLabel('Idioma')).toHaveValue('es');
   await expect(page.getByRole('navigation', { name: 'Pasos de laminado' })).toBeVisible();
-  await page.getByLabel('Importar STL').setInputFiles({ name: 'roto.stl', mimeType: 'model/stl', buffer: Buffer.from([1, 2, 3]) });
+  await page.getByLabel('Importar modelo').setInputFiles({ name: 'roto.stl', mimeType: 'model/stl', buffer: Buffer.from([1, 2, 3]) });
   await expect(page.getByRole('alert').filter({ hasText: 'El archivo STL está vacío' })).toBeVisible();
 });
 
@@ -214,7 +215,7 @@ test('STL imports remain independently selectable and an invalid file preserves 
   await expect(page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button')).toHaveCount(2);
   await page.getByRole('button', { name: 'first.stl', exact: true }).click();
   await expect(page.getByRole('button', { name: 'first.stl', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await page.getByLabel('Import STL').setInputFiles({ name: 'broken.stl', mimeType: 'model/stl', buffer: Buffer.from([1, 2, 3]) });
+  await page.getByLabel('Import model').setInputFiles({ name: 'broken.stl', mimeType: 'model/stl', buffer: Buffer.from([1, 2, 3]) });
   await expect(page.getByRole('alert').filter({ hasText: /STL/i })).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button')).toHaveCount(2);
   await expect(page.getByRole('button', { name: 'first.stl', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -386,4 +387,47 @@ test('canceling an active slice never unlocks a stale result', async ({ page }) 
   await expect(cancel).toBeVisible(); await cancel.click();
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeDisabled();
   await expect(page.getByTestId('slice-result')).toHaveCount(0);
+});
+
+async function openImportStep(page: import('@playwright/test').Page) {
+  await page.getByRole('button', { name: 'Import', exact: true }).click();
+  await expect(page.locator('.step[aria-current="step"]')).toHaveText('Import');
+}
+
+function threeMfWithTwoObjects(): Buffer {
+  const mesh = '<mesh><vertices><vertex x="0" y="0" z="0"/><vertex x="20" y="0" z="0"/><vertex x="0" y="20" z="0"/><vertex x="0" y="0" z="10"/></vertices>'
+    + '<triangles><triangle v1="0" v2="2" v3="1"/><triangle v1="0" v2="1" v3="3"/><triangle v1="1" v2="2" v3="3"/><triangle v1="2" v2="0" v3="3"/></triangles></mesh>';
+  const model = '<?xml version="1.0" encoding="UTF-8"?><model unit="millimeter" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02"><resources>'
+    + `<object id="1" type="model" name="Left wedge">${mesh}</object><object id="2" type="model" name="Right wedge">${mesh}</object></resources>`
+    + '<build><item objectid="1" transform="1 0 0 0 1 0 0 0 1 60 60 0"/><item objectid="2" transform="1 0 0 0 1 0 0 0 1 120 60 0"/></build></model>';
+  const rels = '<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/></Relationships>';
+  return Buffer.from(zipSync({ '_rels/.rels': strToU8(rels), '3D/3dmodel.model': strToU8(model) }));
+}
+
+test('the Import step uploads an STL and continues to Configure', async ({ page }) => {
+  await page.goto('/');
+  await openImportStep(page);
+  await expect(page.getByRole('button', { name: 'Upload from device' })).toBeVisible();
+  await expect(page.getByText('Accepted formats: STL and 3MF.')).toBeVisible();
+  await expect(page.getByRole('link', { name: /Printables/ })).toHaveAttribute('rel', 'noopener noreferrer');
+  await expect(page.getByRole('button', { name: 'Continue to Configure' })).toHaveCount(0);
+  await page.getByTestId('import-file-input').setInputFiles({ name: 'import-step.stl', mimeType: 'model/stl', buffer: binaryTriangleStl() });
+  await expect(page.getByText('Model added to the plate.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'import-step.stl', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Continue to Configure' }).click();
+  await expect(page.locator('.step[aria-current="step"]')).toHaveText('Configure');
+});
+
+test('the Import step reads a 3MF into one plate object per build item', async ({ page }) => {
+  await page.goto('/');
+  await openImportStep(page);
+  await page.getByTestId('import-file-input').setInputFiles({ name: 'pair.3mf', mimeType: 'model/3mf', buffer: threeMfWithTwoObjects() });
+  await expect(page.getByText('2 models added to the plate.')).toBeVisible();
+  const objects = page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button');
+  await expect(objects).toHaveCount(2);
+  await expect(page.getByRole('button', { name: 'Left wedge', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Right wedge', exact: true })).toBeVisible();
+  await page.getByTestId('import-file-input').setInputFiles({ name: 'broken.3mf', mimeType: 'model/3mf', buffer: Buffer.from('not a zip') });
+  await expect(page.getByRole('alert')).toContainText('not a valid 3MF archive');
+  await expect(objects).toHaveCount(2);
 });

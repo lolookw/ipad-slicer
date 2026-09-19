@@ -300,6 +300,33 @@ summary:focus-visible { outline: 3px solid var(--color-primary); outline-offset:
 .control-entry:not(fieldset):has(input[type='search']) > :is(input, select, small, output) { grid-column: 1; font-weight: 400; }
 button.control-entry { border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface-sunken); font: inherit; font-size: 0.9375rem; font-weight: 500; }
 
+/* ---------- Import step ---------- */
+.import-pane { display: grid; gap: var(--space-2); }
+.import-heading { margin: 0; font-size: 1.125rem; font-weight: 650; color: var(--color-text); }
+.import-drop {
+  display: grid; justify-items: center; gap: var(--space-1); padding: var(--space-3) var(--space-2); text-align: center;
+  border: 2px dashed var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface-sunken);
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.import-drop[data-dragging='true'] { border-color: var(--color-primary); background: var(--color-primary-soft); }
+.import-drop p { margin: 0; }
+.import-drop-title { font-weight: 600; color: var(--color-text); }
+.import-formats, .import-limits, .import-license, .import-sources p { font-size: 0.875rem; color: var(--color-muted); }
+.import-upload, .import-continue { width: 100%; max-width: 20rem; justify-self: center; }
+.import-continue { justify-self: stretch; max-width: none; }
+.import-limits, .import-status, .import-success, .import-error { margin: 0; }
+.import-success { color: var(--color-success); font-weight: 600; }
+.import-error { color: var(--color-danger); }
+.import-sources { display: grid; gap: var(--space-1); padding-top: var(--space-2); border-top: 1px solid var(--color-border); }
+.import-sources h3 { margin: 0; font-size: 1rem; }
+.import-sources p { margin: 0; }
+.import-sources ul { display: flex; flex-wrap: wrap; gap: var(--space-1); margin: 0; padding: 0; list-style: none; }
+.import-sources a {
+  display: inline-flex; align-items: center; padding: 0 var(--space-2); border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+  background: var(--color-surface); color: var(--color-primary); font-weight: 600; text-decoration: none;
+}
+.import-sources a:hover { border-color: var(--color-border-strong); }
+
 /* ---------- Wide (iPad landscape / desktop): viewer left, settings panel right ---------- */
 @media (min-width: 1000px) {
   .layout { height: 100dvh; min-height: 0; }

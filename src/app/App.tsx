@@ -5,6 +5,7 @@ import type { Step, Tier } from './stores';
 import type { Locale, TranslationKey } from '../i18n';
 import type { Theme } from './theme';
 import { ConfigurationContainer } from './ConfigurationContainer';
+import { ImportPaneContainer } from './import/ImportPaneContainer';
 import { ViewerWorkspace } from '../viewer/ViewerWorkspace';
 import { SliceActivity, SliceResults, type SliceResultLabels } from '../slice/components/SliceResults';
 
@@ -55,6 +56,7 @@ function StepPane(): JSX.Element {
       <SliceActivity active={app.result.state.status === 'slicing'} variant={app.engine.variant.get()} finishing={app.result.state.finishingPreviousSlice} labels={resultLabels()} />
       <Show when={app.flow.step.get() === 'import'}>
         <p>{app.t('panes.import')}</p>
+        <ImportPaneContainer />
       </Show>
       <Show when={app.flow.step.get() === 'configure'}>
         <p>{app.t('panes.configure')}</p>

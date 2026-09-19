@@ -3,6 +3,7 @@ export const ERROR_CODES = [
   'stl-invalid-numbers', 'stl-invalid-bounds', 'stl-invalid-format', 'stl-read-failed', 'worker-failed',
   'worker-unreadable', 'tier-limit-objects', 'tier-limit-triangles', 'prepare-configuration-missing',
   'prepare-model-missing', 'mesh-missing', 'invalid-preparation-result', 'invalid-slice-result',
+  'threemf-not-zip', 'threemf-no-model', 'threemf-no-triangles', 'threemf-unsupported', 'threemf-invalid-format', 'threemf-too-large',
 ] as const;
 export type ErrorCode = typeof ERROR_CODES[number];
 export interface CodedError { code: ErrorCode; values?: Record<string, string | number> }
@@ -22,10 +23,26 @@ export const en = {
     save: 'Save',
   },
   panes: {
-    import: 'Import a model to start. Slice settings stay available while you choose.',
+    import: 'Add the model you want to print. STL and 3MF files are supported.',
     configure: 'Printer, material and quality live here. Simple mode is the default.',
     preview: 'The plate and, after slicing, the toolpath preview appear here.',
     save: 'Save the G-code to Files or share it.',
+  },
+  import: {
+    heading: 'Import a model',
+    upload: 'Upload from device',
+    dropTitle: 'Drop STL or 3MF files here',
+    dropActive: 'Release to add the files',
+    formats: 'Accepted formats: STL and 3MF.',
+    limits: '{count}/{limit} objects on the plate. Up to {triangles} triangles in total.',
+    importing: 'Reading the file…',
+    addedOne: 'Model added to the plate.',
+    addedMany: '{count} models added to the plate.',
+    continue: 'Continue to Configure',
+    sourcesHeading: 'Get models',
+    sourcesNote: 'Download an STL or 3MF there, then upload it here.',
+    licenseNote: 'Models keep their own licenses. Check the terms before printing or sharing.',
+    opensNewTab: 'opens in a new tab',
   },
   results: {
     time: 'Print time', mass: 'Filament mass', cost: 'Estimated cost', layers: 'Layers', unavailable: 'Unavailable',
@@ -53,7 +70,7 @@ export const en = {
     activeTier: 'Active tier',
   },
   viewer: {
-    workspace: 'Model workspace', importStl: 'Import STL', buildPlate: '3D build plate', plateObjects: 'Plate objects', objectCount: '{count}/{limit} objects',
+    workspace: 'Model workspace', importModel: 'Import model', buildPlate: '3D build plate', plateObjects: 'Plate objects', objectCount: '{count}/{limit} objects',
     toolbar: 'Selected object tools',
     axisLock: 'Axis lock', axisFree: 'Free', axisX: 'X', axisY: 'Y', axisZ: 'Z',
     interactionMode: 'Touch transform mode',
@@ -125,6 +142,12 @@ export const en = {
     'mesh-missing': 'Missing mesh {meshId}',
     'invalid-preparation-result': 'Invalid preparation result',
     'invalid-slice-result': 'Invalid slice result',
+    'threemf-not-zip': 'The 3MF file is not a valid 3MF archive.',
+    'threemf-no-model': 'The 3MF file does not contain a 3D model part.',
+    'threemf-no-triangles': 'The 3MF file does not contain any printable triangles.',
+    'threemf-unsupported': 'This 3MF file is encrypted or depends on parts that are not included, so it cannot be imported.',
+    'threemf-invalid-format': 'The 3MF file could not be parsed.',
+    'threemf-too-large': 'The 3MF file is too large to import on this device.',
   } satisfies Record<ErrorCode, string>,
 } as const;
 

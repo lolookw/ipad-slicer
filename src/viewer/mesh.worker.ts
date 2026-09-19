@@ -1,13 +1,36 @@
-import type { MeshBuffers } from './geometry-cache';
+
+import type { ImportedObject, ImportModelResult, ModelFormat } from './import-types';
 import { parseStlBuffer, type ImportStlResult } from './stl-parse';
 
 export type { MeshBuffers } from './geometry-cache';
 export type { LocalBounds } from './transforms';
 export type { ImportStlResult } from './stl-parse';
+export type { ImportedObject, ImportModelResult, ModelFormat } from './import-types';
 
-type WorkerRequest = { buffer: ArrayBuffer };
 
-function parseInWorker(buffer: ArrayBuffer): Promise<MeshBuffers> {
+export interface ImportOptions { maxTriangles?: number }
+type WorkerRequest = { buffer: ArrayBuffer; format: ModelFormat; maxTriangles?: number };
+
+/** Chooses the parser from the extension, falling back to the zip signature; anything else is treated as STL. */
+export function detectModelFormat(name: string, buffer: ArrayBuffer): ModelFormat {
+  const lower = name.toLowerCase();
+  if (lower.endsWith('.3mf')) return '3mf';
+  if (lower.endsWith('.stl')) return 'stl';
+  const head = new Uint8Array(buffer, 0, Math.min(4, buffer.byteLength));
+  return head.length === 4 && head[0] === 0x50 && head[1] === 0x4b && head[2] === 3 && head[3] === 4 ? '3mf' : 'stl';
+}
+
+async function parseBuffer(request: WorkerRequest): Promise<ImportModelResult> {
+  if (request.format === '3mf') {
+    // Lazy chunk: the zip library only loads when a 3MF is actually imported.
+    const { parse3mfBuffer } = await import('./threemf-parse');
+    return parse3mfBuffer(request.buffer, { maxTriangles: request.maxTriangles });
+  }
+  const result = parseStlBuffer(request.buffer);
+  return result.ok ? { ok: true, format: 'stl', objects: [{ meshBuffers: result.meshBuffers }] } : result;
+}
+
+function parseInWorker(request: WorkerRequest): Promise<ImportModelResult> {
   return new Promise((resolve, reject) => {
     let worker: Worker;
     try {
@@ -24,23 +47,39 @@ function parseInWorker(buffer: ArrayBuffer): Promise<MeshBuffers> {
 
     worker.onerror = () => fail(new Error('worker-failed'));
     worker.onmessageerror = () => fail(new Error('worker-unreadable'));
-    worker.onmessage = (event: MessageEvent<ImportStlResult>) => {
+    worker.onmessage = (event: MessageEvent<ImportModelResult>) => {
       worker.terminate();
-      if (event.data.ok) resolve(event.data.meshBuffers);
-      else reject(new Error(event.data.error.code));
+      resolve(event.data);
     };
 
-    // Keep the source buffer available for the synchronous fallback if the worker fails.
-    worker.postMessage({ buffer } satisfies WorkerRequest);
+    // The buffer is copied (not transferred) so the synchronous fallback still has it if the worker fails.
+    worker.postMessage(request satisfies WorkerRequest);
   });
 }
 
-/** Imports an STL in a worker when available, falling back to the main thread. */
+/** Imports an STL or 3MF in a worker when available, falling back to the main thread. */
+export async function importModelFile(file: File, options: ImportOptions = {}): Promise<ImportModelResult> {
+  try {
+    const buffer = await file.arrayBuffer();
+    const request: WorkerRequest = { buffer, format: detectModelFormat(file.name, buffer), maxTriangles: options.maxTriangles };
+    try {
+      return await parseInWorker(request);
+    } catch {
+      return await parseBuffer(request);
+    }
+  } catch {
+    return { ok: false, error: { code: 'stl-read-failed' } };
+  }
+}
+
+/** STL-only entry point kept for callers that expect a single mesh. */
 export async function importStlFile(file: File): Promise<ImportStlResult> {
   try {
     const buffer = await file.arrayBuffer();
     try {
-      return { ok: true, meshBuffers: await parseInWorker(buffer) };
+      const result = await parseInWorker({ buffer, format: 'stl' });
+      const first: ImportedObject | undefined = result.ok ? result.objects[0] : undefined;
+      return result.ok ? (first ? { ok: true, meshBuffers: first.meshBuffers } : parseStlBuffer(buffer)) : result;
     } catch {
       return parseStlBuffer(buffer);
     }
@@ -52,14 +91,14 @@ export async function importStlFile(file: File): Promise<ImportStlResult> {
 const isWorkerScope = typeof document === 'undefined' && typeof globalThis.postMessage === 'function';
 
 if (isWorkerScope) {
-  globalThis.onmessage = (event: MessageEvent<WorkerRequest>) => {
-    const result = parseStlBuffer(event.data.buffer);
+  globalThis.onmessage = async (event: MessageEvent<WorkerRequest>) => {
+    const result = await parseBuffer(event.data);
     if (!result.ok) {
       globalThis.postMessage(result);
       return;
     }
-
-    const { positions, normals } = result.meshBuffers;
-    globalThis.postMessage(result, { transfer: [positions.buffer, normals.buffer] });
+    const transfer: ArrayBuffer[] = [];
+    for (const { meshBuffers } of result.objects) transfer.push(meshBuffers.positions.buffer as ArrayBuffer, meshBuffers.normals.buffer as ArrayBuffer);
+    globalThis.postMessage(result, { transfer });
   };
 }
