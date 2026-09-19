@@ -36,10 +36,12 @@ export interface CatalogModel {
   pack: string;
   bytes: number;
   sha256: string;
+  /** Hand-tuned profile set (true) or generated from the Orca profile tree and only smoke-verified (false). */
+  curated: boolean;
 }
 
 export interface CatalogIndex {
-  schema: 1;
+  schema: 2;
   orcaTag: string;
   engineRelease: string;
   vendors: { id: string; name: string; models: CatalogModel[] }[];

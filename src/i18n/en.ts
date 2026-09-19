@@ -97,7 +97,7 @@ export const en = {
     resizeSheet: 'Resize scale sheet',
   },
   configuration: {
-    search: 'Search printers', printer: 'Printer', filament: 'Filament', quality: 'Quality', loading: 'Loading printer…', unavailable: 'Unavailable',
+    search: 'Search printers', recommended: 'Recommended', verifiedToSlice: 'Verified to slice', noPrinters: 'No printers match your search.', printer: 'Printer', filament: 'Filament', quality: 'Quality', loading: 'Loading printer…', unavailable: 'Unavailable',
     draft: 'Draft', standard: 'Standard', fine: 'Fine', simple: 'Simple', advanced: 'Advanced', arrange: 'Orient and arrange',
     arrangePending: 'Orient and arrange becomes available after importing a model.', arrangeComplete: 'Plate orientation and arrangement updated.', estimates: 'Estimated time, filament and cost', reset: 'Reset to preset',
     plateWide: 'Support and brim settings apply to the whole plate. Per-object controls are not available.', notSmokeTested: 'User printer — not individually smoke-tested',

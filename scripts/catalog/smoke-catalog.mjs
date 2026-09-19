@@ -4,6 +4,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { initSession, sliceStl } from '../../src/worker/engine-bridge.mjs';
 import { resolvePack } from './build-catalog.mjs';
+import { loadCatalogConfig } from './config.mjs';
 import { createPresetSource } from './resolve.mjs';
 
 globalThis.require ??= createRequire(import.meta.url);
@@ -21,7 +22,7 @@ function cube(profile) {
   return new TextEncoder().encode(`solid cube\n${facets}\nendsolid cube\n`);
 }
 
-const config = JSON.parse(await readFile('catalog.config.json'));
+const { config } = await loadCatalogConfig();
 const lock = JSON.parse(await readFile('engine.lock.json'));
 const root = `.engine-cache/${config.engineRelease}`;
 const jsBytes = await readFile(`${root}/slicer.js`);
@@ -29,17 +30,25 @@ const wasm = await readFile(`${root}/slicer.wasm`);
 for (const [name, bytes] of [['js', jsBytes], ['wasm', wasm]])
   assert.equal(createHash('sha256').update(bytes).digest('hex'), lock.variants.st[name].sha256, `Pinned engine ${name} hash`);
 const { default: factory } = await import('data:text/javascript;charset=utf-8,' +
-  encodeURIComponent(`${jsBytes}\nexport default OrcaModule;`));
-const module = await factory({ wasmBinary: wasm, print: () => {}, printErr: () => {},
+  encodeURIComponent(`${jsBytes}
+export default OrcaModule;`));
+const createModule = () => factory({ wasmBinary: wasm, print: () => {}, printErr: () => {},
   onAbort: reason => { throw new Error(`OrcaWasm aborted: ${reason}`); } });
+let module = await createModule();
 const source = createPresetSource();
 const targets = config.vendors.flatMap(vendor => vendor.models.map(model => ({ owner: vendor, model })))
   .concat({ owner: { id: 'custom', source: config.customBase.source },
     model: { ...config.customBase, required: true, nozzle: 0.4 } });
+const startedAt = performance.now();
 const results = [];
 try {
   for (const { owner, model } of targets) {
-    const resolved = await resolvePack(source, owner, model);
+    let resolved;
+    try { resolved = await resolvePack(source, owner, model); } catch (error) {
+      if (model.required !== false) throw error;
+      results.push({ combo: `${model.id}:*:*`, pass: false, durationMs: 0, error: error.message });
+      continue;
+    }
     for (const process of resolved.processes) for (const filament of resolved.filaments) {
       const combo = `${model.id}:${process.id}:${filament.id}`;
       const profile = { ...resolved.machine, ...process.settings, ...filament.settings,
@@ -53,6 +62,10 @@ try {
         assert.ok(bytes.byteLength > 1000 && /^G[01]\s/m.test(text), 'Incomplete G-code');
         results.push({ combo, pass: true, durationMs: Math.round(performance.now() - started), gcodeBytes: bytes.byteLength });
       } catch (error) {
+        // A failed slice can leave the WASM heap unusable, so every failure starts from a fresh module.
+        module?.PThread?.terminateAllThreads?.();
+        module = await createModule();
+        session = undefined; // belonged to the discarded module
         results.push({ combo, pass: false, durationMs: Math.round(performance.now() - started),
           error: error instanceof Error ? error.message : String(error) });
       } finally { if (session) module._onewasm_session_destroy(session); }
@@ -61,7 +74,7 @@ try {
 } finally { module?.PThread?.terminateAllThreads?.(); }
 await writeFile('.engine-cache/catalog-smoke-results.json', `${JSON.stringify(results, null, 2)}\n`);
 for (const { model } of targets)
-  if (!results.some(result => result.pass && result.combo.startsWith(`${model.id}:`)))
+  if (model.required !== false && !results.some(result => result.pass && result.combo.startsWith(`${model.id}:`)))
     throw new Error(`Required model has no passing combinations: ${model.id}`);
 const passed = results.filter(result => result.pass).length;
-console.log(`Catalog smoke: ${passed}/${results.length} combinations passed with ${config.engineRelease}`);
+console.log(`Catalog smoke: ${passed}/${results.length} combinations passed with ${config.engineRelease} in ${Math.round((performance.now() - startedAt) / 1000)} s`);

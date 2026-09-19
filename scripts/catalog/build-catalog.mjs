@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { loadCatalogConfig } from './config.mjs';
 import { createPresetSource } from './resolve.mjs';
 
 export function stableJson(value) {
@@ -47,6 +48,9 @@ async function makePack(config, source, owner, model, passing) {
   if (!combos.length) return;
   const processIds = new Set(combos.map(([id]) => id));
   const filamentIds = new Set(combos.map(([, id]) => id));
+  // Optional (generated) printers ship only with a smoke-passed Standard + PLA path; anything less is dropped.
+  if (model.required === false && !(resolved.filaments.some(entry => filamentIds.has(entry.id) && entry.type === 'PLA') &&
+      resolved.processes.some(entry => processIds.has(entry.id) && entry.ladder === 'standard'))) return;
   return { schema: 1, id: model.id, vendor: owner.id, model: model.name, nozzle: model.nozzle ?? 0.4,
     machine: resolved.machine,
     processes: resolved.processes.filter(entry => processIds.has(entry.id))
@@ -75,12 +79,12 @@ export async function buildCatalog(config, passing, { source = createPresetSourc
       const sha256 = createHash('sha256').update(bytes).digest('hex');
       const file = `${model.id}.${sha256.slice(0, 8)}.json`;
       await writeFile(join(root, 'printers', file), bytes);
-      models.push({ id: model.id, name: model.name, nozzle: model.nozzle,
+      models.push({ id: model.id, name: model.name, nozzle: model.nozzle, curated: model.curated === true,
         pack: `${config.orcaTag}/printers/${file}`, bytes: bytes.byteLength, sha256 });
     }
     if (models.length) vendors.push({ id: vendor.id, name: vendor.name, models });
   }
-  const index = { schema: 1, orcaTag: config.orcaTag, engineRelease: config.engineRelease, vendors };
+  const index = { schema: 2, orcaTag: config.orcaTag, engineRelease: config.engineRelease, vendors };
   await mkdir(outputDir, { recursive: true });
   await writeFile(join(outputDir, 'index.json'), stableJson(index));
   if (config.customBase) {
@@ -92,9 +96,12 @@ export async function buildCatalog(config, passing, { source = createPresetSourc
 }
 
 async function main() {
-  const config = JSON.parse(await readFile('catalog.config.json', 'utf8'));
+  const { config } = await loadCatalogConfig();
   const results = JSON.parse(await readFile('.engine-cache/catalog-smoke-results.json', 'utf8'));
-  await buildCatalog(config, new Set(results.filter(result => result.pass).map(result => result.combo)));
+  const index = await buildCatalog(config, new Set(results.filter(result => result.pass).map(result => result.combo)));
+  const shipped = new Set(index.vendors.flatMap(vendor => vendor.models.map(model => model.id)));
+  const dropped = config.vendors.flatMap(vendor => vendor.models.filter(model => !shipped.has(model.id)).map(model => model.id));
+  console.log(`Built ${shipped.size} printer packs; dropped ${dropped.length} without a passing combination${dropped.length ? `: ${dropped.join(', ')}` : ''}`);
 }
 
 if (process.argv[1] && import.meta.url === new URL(`file:///${process.argv[1].replaceAll('\\', '/')}`).href)

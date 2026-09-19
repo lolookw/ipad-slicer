@@ -90,7 +90,7 @@ export const es = {
   },
   configuration: {
     arrangeComplete: 'La placa fue orientada y organizada.',
-    search: 'Buscar impresoras', printer: 'Impresora', filament: 'Filamento', quality: 'Calidad', loading: 'Cargando impresora…', unavailable: 'No disponible',
+    search: 'Buscar impresoras', recommended: 'Recomendadas', verifiedToSlice: 'Verificadas para laminar', noPrinters: 'Ninguna impresora coincide con la búsqueda.', printer: 'Impresora', filament: 'Filamento', quality: 'Calidad', loading: 'Cargando impresora…', unavailable: 'No disponible',
     draft: 'Borrador', standard: 'Estándar', fine: 'Fina', simple: 'Simple', advanced: 'Avanzado', arrange: 'Orientar y organizar',
     arrangePending: 'Orientar y organizar estará disponible después de importar un modelo.', estimates: 'Tiempo, filamento y costo estimados', reset: 'Restablecer al preset',
     plateWide: 'Los ajustes de soporte y borde se aplican a toda la placa. Los controles por objeto no están disponibles.', notSmokeTested: 'Impresora del usuario — sin prueba de humo individual',

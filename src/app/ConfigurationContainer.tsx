@@ -54,7 +54,7 @@ export function ConfigurationContainer() {
   const app = useApp(); const t = app.t;
   const labels = () => ({
     search: t('configuration.search'), printer: t('configuration.printer'), filament: t('configuration.filament'), quality: t('configuration.quality'),
-    loading: t('configuration.loading'), unavailable: t('configuration.notSmokeTested'), draft: t('configuration.draft'), standard: t('configuration.standard'), fine: t('configuration.fine'),
+    loading: t('configuration.loading'), unavailable: t('configuration.notSmokeTested'), recommended: t('configuration.recommended'), verified: t('configuration.verifiedToSlice'), noResults: t('configuration.noPrinters'), draft: t('configuration.draft'), standard: t('configuration.standard'), fine: t('configuration.fine'),
   });
   const settingsLabels = () => ({ mode: t('configuration.settingsMode'), modeSimple: t('configuration.simple'), modeAdvanced: t('configuration.advanced'), infill: t('settings.infillDensity.label'), supports: t('settings.supports.label'),
     supportType: t('settings.supportType.label'), brimType: t('settings.brimType.label'), brimWidth: t('settings.brimWidth.label'), arrange: t('configuration.arrange'),

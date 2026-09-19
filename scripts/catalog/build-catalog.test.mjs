@@ -41,6 +41,18 @@ describe('catalog builder and verifier', () => {
     await expect(verifyCatalog(join(root, 'index.json'))).rejects.toThrow('Length mismatch');
   });
 
+  it('drops optional generated models without a passing combination and flags curated ones in the index', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'catalog-generated-'));
+    const [base] = config.vendors[0].models;
+    const generated = { ...base, id: 'generated', required: false, curated: false, machine: 'Printer' };
+    const doomed = { ...base, id: 'doomed', required: false, curated: false, machine: 'Printer' };
+    const index = await buildCatalog({ ...config, vendors: [{ ...config.vendors[0], models: [{ ...base, curated: true }, generated, doomed] }] },
+      new Set(['printer:standard:pla', 'generated:standard:pla']), { source, outputDir: root });
+    expect(index.schema).toBe(2);
+    expect(index.vendors[0].models.map(entry => [entry.id, entry.curated])).toEqual([['printer', true], ['generated', false]]);
+    await expect(verifyCatalog(join(root, 'index.json'))).resolves.toEqual({ printers: 2, combos: 2 });
+  });
+
   it('emits a smoke-gated custom base without indexing it as certified', async () => {
     const root = await mkdtemp(join(tmpdir(), 'catalog-custom-'));
     const customBase = { id: 'custom', name: 'Custom', source: 'Acme', machine: 'Printer',

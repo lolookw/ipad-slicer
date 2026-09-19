@@ -8,3 +8,8 @@
 # Engine artifacts live under versioned paths (/engine/<release>/...), so they never change in place.
 /engine/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Catalog packs are content-hashed (<id>.<sha8>.json under a pinned Orca tag), so they never change in place.
+# index.json and custom-base.json stay revalidated on purpose: they are the only mutable catalog entry points.
+/catalog/:tag/printers/*
+  Cache-Control: public, max-age=31536000, immutable

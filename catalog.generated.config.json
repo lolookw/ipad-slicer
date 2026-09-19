@@ -1,0 +1,5822 @@
+{
+ "schema": 1,
+ "source": {
+  "repository": "https://github.com/SoftFever/OrcaSlicer",
+  "tag": "v2.4.2",
+  "commit": "8500fcdccaa10b5099ac20d252af3a7c560046f1"
+ },
+ "generatedFrom": "catalog.config.json",
+ "vendors": [
+  {
+   "id": "creality",
+   "name": "Creality",
+   "source": "Creality",
+   "models": [
+    {
+     "id": "creality-cr-10-max-04",
+     "name": "CR-10 Max",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality CR-10 Max 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality CR10Max"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality CR10Max"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality CR10Max"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-cr-10-se-04",
+     "name": "CR-10 SE",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality CR-10 SE 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality CR10SE 0.4"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality CR10SE 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality CR10SE 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-cr-10-v2-04",
+     "name": "CR-10 V2",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality CR-10 V2 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Creality CR10V2"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality CR10V2"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-cr-10-v3-04",
+     "name": "CR-10 V3",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality CR-10 V3 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality CR10V3 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-cr-6-max-04",
+     "name": "CR-6 Max",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality CR-6 Max 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Detail @Creality 0.4 CR-6"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality CR-6 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality CR-6 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-cr-6-se-04",
+     "name": "CR-6 SE",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality CR-6 SE 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Detail @Creality 0.4 CR-6"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality CR-6 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality CR-6 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-cr-m4-04",
+     "name": "CR-M4",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality CR-M4 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.10mm HighDetail @Creality CR-M4"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality CR-M4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-3-04",
+     "name": "Ender-3",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-3 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality Ender3 0.4"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender3"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality Ender3 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-3-pro-04",
+     "name": "Ender-3 Pro",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-3 Pro 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality Ender3 Pro 0.4"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender3 Pro 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality Ender3 Pro 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-3-s1-04",
+     "name": "Ender-3 S1",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-3 S1 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Creality Ender3S1"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender3S1"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-3-s1-plus-04",
+     "name": "Ender-3 S1 Plus",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-3 S1 Plus 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Creality Ender3S1Plus 0.4"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender3S1Plus 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality Ender3S1Plus 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-3-s1-pro-04",
+     "name": "Ender-3 S1 Pro",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-3 S1 Pro 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Creality Ender3S1Pro"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender3S1Pro"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-3-v2-neo-04",
+     "name": "Ender-3 V2 Neo",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-3 V2 Neo 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality Ender3V2Neo"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender3V2Neo"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality Ender3V2Neo"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-3-v3-ke-04",
+     "name": "Ender-3 V3 KE",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-3 V3 KE 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality Ender3V3KE"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender3V3KE"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality Ender3V3KE"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA @Ender-3V3-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG @Ender-3V3-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS @Ender-3V3-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-3-v3-plus-04",
+     "name": "Ender-3 V3 Plus",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-3 V3 Plus 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality Ender-3 V3 Plus"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender-3 V3 Plus"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality Ender-3 V3 Plus"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA @Ender-3V3-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG @Ender-3V3-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS @Ender-3V3-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-3-v3-se-04",
+     "name": "Ender-3 V3 SE",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-3 V3 SE 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality Ender3V3SE 0.4"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender3V3SE 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality Ender3V3SE 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA @Ender-3V3-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG @Ender-3V3-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS @Ender-3V3-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-3-v4-04",
+     "name": "Ender-3 V4",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-3 V4 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Fine @Creality Ender-3 V4 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender-3 V4 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality Ender-3 V4 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Ender-3 V4-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Ender-3 V4-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Ender-3 V4-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-5-04",
+     "name": "Ender-5",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-5 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Creality Ender5"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender5"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-5-max-04",
+     "name": "Ender-5 Max",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-5 Max 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.2mm Standard @Creality Ender-5 Max 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA @Ender-5Max-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG @Ender-5Max-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS @Ender-5Max-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-5-plus-04",
+     "name": "Ender-5 Plus",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-5 Plus 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Creality Ender5Plus"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender5Plus"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-5-pro-2019-04",
+     "name": "Ender-5 Pro (2019)",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-5 Pro (2019) 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality Ender5Pro (2019)"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender5Pro (2019)"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality Ender5Pro (2019)"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-5-s1-04",
+     "name": "Ender-5 S1",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-5 S1 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Creality Ender5S1"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender5S1"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-5s-04",
+     "name": "Ender-5S",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-5S 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Creality Ender5S"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender5S"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-ender-6-04",
+     "name": "Ender-6",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Ender-6 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Creality Ender6"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Ender6"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-hi-04",
+     "name": "Hi",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Hi 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality Hi"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Hi"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality Hi"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Hi-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Hi-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Hi-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-k1-cfs-c-04",
+     "name": "K1_CFS-C",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality K1_CFS-C 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.08mm SuperDetail @Creality K1_CFS-C 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality K1_CFS-C 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality K1_CFS-C 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @K1_CFS-C-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @K1_CFS-C-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @K1_CFS-C-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-k1-max-04",
+     "name": "K1 Max",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality K1 Max (0.4 nozzle)",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality K1Max (0.4 nozzle)"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality K1Max (0.4 nozzle)"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality K1Max (0.4 nozzle)"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-k1-max-cfs-c-04",
+     "name": "K1 Max_CFS-C",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality K1 Max_CFS-C 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.08mm SuperDetail @Creality K1 Max_CFS-C 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality K1 Max_CFS-C 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality K1 Max_CFS-C 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @K1 Max_CFS-C-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @K1 Max_CFS-C-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @K1 Max_CFS-C-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-k1-se-04",
+     "name": "K1 SE",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality K1 SE 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality K1 SE"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality K1 SE"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality K1 SE"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @K1 SE-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @K1 SE-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @K1 SE-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-k1-se-cfs-c-04",
+     "name": "K1 SE_CFS-C",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality K1 SE_CFS-C 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Creality K1 SE_CFS-C 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality K1 SE_CFS-C 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality K1 SE_CFS-C 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @K1 SE_CFS-C-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @K1 SE_CFS-C-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @K1 SE_CFS-C-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-k1c-04",
+     "name": "K1C",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality K1C 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality K1C"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality K1C"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality K1C"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @K1C-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @K1C-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @K1C-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-k1c-cfs-c-04",
+     "name": "K1C_CFS-C",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality K1C_CFS-C 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.08mm SuperDetail @Creality K1C_CFS-C 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality K1C_CFS-C 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality K1C_CFS-C 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @K1C_CFS-C-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @K1C_CFS-C-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @K1C_CFS-C-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-k2-04",
+     "name": "K2",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality K2 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Detail @Creality K2 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality K2 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality K2 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @K2-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @K2-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @K2-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-k2-se-04",
+     "name": "K2 SE",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality K2 SE 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Standard @Creality K2 SE 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality K2 SE 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Standard @Creality K2 SE 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @K2 SE-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @K2 SE-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @K2 SE-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-k2-plus-04",
+     "name": "K2 Plus",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality K2 Plus 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Detail @Creality K2 Plus 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality K2 Plus 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality K2 Plus 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @K2 Plus-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @K2 Plus-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @K2 Plus-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-k2-pro-04",
+     "name": "K2 Pro",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality K2 Pro 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Detail @Creality K2 Pro 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality K2 Pro 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality K2 Pro 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @K2 Pro-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @K2 Pro-all"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @K2 Pro-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-sparkx-i7-04",
+     "name": "SPARKX i7",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality SPARKX i7 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Creality SPARKX i7 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality SPARKX i7 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Creality SPARKX i7 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @SPARKX i7-all"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @SPARKX i7-all"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "creality-sermoon-v1-04",
+     "name": "Sermoon V1",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Creality Sermoon V1 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Creality Sermoon V1"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Creality Sermoon V1"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.28mm Standard @Creality Sermoon V1"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Creality Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Creality Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Creality Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "elegoo",
+   "name": "Elegoo",
+   "source": "Elegoo",
+   "models": [
+    {
+     "id": "elegoo-centauri-carbon-2-04",
+     "name": "Centauri Carbon 2",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Centauri Carbon 2 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo CC2 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo CC2 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo CC2 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo Centauri"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo Centauri"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "elegoo-centauri-carbon-04",
+     "name": "Centauri Carbon",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Centauri Carbon 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo CC 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo CC 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo CC 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo Centauri"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo Centauri"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "elegoo-centauri-04",
+     "name": "Centauri",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Centauri 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo C 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo C 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo C 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo Centauri"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo Centauri"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "elegoo-neptune-4-max-04",
+     "name": "Neptune 4 Max",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Neptune 4 Max 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo N4Max 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo N4Max 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo N4Max 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Elegoo"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "elegoo-neptune-4-plus-04",
+     "name": "Neptune 4 Plus",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Neptune 4 Plus 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo N4Plus 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo N4Plus 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo N4Plus 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Elegoo"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "elegoo-neptune-3-max-04",
+     "name": "Neptune 3 Max",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Neptune 3 Max 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo N3Max 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo N3Max 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo N3Max 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Elegoo"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "elegoo-neptune-3-plus-04",
+     "name": "Neptune 3 Plus",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Neptune 3 Plus 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo N3Plus 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo N3Plus 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo N3Plus 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Elegoo"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "elegoo-neptune-3-04",
+     "name": "Neptune 3",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Neptune 3 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo Neptune 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo Neptune 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo Neptune 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Elegoo"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "elegoo-neptune-x-04",
+     "name": "Neptune X",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Neptune X 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo Neptune 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo Neptune 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo Neptune 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Elegoo"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "elegoo-neptune-2s-04",
+     "name": "Neptune 2S",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Neptune 2S 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo Neptune 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo Neptune 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo Neptune 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Elegoo"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "elegoo-neptune-2d-04",
+     "name": "Neptune 2D",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Neptune 2D 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo Neptune 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo Neptune 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo Neptune 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Elegoo"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "elegoo-neptune-2-04",
+     "name": "Neptune 2",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Neptune 2 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo Neptune 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo Neptune 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo Neptune 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Elegoo"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "elegoo-neptune-04",
+     "name": "Neptune",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Elegoo Neptune 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Elegoo Neptune 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Elegoo Neptune 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Elegoo Neptune 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Elegoo"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Elegoo"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Elegoo"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "anycubic",
+   "name": "Anycubic",
+   "source": "Anycubic",
+   "models": [
+    {
+     "id": "anycubic-4max-pro-04",
+     "name": "4Max Pro",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Anycubic 4Max Pro 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Anycubic 4MaxPro"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Anycubic Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Anycubic Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Anycubic Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "anycubic-4max-pro-2-04",
+     "name": "4Max Pro 2",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Anycubic 4Max Pro 2 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.15mm Optimal @Anycubic 4MaxPro2"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Anycubic 4MaxPro2"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.30mm Draft @Anycubic 4MaxPro2"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Anycubic Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Anycubic Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Anycubic Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "anycubic-chiron-04",
+     "name": "Chiron",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Anycubic Chiron 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.15mm Optimal @Anycubic Chiron"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Anycubic Chiron"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.30mm Draft @Anycubic Chiron"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Anycubic Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Anycubic Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Anycubic Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "anycubic-kobra-04",
+     "name": "Kobra",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Anycubic Kobra 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.15mm Optimal @Anycubic Kobra"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Anycubic Kobra"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.30mm Draft @Anycubic Kobra"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Anycubic Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Anycubic Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Anycubic Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "anycubic-kobra-3-max-04",
+     "name": "Kobra 3 Max",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Anycubic Kobra 3 Max 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Standard @Anycubic Kobra 3 Max 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Anycubic Kobra 3 Max 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Standard @Anycubic Kobra 3 Max 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Anycubic Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Anycubic Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Anycubic Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "anycubic-kobra-max-04",
+     "name": "Kobra Max",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Anycubic Kobra Max 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.15mm Optimal @Anycubic KobraMax"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Anycubic KobraMax"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.30mm Draft @Anycubic KobraMax"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Anycubic Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Anycubic Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Anycubic Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "anycubic-kobra-plus-04",
+     "name": "Kobra Plus",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Anycubic Kobra Plus 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.15mm Optimal @Anycubic KobraPlus"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Anycubic KobraPlus"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.30mm Draft @Anycubic KobraPlus"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Anycubic Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Anycubic Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Anycubic Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "anycubic-i3-mega-s-04",
+     "name": "i3 Mega S",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Anycubic i3 Mega S 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.15mm Optimal @Anycubic i3MegaS"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Anycubic i3MegaS"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.30mm Draft @Anycubic i3MegaS"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Anycubic Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Anycubic Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Anycubic Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "prusa",
+   "name": "Prusa",
+   "source": "Prusa",
+   "models": [
+    {
+     "id": "prusa-mk3-5-04",
+     "name": "MK3.5",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Prusa MK3.5 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.10mm Speed @MK3.5"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @MK3.5"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Prusa Generic PLA @MK3.5"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Prusa Generic PETG @MK3.5"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Prusa Generic ABS @MK3.5"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "prusa-xl-04",
+     "name": "XL",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Prusa XL 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.10mm FastDetail @Prusa XL 0.4"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Speed @Prusa XL 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Structural @Prusa XL 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Prusa Generic PLA @XL"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Prusa Generic PETG @XL"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Prusa Generic ABS @XL"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "prusa-xl-5t-04",
+     "name": "XL 5T",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Prusa XL 5T 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.10mm FastDetail @Prusa XL 5T 0.4"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Speed @Prusa XL 5T 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Structural @Prusa XL 5T 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Prusa Generic PLA @XL 5T"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Prusa Generic PETG @XL 5T"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Prusa Generic ABS @XL 5T"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "bbl",
+   "name": "Bambu Lab",
+   "source": "BBL",
+   "models": [
+    {
+     "id": "bbl-a1-mini-04",
+     "name": "A1 mini",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Bambu Lab A1 mini 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @BBL A1M"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @BBL A1M"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @BBL A1M"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @BBL A1M"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @BBL A1M"
+      }
+     ],
+     "fixups": {
+      "curr_bed_type": "Textured PEI Plate",
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "bbl-h2d-04",
+     "name": "H2D",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Bambu Lab H2D 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @BBL H2D"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @BBL H2D"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Standard @BBL H2D"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @BBL H2D"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @BBL H2D"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @BBL H2D"
+      }
+     ],
+     "fixups": {
+      "curr_bed_type": "Textured PEI Plate",
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "bbl-h2d-pro-04",
+     "name": "H2D Pro",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Bambu Lab H2D Pro 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @BBL H2DP"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @BBL H2DP"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Standard @BBL H2DP"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @BBL H2DP"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @BBL H2DP"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @BBL H2DP"
+      }
+     ],
+     "fixups": {
+      "curr_bed_type": "Textured PEI Plate",
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "bbl-h2s-04",
+     "name": "H2S",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Bambu Lab H2S 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm High Quality @BBL H2S"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @BBL H2S"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Standard @BBL H2S"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @BBL H2S"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @BBL H2S"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @BBL H2S 0.4 nozzle"
+      }
+     ],
+     "fixups": {
+      "curr_bed_type": "Textured PEI Plate",
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "bbl-p2s-04",
+     "name": "P2S",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Bambu Lab P2S 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm High Quality @BBL P2S"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @BBL P2S"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Standard @BBL P2S"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @BBL P2S"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @BBL P2S"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @BBL P2S"
+      }
+     ],
+     "fixups": {
+      "curr_bed_type": "Textured PEI Plate",
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "bbl-x1-04",
+     "name": "X1",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Bambu Lab X1 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @BBL X1C"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @BBL X1C"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @BBL X1C"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS"
+      }
+     ],
+     "fixups": {
+      "curr_bed_type": "Textured PEI Plate",
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "bbl-x1e-04",
+     "name": "X1E",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Bambu Lab X1E 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @BBL X1C"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @BBL X1C"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @BBL X1C"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @BBL X1E"
+      }
+     ],
+     "fixups": {
+      "curr_bed_type": "Textured PEI Plate",
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "bbl-x2d-04",
+     "name": "X2D",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Bambu Lab X2D 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm High Quality @BBL X2D"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @BBL X2D"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Standard @BBL X2D"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @BBL X2D 0.4 nozzle"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @BBL X2D 0.4 nozzle"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @BBL X2D 0.4 nozzle"
+      }
+     ],
+     "fixups": {
+      "curr_bed_type": "Textured PEI Plate",
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "qidi",
+   "name": "Qidi",
+   "source": "Qidi",
+   "models": [
+    {
+     "id": "qidi-q1-pro-04",
+     "name": "Q1 Pro",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Qidi Q1 Pro 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Qidi Q1 Pro"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Qidi Q1 Pro"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Qidi Q1 Pro"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Qidi Generic PLA @Qidi Q1 Pro 0.4 nozzle"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Qidi Generic PETG @Qidi Q1 Pro 0.4 nozzle"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Qidi Generic ABS @Qidi Q1 Pro 0.4 nozzle"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "qidi-q2-04",
+     "name": "Q2",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Qidi Q2 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Qidi Q2"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Qidi Q2"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Qidi Q2"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Qidi Q2 0.4 nozzle"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Qidi Q2 0.4 nozzle"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Qidi Q2 0.4 nozzle"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "qidi-q2c-04",
+     "name": "Q2C",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Qidi Q2C 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Qidi Q2C"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Qidi Q2C"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Qidi Q2C"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Qidi Q2C 0.4 nozzle"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Qidi Q2C 0.4 nozzle"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Qidi Q2C 0.4 nozzle"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "qidi-x-cf-pro-04",
+     "name": "X-CF Pro",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Qidi X-CF Pro 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Qidi XCFPro"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Qidi XCFPro"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Draft @Qidi XCFPro"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Qidi Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Qidi Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Qidi Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "qidi-x-max-04",
+     "name": "X-Max",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Qidi X-Max 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Qidi XMax"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Qidi XMax"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Draft @Qidi XMax"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Qidi Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Qidi Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Qidi Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "qidi-x-max-3-04",
+     "name": "X-Max 3",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Qidi X-Max 3 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Qidi XMax3"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Qidi XMax3"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Qidi XMax3"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Qidi Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Qidi Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Qidi Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "qidi-x-max-4-04",
+     "name": "X-Max 4",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Qidi X-Max 4 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @X-Max 4"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @X-Max 4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Standard @X-Max 4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Generic PLA @Qidi X-Max 4 0.4 nozzle"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Generic PETG @Qidi X-Max 4 0.4 nozzle"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Generic ABS @Qidi X-Max 4 0.4 nozzle"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "qidi-x-plus-04",
+     "name": "X-Plus",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Qidi X-Plus 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Qidi XPlus"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Qidi XPlus"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Draft @Qidi XPlus"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Qidi Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Qidi Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Qidi Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "qidi-x-plus-3-04",
+     "name": "X-Plus 3",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Qidi X-Plus 3 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Qidi XPlus3"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Qidi XPlus3"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Qidi XPlus3"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Qidi Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Qidi Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Qidi Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "qidi-x-plus-4-04",
+     "name": "X-Plus 4",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Qidi X-Plus 4 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Qidi XPlus4"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Qidi XPlus4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Qidi XPlus4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Qidi Generic PLA @Qidi X-Plus 4 0.4 nozzle"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Qidi Generic PETG @Qidi X-Plus 4 0.4 nozzle"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Qidi Generic ABS @Qidi X-Plus 4 0.4 nozzle"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "qidi-x-smart-3-04",
+     "name": "X-Smart 3",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Qidi X-Smart 3 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Qidi XSmart3"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Qidi XSmart3"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Qidi XSmart3"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Qidi Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Qidi Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Qidi Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "flashforge",
+   "name": "Flashforge",
+   "source": "Flashforge",
+   "models": [
+    {
+     "id": "flashforge-ad5x-04",
+     "name": "AD5X",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Flashforge AD5X 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Standard @FF AD5X"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @FF AD5X"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @FF AD5X"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Flashforge Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Flashforge Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Flashforge Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "flashforge-guider-2s-04",
+     "name": "Guider 2s",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Flashforge Guider 2s 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Detail @Flashforge Guider 2s 0.4 nozzle"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Flashforge Guider 2s 0.4 nozzle"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.30mm Draft @Flashforge Guider 2s 0.4 nozzle"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Flashforge Generic PLA @G3U"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Flashforge Generic PETG @G3U"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Flashforge Generic ABS @G3U"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "artillery",
+   "name": "Artillery",
+   "source": "Artillery",
+   "models": [
+    {
+     "id": "artillery-genius-04",
+     "name": "Genius",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Artillery Genius 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.15mm Optimal @Artillery Genius"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Artillery Genius"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Draft @Artillery Genius"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Artillery Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Artillery Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Artillery Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "artillery-genius-pro-04",
+     "name": "Genius Pro",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Artillery Genius Pro 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.15mm Optimal @Artillery Genius Pro"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Artillery Genius Pro"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Draft @Artillery Genius Pro"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Artillery Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Artillery Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Artillery Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "artillery-hornet-04",
+     "name": "Hornet",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Artillery Hornet 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Artillery Hornet"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Artillery Hornet"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Artillery Hornet"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Artillery Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Artillery Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Artillery Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "artillery-sidewinder-x1-04",
+     "name": "Sidewinder X1",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Artillery Sidewinder X1 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Artillery X1"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Artillery X1"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Artillery X1"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Artillery Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Artillery Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Artillery Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "artillery-sidewinder-x2-04",
+     "name": "Sidewinder X2",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Artillery Sidewinder X2 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Artillery X2"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Artillery Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Artillery Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Artillery Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "flsun",
+   "name": "FLSUN",
+   "source": "FLSun",
+   "models": [
+    {
+     "id": "flsun-q5-04",
+     "name": "Q5",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "FLSun Q5 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.08mm Fine @FLSun Q5"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @FLSun Q5"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @FLSun Q5"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "FLSun Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "FLSun Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "FLSun Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "flsun-qq-s-pro-04",
+     "name": "QQ-S Pro",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "FLSun QQ-S Pro 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.08mm Fine @FLSun QQSPro"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @FLSun QQSPro"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @FLSun QQSPro"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "FLSun Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "FLSun Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "FLSun Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "flsun-v400-04",
+     "name": "V400",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "FLSun V400 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @FLSun V400"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "FLSun Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "FLSun Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "FLSun Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ratrig",
+   "name": "Rat Rig",
+   "source": "Ratrig",
+   "models": [
+    {
+     "id": "ratrig-ratrig-v-cast-04",
+     "name": "RatRig V-Cast",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Cast 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @RatRig"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @RatRig"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @RatRig"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-3-200-04",
+     "name": "RatRig V-Core 3 200",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 3 200 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @RatRig"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @RatRig"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @RatRig"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-3-300-04",
+     "name": "RatRig V-Core 3 300",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 3 300 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @RatRig"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @RatRig"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @RatRig"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-3-400-04",
+     "name": "RatRig V-Core 3 400",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 3 400 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @RatRig"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @RatRig"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @RatRig"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-3-500-04",
+     "name": "RatRig V-Core 3 500",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 3 500 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @RatRig"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @RatRig"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @RatRig"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-4-300-04",
+     "name": "RatRig V-Core 4 300",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 4 300 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Quality @RatRig V-Core 4 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Speed @RatRig V-Core 4 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-4-400-04",
+     "name": "RatRig V-Core 4 400",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 4 400 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Quality @RatRig V-Core 4 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Speed @RatRig V-Core 4 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-4-500-04",
+     "name": "RatRig V-Core 4 500",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 4 500 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Quality @RatRig V-Core 4 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Speed @RatRig V-Core 4 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-4-hybrid-300-04",
+     "name": "RatRig V-Core 4 HYBRID 300",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 4 HYBRID 300 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Quality @RatRig V-Core 4 HYBRID 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Speed @RatRig V-Core 4 HYBRID 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-4-hybrid-400-04",
+     "name": "RatRig V-Core 4 HYBRID 400",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 4 HYBRID 400 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Quality @RatRig V-Core 4 HYBRID 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Speed @RatRig V-Core 4 HYBRID 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-4-hybrid-500-04",
+     "name": "RatRig V-Core 4 HYBRID 500",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 4 HYBRID 500 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Quality @RatRig V-Core 4 HYBRID 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Speed @RatRig V-Core 4 HYBRID 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-4-idex-300-04",
+     "name": "RatRig V-Core 4 IDEX 300",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 4 IDEX 300 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Quality @RatRig V-Core 4 IDEX 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Speed @RatRig V-Core 4 IDEX 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-4-idex-400-04",
+     "name": "RatRig V-Core 4 IDEX 400",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 4 IDEX 400 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Quality @RatRig V-Core 4 IDEX 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Speed @RatRig V-Core 4 IDEX 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-core-4-idex-500-04",
+     "name": "RatRig V-Core 4 IDEX 500",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Core 4 IDEX 500 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Quality @RatRig V-Core 4 IDEX 0.4"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Speed @RatRig V-Core 4 IDEX 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "ratrig-ratrig-v-minion-04",
+     "name": "RatRig V-Minion",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "RatRig V-Minion 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @RatRig"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @RatRig"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @RatRig"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "RatRig Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "RatRig Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "RatRig Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "anker",
+   "name": "Anker",
+   "source": "Anker",
+   "models": [
+    {
+     "id": "anker-m5-04",
+     "name": "M5",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Anker M5 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.10mm Detail @Anker"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Anker"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Draft @Anker"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Anker Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Anker Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Anker Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "anker-m5c-04",
+     "name": "M5C",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Anker M5C 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.10mm Detail @Anker"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Anker"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.25mm Draft @Anker"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Anker Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Anker Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Anker Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "blocks",
+   "name": "BLOCKS",
+   "source": "Blocks",
+   "models": [
+    {
+     "id": "blocks-pro-s100-04",
+     "name": "Pro S100",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "BLOCKS Pro S100 0.4 nozzle",
+     "processes": [
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard 0.4 nozzle @Blocks"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft 0.4 nozzle @Blocks"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Blocks Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Blocks Generic PETG"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "blocks-rd50-v2-04",
+     "name": "RD50 V2",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "BLOCKS RD50 V2 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine 0.4 nozzle @Blocks_RD50_V2"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard 0.4 nozzle @Blocks_RD50_V2"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft 0.4 nozzle @Blocks_RD50_V2"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Blocks Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Blocks Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Blocks Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "blocks-rf50-04",
+     "name": "RF50",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "BLOCKS RF50 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine 0.4 nozzle @Blocks_RF50"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard 0.4 nozzle @Blocks_RF50"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft 0.4 nozzle @Blocks_RF50"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Blocks Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Blocks Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Blocks Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "colido",
+   "name": "CoLiDo",
+   "source": "CoLiDo",
+   "models": [
+    {
+     "id": "colido-160-v2-04",
+     "name": "160 V2",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "CoLiDo 160 V2 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @CoLiDo 160 V2"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @CoLiDo 160 V2"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @CoLiDo 160 V2"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "CoLiDo Generic PLA @CoLiDo X16"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "CoLiDo Generic PETG @CoLiDo X16"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "CoLiDo Generic ABS @CoLiDo X16"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "colido-diy-4-0-04",
+     "name": "DIY 4.0",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "CoLiDo DIY 4.0 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @CoLiDo DIY 4.0"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @CoLiDo DIY 4.0"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @CoLiDo DIY 4.0"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "CoLiDo Generic PLA @CoLiDo DIY 4.0"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "CoLiDo Generic PETG @CoLiDo DIY 4.0"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "CoLiDo Generic ABS @CoLiDo DIY 4.0"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    },
+    {
+     "id": "colido-x16-04",
+     "name": "X16",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "CoLiDo X16 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @CoLiDo X16"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @CoLiDo X16"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @CoLiDo X16"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "CoLiDo Generic PLA @CoLiDo X16"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "CoLiDo Generic PETG @CoLiDo X16"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "CoLiDo Generic ABS @CoLiDo X16"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "comgrow",
+   "name": "Comgrow",
+   "source": "Comgrow",
+   "models": [
+    {
+     "id": "comgrow-t500-04",
+     "name": "T500",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Comgrow T500 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Comgrow T500 0.4"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Comgrow T500"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Comgrow T500 0.4"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Comgrow Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Comgrow Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Comgrow Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "infimech",
+   "name": "InfiMech",
+   "source": "InfiMech",
+   "models": [
+    {
+     "id": "infimech-tx-04",
+     "name": "TX",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "InfiMech TX 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @InfiMech TX"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @InfiMech TX"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @InfiMech TX"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "InfiMech Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "InfiMech Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "InfiMech Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "peopoly",
+   "name": "Peopoly",
+   "source": "Peopoly",
+   "models": [
+    {
+     "id": "peopoly-magneto-x-04",
+     "name": "Magneto X",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Peopoly Magneto X 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.16mm Optimal @Magneto X"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Magneto X"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Magneto X"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "Peopoly Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "Peopoly Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "Peopoly Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  },
+  {
+   "id": "orcaarena",
+   "name": "OrcaArena",
+   "source": "OrcaArena",
+   "models": [
+    {
+     "id": "orcaarena-orca-arena-x1-carbon-04",
+     "name": "Orca Arena X1 Carbon",
+     "nozzle": 0.4,
+     "required": false,
+     "machine": "Orca Arena X1 Carbon 0.4 nozzle",
+     "processes": [
+      {
+       "id": "fine",
+       "name": "Fine",
+       "ladder": "fine",
+       "preset": "0.12mm Fine @Arena X1C"
+      },
+      {
+       "id": "standard",
+       "name": "Standard",
+       "ladder": "standard",
+       "preset": "0.20mm Standard @Arena X1C"
+      },
+      {
+       "id": "draft",
+       "name": "Draft",
+       "ladder": "draft",
+       "preset": "0.24mm Draft @Arena X1C"
+      }
+     ],
+     "filaments": [
+      {
+       "id": "pla",
+       "name": "Generic PLA",
+       "type": "PLA",
+       "preset": "OrcaArena Generic PLA"
+      },
+      {
+       "id": "petg",
+       "name": "Generic PETG",
+       "type": "PETG",
+       "preset": "OrcaArena Generic PETG"
+      },
+      {
+       "id": "abs",
+       "name": "Generic ABS",
+       "type": "ABS",
+       "preset": "OrcaArena Generic ABS"
+      }
+     ],
+     "fixups": {
+      "use_relative_e_distances": "1"
+     }
+    }
+   ]
+  }
+ ]
+}
