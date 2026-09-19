@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createPreviewAdapter, type PreviewElement } from './adapter';
+import { indexGcodeLayers, previewSourceFor } from './layer-filter';
+import { planPreview } from './budget';
 
 function fixture() {
   const host = document.createElement('div');
@@ -67,5 +69,33 @@ describe('preview adapter', () => {
     canvas.dispatchEvent(new Event('webglcontextrestored'));
     expect(onContextLost).toHaveBeenCalledOnce();
     expect(onContextRestored).toHaveBeenCalledOnce();
+  });
+
+  it('re-assigns a smaller source (and range) when the budget rung drops, without touching the caller bytes', async () => {
+    const { host, element, factory } = fixture();
+    const text = Array.from({ length: 300 }, (_, n) => `;LAYER_CHANGE\n;Z:${(n + 1) * 0.2}\nG1 X${n} Y1 E1\n`).join('');
+    const bytes = new TextEncoder().encode(text);
+    const index = indexGcodeLayers(bytes);
+    const at = (stage: 'all-visible' | 'window' | 'decimated', current: number) => {
+      const plan = planPreview({ gcodeBytes: bytes.byteLength, tier: 'full', totalLayers: index.layerCount, currentLayer: current,
+        minimumStage: stage });
+      expect(plan.stage).toBe(stage);
+      return previewSourceFor(bytes, index, plan, current)!;
+    };
+    const first = at('all-visible', 100);
+    const adapter = await createPreviewAdapter(host, { source: first.bytes, layerRange: first.layerRange }, factory);
+    const sizes = [(element.source as Uint8Array).byteLength];
+    for (const stage of ['window', 'decimated'] as const) {
+      const next = at(stage, 100);
+      adapter.setSource(next.bytes, next.layerRange);
+      sizes.push((element.source as Uint8Array).byteLength);
+      expect(element.layerRange).toBeNull();
+    }
+    expect(sizes[1]!).toBeLessThan(sizes[0]! / 10);
+    expect(sizes[2]!).toBeLessThan(sizes[1]!);
+    expect(bytes.byteLength).toBe(sizes[0]);
+    adapter.dispose();
+    adapter.setSource(bytes, null);
+    expect(element.source).toBeNull();
   });
 });

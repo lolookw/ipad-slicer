@@ -379,6 +379,24 @@ test('a configured imported plate slices, shows estimates and downloads G-code',
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeEnabled();
 });
 
+test('the Preview step shows the toolpath canvas and the slider changes the visible layer while Save keeps working', async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.goto('/'); await configureEngine(page); await importStl(page, 'preview-flow.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Slice', exact: true }).click();
+  await expect(page.getByTestId('slice-result')).toContainText('Print time', { timeout: 45_000 });
+  await expect(page.locator('.step[aria-current="step"]')).toHaveText('Preview');
+  await expect(page.locator('gcode-preview canvas')).toBeAttached({ timeout: 30_000 });
+  const label = page.getByTestId('layer-label');
+  await expect(label).toContainText('Layer');
+  const before = (await label.textContent())!;
+  await page.getByRole('button', { name: 'Previous layer', exact: true }).click();
+  await expect(label).not.toHaveText(before);
+  await expect(page.getByTestId('layer-height')).toContainText('mm');
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Save G-code', exact: true }).click();
+  expect((await download).suggestedFilename()).toBe('preview-flow.gcode');
+});
+
 test('canceling an active slice never unlocks a stale result', async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto('/'); await configureEngine(page); await importStl(page, 'cancel-slice.stl', binaryBoxStl());

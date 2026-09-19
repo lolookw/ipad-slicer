@@ -23,6 +23,10 @@ export interface Viewer {
   meshAt(ndcX: number, ndcY: number): Mesh | undefined;
   objectRoot: Group;
   start(): void;
+  /** Stops rendering and frees the GPU copies of the plate meshes (CPU arrays stay in the geometry cache). */
+  suspend(): void;
+  /** Restarts rendering; three re-uploads the CPU arrays on the first frame. */
+  resume(): void;
   dispose(): void;
 }
 
@@ -76,6 +80,7 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
   let dirty = true;
   let running = false;
   let lastTime = 0;
+  let frame: number | undefined;
   const frameCallbacks = new Set<FrameCallback>();
 
   function resize(): void {
@@ -96,8 +101,10 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
     let needsRender = dirty;
     for (const callback of frameCallbacks) if (callback(delta)) needsRender = true;
     if (needsRender) { renderer.render([scene, camera]); dirty = false; }
-    requestAnimationFrame(tick);
+    frame = requestAnimationFrame(tick);
   }
+
+  function start(): void { if (running) return; running = true; lastTime = 0; dirty = true; resize(); frame = requestAnimationFrame(tick); }
 
   return {
     scene, camera, renderer, objectRoot: objects,
@@ -140,9 +147,19 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
       }
       dirty = true;
     },
-    start() { if (running) return; running = true; resize(); requestAnimationFrame(tick); },
+    start,
+    suspend() {
+      running = false;
+      if (frame !== undefined) cancelAnimationFrame(frame);
+      frame = undefined;
+      // BufferGeometry.dispose() releases the GL buffers; a later render re-uploads from the retained arrays.
+      for (const mesh of meshes.values()) { mesh.geometry.dispose(); (mesh.material as MeshStandardMaterial).dispose(); }
+      dirty = true;
+    },
+    resume: start,
     dispose() {
       running = false;
+      if (frame !== undefined) cancelAnimationFrame(frame);
       resizeObserver.disconnect();
       frameCallbacks.clear();
       for (const mesh of meshes.values()) (mesh.material as MeshStandardMaterial).dispose();

@@ -49,6 +49,14 @@ export const en = {
     priceBasis: 'Filament price', requested: 'Requested settings', effective: 'Effective output settings', stale: 'Settings or plate changed; slice again before relying on this result.',
     slicing: 'Slicing', preparing: 'Preparing engine', ready: 'Engine ready', save: 'Save G-code',
   },
+  preview: {
+    canvas: 'G-code toolpath preview', layer: 'Layer', height: 'Height', previousLayer: 'Previous layer', nextLayer: 'Next layer',
+    layerSlider: 'Layer slider', loading: 'Loading preview…',
+    tooLarge: 'This preview is too large for this device. Estimates and Save still work.',
+    webglUnavailable: 'The 3D preview needs WebGL, which is not available here. Estimates and Save still work.',
+    loadFailed: 'The preview could not be loaded. Estimates and Save still work.',
+    reduced: 'Large G-code: the preview shows only the layers near the selected one to stay within the memory limit.',
+  },
   diagnostics: {
     heading: 'Diagnostics', isolation: 'Cross-origin isolated', variant: 'Engine variant', st: 'Single-thread', mt: 'Multithread',
     unavailableMt: 'Multithread is unavailable on this device.', retryMt: 'Retry multithread', retryMtSuccess: 'Multithread retry enabled.',

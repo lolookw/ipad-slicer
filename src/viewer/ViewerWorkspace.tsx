@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createSignal, onCleanup, onMount, type Accessor, type JSX } from 'solid-js';
+import { For, Show, createEffect, createSignal, on, onCleanup, onMount, type Accessor, type JSX } from 'solid-js';
 import type { TierDecision } from '../app/tier/decide';
 import { binaries, flow } from '../app/stores';
 import { plate } from '../app/stores/plate';
@@ -14,7 +14,13 @@ import { engineClient } from '../engine/client';
 import { useApp } from '../app/AppProvider';
 import './workspace.css';
 
-export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> }): JSX.Element {
+export function ViewerWorkspace(props: {
+  tierDecision: Accessor<TierDecision>;
+  /** True while the G-code preview owns the stage: plate GPU buffers are released and rendering pauses. */
+  previewOpen?: Accessor<boolean>;
+  /** The preview surface, rendered over the canvas inside the stage. */
+  preview?: JSX.Element;
+}): JSX.Element {
   const app = useApp();
   let canvas!: HTMLCanvasElement;
   let viewer: Viewer | undefined;
@@ -24,6 +30,7 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
   const [axisLock, setAxisLock] = createSignal<AxisLock>('free');
   const gizmo = createGizmo(setReadout);
   const [startError, setStartError] = createSignal<string>();
+  const [viewerReady, setViewerReady] = createSignal(false);
   const error = () => startError() ?? (flow.step.get() !== 'import' ? importSession.error() : undefined);
   const busy = importSession.busy;
   const [transformMode, setTransformMode] = createSignal<TransformGestureMode>('move');
@@ -58,11 +65,18 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
         onSelect: id => plate.select(id),
         onFit: () => { if (viewer && controls && plate.state.objects.length) void controls.fit(viewer.objectRoot); },
       });
-      sync(); viewer.start();
+      sync(); viewer.start(); setViewerReady(true);
     } catch (reason) {
       setStartError(reason instanceof Error && reason.message ? reason.message : 'viewer-start-failed');
     }
   });
+
+  // Opening the preview frees the plate meshes' GPU buffers (CPU arrays stay cached); returning re-uploads them.
+  createEffect(on([viewerReady, () => props.previewOpen?.() ?? false], ([ready, open], previous) => {
+    if (!ready || !viewer) return;
+    if (open) viewer.suspend();
+    else if (previous?.[1]) { viewer.resume(); sync(); }
+  }));
 
   onCleanup(() => { gestures?.dispose(); controls?.dispose(); viewer?.dispose(); });
 
@@ -85,9 +99,10 @@ export function ViewerWorkspace(props: { tierDecision: Accessor<TierDecision> })
     <Show when={error()}>{failure => <p class="viewer-error" role="alert">{app.translateError(failure())}</p>}</Show>
     <div class="viewer-stage" style={{ position: 'relative' }}>
       <canvas ref={canvas} data-testid="viewer-canvas" aria-label={app.t('viewer.buildPlate')} />
-      <Show when={plate.state.objects.length}>
+      <Show when={plate.state.objects.length && !props.previewOpen?.()}>
         <ViewerToolbarContainer axisLock={axisLock()} onAxisLock={setAxisLock} readout={readout()} transformMode={transformMode()} onTransformMode={setTransformMode} />
       </Show>
+      {props.preview}
     </div>
     <Show when={plate.state.objects.length}>
       <nav class="viewer-objects" aria-label={app.t('viewer.plateObjects')}>

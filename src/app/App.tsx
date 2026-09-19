@@ -1,12 +1,13 @@
-import { For, Show, type JSX } from 'solid-js';
+import { For, Show, createMemo, type JSX } from 'solid-js';
 import { AppProvider, useApp } from './AppProvider';
 import { Layout } from './layout/Layout';
-import type { Step, Tier } from './stores';
+import { binaries, type Step, type Tier } from './stores';
 import type { Locale, TranslationKey } from '../i18n';
 import type { Theme } from './theme';
 import { ConfigurationContainer } from './ConfigurationContainer';
 import { ImportPaneContainer } from './import/ImportPaneContainer';
 import { ViewerWorkspace } from '../viewer/ViewerWorkspace';
+import { PreviewContainer } from '../preview/PreviewContainer';
 import { SliceActivity, SliceResults, type SliceResultLabels } from '../slice/components/SliceResults';
 
 const STEPS: { id: Step; label: TranslationKey }[] = [
@@ -117,6 +118,12 @@ function Preferences(): JSX.Element {
 
 function Shell(): JSX.Element {
   const app = useApp();
+  // The preview owns the stage only on the Preview step with a successful result; Save keeps reading its own buffer.
+  const previewGcode = createMemo(() => {
+    if (app.flow.step.get() !== 'preview' || app.result.state.status !== 'success' || !app.flow.hasResult.get()) return undefined;
+    app.result.state.attempt;
+    return binaries.getResult('current');
+  });
   return (
     <Layout
       sidebar={
@@ -128,7 +135,8 @@ function Shell(): JSX.Element {
       }
       canvas={
         <>
-          <ViewerWorkspace tierDecision={app.tierDecision} />
+          <ViewerWorkspace tierDecision={app.tierDecision} previewOpen={() => Boolean(previewGcode())}
+            preview={<Show when={previewGcode()} keyed>{gcode => <PreviewContainer gcode={gcode} />}</Show>} />
           <StepPane />
           <p class="engine-state">{app.t('app.engine')}: <code>{app.engine.state.get()}</code></p>
         </>

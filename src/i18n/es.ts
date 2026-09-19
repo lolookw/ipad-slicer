@@ -41,6 +41,14 @@ export const es = {
     priceBasis: 'Precio del filamento', requested: 'Ajustes solicitados', effective: 'Ajustes efectivos de salida', stale: 'Los ajustes o la placa cambiaron; volvé a laminar antes de confiar en este resultado.',
     slicing: 'Laminando', preparing: 'Preparando motor', ready: 'Motor listo', save: 'Guardar G-code',
   },
+  preview: {
+    canvas: 'Vista previa de la trayectoria del G-code', layer: 'Capa', height: 'Altura', previousLayer: 'Capa anterior', nextLayer: 'Capa siguiente',
+    layerSlider: 'Control de capas', loading: 'Cargando vista previa…',
+    tooLarge: 'La vista previa es demasiado grande para este dispositivo. Las estimaciones y Guardar siguen funcionando.',
+    webglUnavailable: 'La vista previa 3D necesita WebGL, que no está disponible aquí. Las estimaciones y Guardar siguen funcionando.',
+    loadFailed: 'No se pudo cargar la vista previa. Las estimaciones y Guardar siguen funcionando.',
+    reduced: 'G-code grande: la vista previa muestra solo las capas cercanas a la seleccionada para respetar el límite de memoria.',
+  },
   diagnostics: {
     heading: 'Diagnósticos', isolation: 'Aislamiento de origen cruzado', variant: 'Variante del motor', st: 'Un hilo', mt: 'Multihilo',
     unavailableMt: 'El modo multihilo no está disponible en este dispositivo.', retryMt: 'Reintentar multihilo', retryMtSuccess: 'El reintento multihilo está habilitado.',

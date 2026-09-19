@@ -11,6 +11,11 @@ export interface PreviewOptions {
   onContextRestored?: () => void;
 }
 
+// Mutable bytes belong to the preview; immutable File instances may be shared.
+function ownedSource(source: GcodePreviewSource): GcodePreviewSource {
+  return source instanceof Uint8Array || source instanceof ArrayBuffer ? source.slice() : source;
+}
+
 async function loadElement(): Promise<PreviewElement> {
   const { defineGcodePreview } = await import('@chestnutlabs/gcode-preview-element');
   defineGcodePreview();
@@ -28,9 +33,7 @@ export async function createPreviewAdapter(
   element.adjacentLayers = 0;
   element.progressivePreview = 'off';
   element.layerRange = options.layerRange ? [...options.layerRange] : null;
-  // Mutable bytes belong to the preview; immutable File instances may be shared.
-  element.source = options.source instanceof Uint8Array || options.source instanceof ArrayBuffer
-    ? options.source.slice() : options.source;
+  element.source = ownedSource(options.source);
   host.append(element);
 
   // Native context events do not bubble or cross the package's open shadow root.
@@ -47,6 +50,13 @@ export async function createPreviewAdapter(
   return {
     setLayerRange(range: LayerRange) {
       if (!disposed) element.layerRange = range ? [...range] : null;
+    },
+    /** Budget rungs shrink the source itself: the library only clips draws, it never frees buffers. */
+    setSource(source: GcodePreviewSource, range: LayerRange = null) {
+      if (disposed) return;
+      element.layerRange = null; // never pair a stale range with a different text
+      element.source = ownedSource(source);
+      element.layerRange = range ? [...range] : null;
     },
     dispose() {
       if (disposed) return;

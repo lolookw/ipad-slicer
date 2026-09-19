@@ -540,3 +540,9 @@ An intermediate patch to add these two fixups was applied with a Node script tha
 | Rollback boundary | Remove only `src/preview/{adapter,budget}.ts` and their two tests; revert the 10.3 checkbox and this appended section. No visual, viewer, settings, catalog, source-result, or Save files were touched. |
 
 - Delivery strategy: user-selected single PR, **294 authored changed lines** (263 source/tests + 29 progress + 2 checkbox replacement), below the 600-line ceiling; no commit/push/install. Independent SDD verification remains the parent's responsibility. Tasks 10.1/10.2 and 10.4-10.7 stay open; completing 10.2 requires an approved renderer/filtering solution, not simply a layerRange property update.
+
+## Preview UI and layer filtering - pr10b (direct implementation, Claude, 2026-09-18)
+
+- 10.4 and 10.5 done; 10.2 left open: the budget rungs are enforced by filtering G-code text before `source` is assigned (`src/preview/layer-filter.ts`, byte-level, `;LAYER_CHANGE`/`;Z:`), verified against a real OrcaSlicer 2.4.2 output with `@chestnutlabs/gcode-parser` (full text: 100 layers; window text: window layers plus one prime layer, hence windows that skip layer 0 keep only modal commands G20/G21/G90/G91/M82/M83 from the start section). Real GPU memory release is NOT measured.
+- Decimated rung: line-level decimation not attempted (cannot be checked without a device); it falls back to the current layer alone.
+- Wiring: `adapter.setSource`, `GcodePreview.tsx` (lazy chunk), `PreviewPanel.tsx`/`PreviewContainer.tsx`, `LayerSlider.tsx`, `webgl.ts`; `Viewer.suspend()/resume()` frees plate GPU buffers while the preview is open; overlay lives in the viewer stage. No JSX intrinsic typing needed: the element is created via the adapter. Crash marker for preview not implemented.
