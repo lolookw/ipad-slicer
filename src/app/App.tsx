@@ -83,7 +83,7 @@ function Preferences(): JSX.Element {
   const app = useApp();
   return (
     <details class="preferences-menu">
-    <summary aria-label={app.t('preferences.heading')}><span aria-hidden="true">⚙</span></summary>
+    <summary aria-label={app.t('preferences.heading')}><span aria-hidden="true">⚙︎</span></summary>
     <fieldset class="preferences">
       <legend>{app.t('preferences.heading')}</legend>
       <label>{app.t('preferences.language')}
