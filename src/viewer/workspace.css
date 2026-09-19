@@ -15,5 +15,12 @@
 .viewer-objects button { flex: 0 0 auto; }
 .viewer-objects button[aria-pressed='true'] { border-width: 2px; border-color: var(--color-primary); background: var(--color-primary-soft); color: var(--color-primary); font-weight: 600; }
 .viewer-error { margin: 0; padding: .625rem .875rem; border-radius: var(--radius-sm); background: var(--color-danger-soft); color: var(--color-danger); font-size: .9375rem; }
-@media (min-width: 1000px) { .viewer-stage { --stage-size: min(calc(100dvh - var(--topbar-h, 64px) - 9rem), 62vw); margin-inline: 0; } }
+@media (min-width: 1000px) {
+  /* Wide layout: import controls and object chips float over the stage so the square can use the full height. */
+  .viewer-workspace { position: relative; gap: 0; padding: .5rem; align-self: start; }
+  .viewer-stage { --stage-size: min(calc(100dvh - var(--topbar-h, 64px) - 5.5rem), 64vw); margin-inline: 0; }
+  .viewer-import { position: absolute; top: 1rem; left: 1rem; z-index: 3; gap: .75rem; padding: 4px 4px 4px 12px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--color-surface) 88%, transparent); backdrop-filter: blur(6px); }
+  .viewer-error { position: absolute; top: 4.5rem; left: 1rem; right: 1rem; z-index: 3; }
+  .viewer-objects { position: absolute; left: 1rem; right: 1rem; bottom: 1rem; z-index: 3; }
+}
 @media (max-width: 699px) { .viewer-workspace { padding: .5rem; } }
