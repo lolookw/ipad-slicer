@@ -1,13 +1,25 @@
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { plate, type PlateObject } from '../../app/stores/plate';
+import { clearMeshCache, putMeshBuffers } from '../geometry-cache';
 import type { TransformToolbarLabels } from './TransformToolbar';
 import { PlateObjectToolbar } from './ViewerToolbarContainer';
 import { ViewPresets } from './ViewPresets';
 
+/** A 30x2x40 box (non-indexed, outward-facing normals) — the same fin shape used to prove auto-orient's math in auto-orient.test.ts. */
+function finMeshBuffers() {
+  const vertices = [[0, 0, 0], [30, 0, 0], [30, 2, 0], [0, 2, 0], [0, 0, 40], [30, 0, 40], [30, 2, 40], [0, 2, 40]];
+  const faces = [[0, 2, 1], [0, 3, 2], [4, 5, 6], [4, 6, 7], [0, 1, 5], [0, 5, 4], [1, 2, 6], [1, 6, 5], [2, 3, 7], [2, 7, 6], [3, 0, 4], [3, 4, 7]];
+  const positions = new Float32Array(faces.length * 9);
+  faces.forEach((face, faceIndex) => face.forEach((vertexIndex, i) => vertices[vertexIndex]!.forEach((value, axis) => {
+    positions[faceIndex * 9 + i * 3 + axis] = value;
+  })));
+  return { positions, normals: new Float32Array(positions.length), bounds: { min: [0, 0, 0] as [number, number, number], max: [30, 2, 40] as [number, number, number] }, triangleCount: faces.length };
+}
+
 const labels: TransformToolbarLabels = {
   toolbar: 'Object tools', snap: 'Snap',
-  deselect: 'Deselect', layFlat: 'Lay flat', rotateX: 'Rotate X', rotateY: 'Rotate Y',
+  deselect: 'Deselect', layFlat: 'Lay flat', autoOrient: 'Auto orient', rotateX: 'Rotate X', rotateY: 'Rotate Y',
   scale: 'Scale', duplicate: 'Duplicate', delete: 'Delete', reset: 'Reset', title: 'Object size', close: 'Close', size: 'Largest dimension',
   unit: 'Size unit', suspicious: 'Suspicious size', multiply25_4: '×25.4', multiply1000: '×1000', divide10: '÷10', keep: 'Keep as entered', resize: 'Resize',
 };
@@ -26,7 +38,7 @@ const commitSize = (value: number) => {
 };
 
 beforeEach(() => plate.clear());
-afterEach(() => { cleanup(); plate.clear(); vi.restoreAllMocks(); });
+afterEach(() => { cleanup(); plate.clear(); clearMeshCache(); vi.restoreAllMocks(); });
 
 it('changes only the selected object when a numeric scale is committed', () => {
   plate.addObject(object('first'));
@@ -85,9 +97,40 @@ it('reflects a disabled snap state and no longer shows mode or axis-lock control
   expect(screen.queryByRole('group', { name: 'Axis lock' })).toBeNull();
   expect(screen.queryByRole('button', { name: 'Move' })).toBeNull();
   expect(screen.queryByRole('button', { name: 'Rotate' })).toBeNull();
-  for (const name of ['Lay flat', 'Rotate X', 'Rotate Y', 'Scale', 'Duplicate', 'Delete', 'Reset', 'Deselect']) {
+  for (const name of ['Lay flat', 'Auto orient', 'Rotate X', 'Rotate Y', 'Scale', 'Duplicate', 'Delete', 'Reset', 'Deselect']) {
     expect(screen.getByRole('button', { name })).toBeTruthy();
   }
+});
+
+it('auto-orients the selected object without touching an unselected one', () => {
+  plate.addObject(object('first'));
+  plate.addObject({ ...object('second'), transform: { ...object('second').transform, position: [40, 40, 0] } });
+  plate.select('first');
+  render(() => <PlateObjectToolbar labels={labels} />);
+
+  const before = { ...plate.state.objects.find(item => item.id === 'second')!.transform };
+  fireEvent.click(screen.getByRole('button', { name: 'Auto orient' }));
+
+  // No cached mesh buffers in this unit test (geometry-cache is populated by the import pipeline,
+  // out of scope here), so the handler's early-return guard is what this asserts: the unselected
+  // object's transform is untouched either way.
+  expect(plate.state.objects.find(item => item.id === 'second')!.transform).toEqual(before);
+});
+
+it('re-orients a standing-on-edge selected object and leaves an unselected one alone, once its mesh is loaded', () => {
+  const fin = finMeshBuffers();
+  plate.addObject({ ...object('first'), bounds: fin.bounds, transform: { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1], mirror: [false, false, false] } });
+  plate.addObject({ ...object('second'), transform: { ...object('second').transform, position: [60, 60, 0] } });
+  putMeshBuffers('first', fin);
+  plate.select('first');
+  render(() => <PlateObjectToolbar labels={labels} />);
+  const untouched = { ...plate.state.objects.find(item => item.id === 'second')!.transform };
+
+  fireEvent.click(screen.getByRole('button', { name: 'Auto orient' }));
+
+  const oriented = plate.state.objects.find(item => item.id === 'first')!;
+  expect(oriented.transform.rotation).not.toEqual([0, 0, 0]);
+  expect(plate.state.objects.find(item => item.id === 'second')!.transform).toEqual(untouched);
 });
 
 it('renders the camera view presets and reports the chosen command', () => {

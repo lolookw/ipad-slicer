@@ -1,15 +1,27 @@
 import { createSignal } from 'solid-js';
 import { useApp } from '../../app/AppProvider';
 import { plate, selectedObject } from '../../app/stores/plate';
-import { configuration } from '../../app/stores/configuration';
+import { configuration, resolvedSettings } from '../../app/stores/configuration';
 import { TransformToolbar, type TransformToolbarLabels } from './TransformToolbar';
 import { prepareCurrentPlate } from '../gizmo';
+import { findBestOrientation, resolveAutoOrientPlacement } from '../auto-orient';
+import { bedSizeFromSettings } from '../bed';
+import { getMeshBuffers } from '../geometry-cache';
 import { EngineClientError } from '../../engine/client';
 import type { CodedError } from '../../i18n/en';
+
+/**
+ * Matches ViewerWorkspace.tsx's own hardcoded default bed (the 3D viewer does not yet size its bed
+ * from the configured printer). Used only to bound the auto-orient free-position search; when a
+ * printer profile is configured, its real printable_area is used instead via bedSizeFromSettings.
+ */
+const DEFAULT_BED_FOOTPRINT = { widthMm: 220, depthMm: 220 };
 
 export function PlateObjectToolbar(props: {
   labels: TransformToolbarLabels;
   onPrepareError?: (message: string) => void;
+  /** Auto orient found no fully free spot for the object and fell back to centering it on the plate. */
+  onAutoOrientNoFreeSpot?: () => void;
   translateError?: (error: string | CodedError) => string;
   readout?: string;
   snapEnabled?: boolean;
@@ -31,7 +43,19 @@ export function PlateObjectToolbar(props: {
     onReset={() => { const selected = object(); if (selected) plate.resetTransform(selected.id); }}
     onTransform={transform => { const selected = object(); if (selected) plate.updateTransform(selected.id, transform); }}
     onDeselect={() => plate.select(undefined)}
-    onLayFlat={() => void prepareCurrentPlate(1).catch(error => props.onPrepareError?.(translate(error)))} />;
+    onLayFlat={() => void prepareCurrentPlate(1).catch(error => props.onPrepareError?.(translate(error)))}
+    onAutoOrient={() => {
+      const selected = object();
+      if (!selected) return;
+      const mesh = getMeshBuffers(selected.id);
+      if (!mesh) return; // import still in flight — same guard scene.ts's syncObjects uses for an unready mesh
+      const oriented = findBestOrientation({ positions: mesh.positions, triangleCount: mesh.triangleCount }, selected.bounds, selected.transform);
+      const others = plate.state.objects.filter(candidate => candidate.id !== selected.id);
+      const bed = (() => { const settings = resolvedSettings(); return settings ? bedSizeFromSettings(settings) : DEFAULT_BED_FOOTPRINT; })();
+      const placed = resolveAutoOrientPlacement({ bounds: selected.bounds, transform: oriented.transform }, others, bed);
+      plate.updateTransform(selected.id, placed.transform, { dropToBed: false });
+      if (!placed.freeSpotFound) props.onAutoOrientNoFreeSpot?.();
+    }} />;
 }
 
 export function ViewerToolbarContainer(props: { readout?: string; snapEnabled: boolean; onSnapToggle: () => void }) {
@@ -39,12 +63,13 @@ export function ViewerToolbarContainer(props: { readout?: string; snapEnabled: b
   const { t } = app;
   const labels = (): TransformToolbarLabels => ({
     toolbar: t('viewer.toolbar'), snap: t('viewer.snap'),
-    deselect: t('viewer.deselect'), layFlat: t('viewer.layFlat'),
+    deselect: t('viewer.deselect'), layFlat: t('viewer.layFlat'), autoOrient: t('viewer.autoOrient'),
     rotateX: t('viewer.rotateX'), rotateY: t('viewer.rotateY'), scale: t('viewer.scale'), duplicate: t('viewer.duplicate'),
     delete: t('viewer.delete'), reset: t('viewer.reset'), title: t('viewer.scaleTitle'), close: t('viewer.close'), size: t('viewer.size'),
     unit: t('viewer.unit'), suspicious: t('viewer.suspiciousSize'), multiply25_4: t('viewer.multiply25_4'),
     multiply1000: t('viewer.multiply1000'), divide10: t('viewer.divide10'), keep: t('viewer.keepEntered'), resize: t('viewer.resizeSheet'),
   });
   return <PlateObjectToolbar labels={labels()} readout={props.readout} snapEnabled={props.snapEnabled} onSnapToggle={props.onSnapToggle}
-    translateError={app.translateError} onPrepareError={message => configuration.notice.set(message)} />;
+    translateError={app.translateError} onPrepareError={message => configuration.notice.set(message)}
+    onAutoOrientNoFreeSpot={() => configuration.notice.set(t('viewer.autoOrientNoFreeSpot'))} />;
 }

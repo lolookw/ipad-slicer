@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { strToU8, zipSync } from 'fflate';
+import { Euler, Matrix4, Quaternion, Vector3 } from 'three';
 
 function binaryTriangleStl(): Buffer {
   const buffer = Buffer.alloc(134);
@@ -28,6 +29,43 @@ function binaryBoxStl(): Buffer {
   faces.forEach((face, index) => face.forEach((vertex, vertexIndex) => vertices[vertex]!.forEach((value, axis) =>
     buffer.writeFloatLE(value!, 84 + index * 50 + 12 + vertexIndex * 12 + axis * 4))));
   return buffer;
+}
+
+/** A thin 30x2x40 fin, imported standing tall on its narrow edge — an obviously bad default orientation. */
+function binaryFinStl(): Buffer {
+  const vertices = [[0, 0, 0], [30, 0, 0], [30, 2, 0], [0, 2, 0], [0, 0, 40], [30, 0, 40], [30, 2, 40], [0, 2, 40]];
+  const faces = [[0, 2, 1], [0, 3, 2], [4, 5, 6], [4, 6, 7], [0, 1, 5], [0, 5, 4],
+    [1, 2, 6], [1, 6, 5], [2, 3, 7], [2, 7, 6], [3, 0, 4], [3, 4, 7]];
+  const buffer = Buffer.alloc(84 + faces.length * 50); buffer.writeUInt32LE(faces.length, 80);
+  faces.forEach((face, index) => face.forEach((vertex, vertexIndex) => vertices[vertex]!.forEach((value, axis) =>
+    buffer.writeFloatLE(value!, 84 + index * 50 + 12 + vertexIndex * 12 + axis * 4))));
+  return buffer;
+}
+const FIN_BOUNDS = { min: [0, 0, 0], max: [30, 2, 40] };
+
+/** Rotated world-space AABB Z extent, mirroring src/viewer/transforms.ts's transformedSize — kept local so this spec has no src import. */
+function boundingHeightMm(bounds: typeof FIN_BOUNDS, rotation: number[]): number {
+  const matrix = new Matrix4().compose(new Vector3(), new Quaternion().setFromEuler(new Euler(rotation[0]!, rotation[1]!, rotation[2]!)), new Vector3(1, 1, 1));
+  let minZ = Infinity; let maxZ = -Infinity;
+  for (const x of [bounds.min[0], bounds.max[0]]) for (const y of [bounds.min[1], bounds.max[1]]) for (const z of [bounds.min[2], bounds.max[2]]) {
+    const projected = new Vector3(x, y, z).applyMatrix4(matrix).z;
+    minZ = Math.min(minZ, projected); maxZ = Math.max(maxZ, projected);
+  }
+  return maxZ - minZ;
+}
+
+/** The lowest world-space Z of the object's transformed bounds — mirrors dropToBed's own invariant: this should sit at ~0. */
+function worldMinZ(bounds: typeof FIN_BOUNDS, transform: { position: number[]; rotation: number[]; scale: number[]; mirror: boolean[] }): number {
+  const matrix = new Matrix4().compose(
+    new Vector3(transform.position[0]!, transform.position[1]!, transform.position[2]!),
+    new Quaternion().setFromEuler(new Euler(transform.rotation[0]!, transform.rotation[1]!, transform.rotation[2]!)),
+    new Vector3(...(transform.scale.map((value, index) => (transform.mirror[index] ? -value : value)) as [number, number, number])),
+  );
+  let minZ = Infinity;
+  for (const x of [bounds.min[0], bounds.max[0]]) for (const y of [bounds.min[1], bounds.max[1]]) for (const z of [bounds.min[2], bounds.max[2]]) {
+    minZ = Math.min(minZ, new Vector3(x, y, z).applyMatrix4(matrix).z);
+  }
+  return minZ;
 }
 
 async function configureEngine(page: import('@playwright/test').Page) {
@@ -364,6 +402,21 @@ test('a two-finger touch gesture goes to the camera, cancels a one-finger move a
 
   expect(JSON.stringify(await readTransform(page, 'two-finger.stl'))).toBe(before);
   await expect.poll(() => canvas.getAttribute('data-gizmo')).not.toBe(layoutBefore);
+});
+
+test('Auto orient lays a standing-on-edge object flat and keeps it seated on the plate', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'fin.stl', binaryFinStl());
+  const before = await readTransform(page, 'fin.stl');
+  expect(before.rotation).toEqual([0, 0, 0]);
+  expect(boundingHeightMm(FIN_BOUNDS, before.rotation)).toBeCloseTo(40, 1);
+
+  await page.getByRole('button', { name: 'Auto orient', exact: true }).click();
+
+  await expect.poll(async () => (await readTransform(page, 'fin.stl')).rotation).not.toEqual([0, 0, 0]);
+  const after = await readTransform(page, 'fin.stl');
+  expect(boundingHeightMm(FIN_BOUNDS, after.rotation)).toBeLessThan(10); // was 40mm standing on edge; lying flat is ~2mm
+  expect(worldMinZ(FIN_BOUNDS, after)).toBeCloseTo(0, 1); // still seated on the plate, same invariant dropToBed keeps everywhere else
 });
 
 test('changing scale display units preserves the physical millimeter size', async ({ page }) => {

@@ -85,6 +85,8 @@ export const en = {
     deselect: 'Deselect',
     layFlat: 'Lay flat',
     layFlatPending: 'Lay flat unlocks after engine integration in phase 7.',
+    autoOrient: 'Auto orient',
+    autoOrientNoFreeSpot: 'Auto orient placed the object at the plate center; no fully free spot was found.',
     rotateX: 'Rotate 90° X',
     rotateY: 'Rotate 90° Y',
     scale: 'Scale',
