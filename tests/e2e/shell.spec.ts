@@ -457,6 +457,30 @@ test('Auto orient lays a standing-on-edge object flat and keeps it seated on the
   expect(worldMinZ(FIN_BOUNDS, after)).toBeCloseTo(0, 1); // still seated on the plate, same invariant dropToBed keeps everywhere else
 });
 
+test('an object stays draggable and correctly seated right after Auto orient', async ({ page }) => {
+  // Regression test: Auto orient must leave the object in a state where it can still be picked up
+  // and dragged normally afterward (the gizmo's published screen layout must reflect the NEW
+  // rotated pose, not a stale pre-rotation one, and the object must not have moved off the plate).
+  // A fin standing on its edge (not a box already resting on its best face) is used so Auto orient
+  // actually has a better orientation to switch to, the same fixture the dedicated Auto orient test
+  // above already confirms reliably rotates.
+  await page.goto('/');
+  await importStl(page, 'move-after-orient.stl', binaryFinStl());
+  await page.getByRole('button', { name: 'Auto orient', exact: true }).click();
+  await expect.poll(async () => (await readTransform(page, 'move-after-orient.stl')).rotation).not.toEqual([0, 0, 0]);
+  const seated = await readTransform(page, 'move-after-orient.stl');
+  expect(worldMinZ(FIN_BOUNDS, seated)).toBeCloseTo(0, 1);
+
+  const { center } = await gizmoScreen(page); // read fresh, AFTER the rotation
+  await page.getByRole('button', { name: 'Deselect', exact: true }).click();
+  await dragTo(page, center, { x: center.x + 60, y: center.y + 20 });
+
+  const chip = page.getByRole('button', { name: 'move-after-orient.stl', exact: true });
+  await expect(chip).toHaveAttribute('aria-pressed', 'true');
+  const moved = await readTransform(page, 'move-after-orient.stl');
+  expect(Math.hypot(moved.position[0]! - seated.position[0]!, moved.position[1]! - seated.position[1]!)).toBeGreaterThan(5);
+});
+
 test('changing scale display units preserves the physical millimeter size', async ({ page }) => {
   await page.goto('/');
   await importStl(page, 'units.stl');

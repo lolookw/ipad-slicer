@@ -1,7 +1,7 @@
-import { createSignal } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 import { useApp } from '../../app/AppProvider';
 import { plate, selectedObject } from '../../app/stores/plate';
-import { configuration, resolvedSettings } from '../../app/stores/configuration';
+import { resolvedSettings } from '../../app/stores/configuration';
 import { TransformToolbar, type TransformToolbarLabels } from './TransformToolbar';
 import { prepareCurrentPlate } from '../gizmo';
 import { findBestOrientation, resolveAutoOrientPlacement } from '../auto-orient';
@@ -61,6 +61,11 @@ export function PlateObjectToolbar(props: {
 export function ViewerToolbarContainer(props: { readout?: string; snapEnabled: boolean; onSnapToggle: () => void }) {
   const app = useApp();
   const { t } = app;
+  // configuration.notice only renders inside ConfigurationContainer, which is unmounted while this
+  // step (import/viewer) is active — setting it here from Lay flat or Auto orient would silently do
+  // nothing visible. This toolbar owns its own notice instead, so a prepare failure or a "no free
+  // spot" placement warning is always shown wherever the user actually triggered it.
+  const [notice, setNotice] = createSignal<string>();
   const labels = (): TransformToolbarLabels => ({
     toolbar: t('viewer.toolbar'), snap: t('viewer.snap'),
     deselect: t('viewer.deselect'), layFlat: t('viewer.layFlat'), autoOrient: t('viewer.autoOrient'),
@@ -69,7 +74,10 @@ export function ViewerToolbarContainer(props: { readout?: string; snapEnabled: b
     unit: t('viewer.unit'), suspicious: t('viewer.suspiciousSize'), multiply25_4: t('viewer.multiply25_4'),
     multiply1000: t('viewer.multiply1000'), divide10: t('viewer.divide10'), keep: t('viewer.keepEntered'), resize: t('viewer.resizeSheet'),
   });
-  return <PlateObjectToolbar labels={labels()} readout={props.readout} snapEnabled={props.snapEnabled} onSnapToggle={props.onSnapToggle}
-    translateError={app.translateError} onPrepareError={message => configuration.notice.set(message)}
-    onAutoOrientNoFreeSpot={() => configuration.notice.set(t('viewer.autoOrientNoFreeSpot'))} />;
+  return <>
+    <Show when={notice()}>{message => <p class="viewer-toolbar-notice" role="alert">{message()}</p>}</Show>
+    <PlateObjectToolbar labels={labels()} readout={props.readout} snapEnabled={props.snapEnabled} onSnapToggle={props.onSnapToggle}
+      translateError={app.translateError} onPrepareError={message => setNotice(message)}
+      onAutoOrientNoFreeSpot={() => setNotice(t('viewer.autoOrientNoFreeSpot'))} />
+  </>;
 }

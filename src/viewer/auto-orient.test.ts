@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
-  findBestOrientation, MAX_SAMPLE_TRIANGLES, resolveAutoOrientPlacement, type TriangleMesh,
+  classifyFace, findBestOrientation, MAX_SAMPLE_TRIANGLES, resolveAutoOrientPlacement, type TriangleMesh,
 } from './auto-orient';
 import { transformedSize, type LocalBounds, type ObjectTransform } from './transforms';
+
+const DEG2RAD = Math.PI / 180;
 
 /** Same vertex/face layout as tests/e2e/shell.spec.ts's binaryBoxStl, generalized to any size, min corner at the origin. */
 function boxPositions(sx: number, sy: number, sz: number): Float32Array {
@@ -20,6 +22,32 @@ function boxMesh(sx: number, sy: number, sz: number): { mesh: TriangleMesh; boun
 }
 
 const IDENTITY: ObjectTransform = { position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1], mirror: [false, false, false] };
+
+describe('classifyFace', () => {
+  it('does not penalize a plain vertical wall (90 degrees from up) as an overhang', () => {
+    // The bug this regression-tests: an earlier version measured the overhang angle from +Z instead
+    // of from -Z, so any face more than 45 degrees from straight up (which includes every ordinary
+    // vertical wall, fully self-supporting layer over layer) was wrongly scored as needing support.
+    expect(classifyFace(90 * DEG2RAD)).toBe('neutral');
+  });
+
+  it('treats a face straight up, or anywhere short of the overhang band, as neutral', () => {
+    expect(classifyFace(0)).toBe('neutral');
+    expect(classifyFace(44 * DEG2RAD)).toBe('neutral');
+    expect(classifyFace(134 * DEG2RAD)).toBe('neutral'); // just short of the overhang band (45 deg from down)
+  });
+
+  it('treats a face within 5 degrees of straight down as the resting footprint, not an overhang', () => {
+    expect(classifyFace(180 * DEG2RAD)).toBe('footprint');
+    expect(classifyFace(176 * DEG2RAD)).toBe('footprint'); // 4 deg from straight down
+  });
+
+  it('treats a steep, near-downward face outside the footprint tolerance as an overhang', () => {
+    expect(classifyFace(174 * DEG2RAD)).toBe('overhang'); // 6 deg from straight down: past footprint, still steep
+    expect(classifyFace(150 * DEG2RAD)).toBe('overhang'); // 30 deg from straight down
+    expect(classifyFace(136 * DEG2RAD)).toBe('overhang'); // 44 deg from straight down: just inside the overhang band
+  });
+});
 
 describe('findBestOrientation', () => {
   it('lays a thin tall fin flat, reducing its print height', () => {

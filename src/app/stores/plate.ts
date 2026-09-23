@@ -21,10 +21,22 @@ export interface PlateState { objects: PlateObject[]; selectedId: string | undef
 
 const [state, setState] = createStore<PlateState>({ objects: [], selectedId: undefined });
 
+/**
+ * dropToBed only computes a correct absolute world-Z=0 seat when handed a transform whose position.z
+ * is already 0 (it returns `transform.position[2] - minZ`, so any pre-existing, generally non-zero,
+ * position.z leaks straight into the result instead of being replaced by it). Every caller here needs
+ * to re-seat from a clean baseline, not add to wherever the object already happened to be, so this
+ * zeroes position.z first — the same convention axis.ts's keepAbovePlate and drag-math.ts's plateSeatZ
+ * already use.
+ */
+function seatOnBed(bounds: LocalBounds, transform: ObjectTransform): ObjectTransform {
+  return dropToBed(bounds, { ...transform, position: [transform.position[0], transform.position[1], 0] });
+}
+
 export const plate = {
   state,
   addObject(object: PlateObject): void {
-    setState('objects', (objects) => [...objects, { ...object, transform: dropToBed(object.bounds, object.transform) }]);
+    setState('objects', (objects) => [...objects, { ...object, transform: seatOnBed(object.bounds, object.transform) }]);
     setState('selectedId', object.id);
   },
   removeObject(id: string): void {
@@ -45,7 +57,7 @@ export const plate = {
     const index = state.objects.findIndex((object) => object.id === id);
     if (index < 0) return;
     const bounds = state.objects[index]!.bounds;
-    setState('objects', index, 'transform', options.dropToBed === false ? transform : dropToBed(bounds, transform));
+    setState('objects', index, 'transform', options.dropToBed === false ? transform : seatOnBed(bounds, transform));
   },
   rotate90(id: string, axis: 'x' | 'y'): void {
     const object = state.objects.find((item) => item.id === id);

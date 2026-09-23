@@ -63,3 +63,9 @@
   padding: 6px 12px; border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card);
   font-variant-numeric: tabular-nums; font-weight: 600;
 }
+
+/* A Lay flat/Auto orient failure or warning, shown right on this step instead of a step-gated notice. */
+.viewer-toolbar-notice {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 11; max-width: calc(100% - 24px);
+  margin: 0; padding: .625rem .875rem; border-radius: var(--radius-sm); background: var(--color-danger-soft); color: var(--color-danger); font-size: .9375rem;
+}

@@ -34,7 +34,17 @@ export interface AutoOrientResult {
 
 const DEG2RAD = Math.PI / 180;
 
-/** A face whose rotated normal points more than this far from +Z is treated as needing support (Orca/Prusa's own convention). */
+/**
+ * A face whose rotated normal points within this far of straight DOWN (-Z) — steeply downward-facing,
+ * past the small footprint-tolerance band below — is treated as an overhang needing support (Orca/
+ * Prusa's own convention: support is about how close to horizontal-and-downward a face is, not merely
+ * how far it leans from vertical). A face at 90 degrees from up — a plain vertical wall — is printed
+ * fully supported by the layer directly beneath it and needs no support in any real slicer, so it must
+ * NOT be counted here. An earlier version of this file measured the angle from +Z instead of from -Z,
+ * which flagged every vertical wall as if it were an overhang; that skewed the score enough to sometimes
+ * pick a visibly wrong face (see the regression test "does not penalize a plain vertical wall as overhang"
+ * in auto-orient.test.ts).
+ */
 const OVERHANG_ANGLE_THRESHOLD_RAD = 45 * DEG2RAD;
 /** A rotated normal within this angle of straight down (-Z) is the face resting on the plate, not an overhang. */
 const FOOTPRINT_ANGLE_TOLERANCE_RAD = 5 * DEG2RAD;
@@ -127,6 +137,23 @@ function buildClusters(mesh: TriangleMesh): { clusters: Cluster[]; totalArea: nu
   return { clusters, totalArea };
 }
 
+export type FaceRole = 'footprint' | 'overhang' | 'neutral';
+
+/**
+ * Classifies one rotated face normal by its angle from world +Z. A face within
+ * FOOTPRINT_ANGLE_TOLERANCE_RAD of straight DOWN is the resting face itself (bed contact, not an
+ * overhang). A face within OVERHANG_ANGLE_THRESHOLD_RAD of straight down, but not already footprint,
+ * is a steep downward-facing overhang needing support. Everything else — in particular a face at 90
+ * degrees from up, a plain vertical wall — is fully self-supporting layer over layer and must be
+ * 'neutral', never 'overhang' (see OVERHANG_ANGLE_THRESHOLD_RAD's own comment for the bug this fixed).
+ */
+export function classifyFace(angleFromUpRad: number): FaceRole {
+  const angleFromDown = Math.PI - angleFromUpRad;
+  if (angleFromDown <= FOOTPRINT_ANGLE_TOLERANCE_RAD) return 'footprint';
+  if (angleFromDown <= OVERHANG_ANGLE_THRESHOLD_RAD) return 'overhang';
+  return 'neutral';
+}
+
 /** Score for one candidate rotation: lower is better. See the weight constants above for the rationale. */
 function scoreQuaternion(
   quaternion: Quaternion, isCurrent: boolean, clusters: readonly Cluster[], totalArea: number,
@@ -137,9 +164,9 @@ function scoreQuaternion(
   const rotated = new Vector3();
   for (const cluster of clusters) {
     rotated.copy(cluster.normal).applyQuaternion(quaternion);
-    const angleFromUp = rotated.angleTo(UP);
-    if (Math.PI - angleFromUp <= FOOTPRINT_ANGLE_TOLERANCE_RAD) footprintArea += cluster.area;
-    else if (angleFromUp > OVERHANG_ANGLE_THRESHOLD_RAD) overhangArea += cluster.area;
+    const role = classifyFace(rotated.angleTo(UP));
+    if (role === 'footprint') footprintArea += cluster.area;
+    else if (role === 'overhang') overhangArea += cluster.area;
   }
   const rotation = new Euler().setFromQuaternion(quaternion, 'XYZ');
   const heightMm = totalArea > 0
@@ -187,7 +214,11 @@ export function findBestOrientation(mesh: TriangleMesh, bounds: LocalBounds, cur
       const rotation = new Euler().setFromQuaternion(winner.quaternion, 'XYZ');
       return { ...currentTransform, rotation: [rotation.x, rotation.y, rotation.z] as ObjectTransform['rotation'] };
     })();
-  const seated = dropToBed(bounds, rotated);
+  // dropToBed's formula only zeroes the transformed bounds against WORLD Z=0 when it is handed a
+  // transform whose position.z is already 0 (every other caller in this codebase zeroes it first,
+  // in drag-math.ts and axis.ts); passing the object's current, generally non-zero, position.z
+  // straight through here made the object land off the bed by that leftover offset after a rotation.
+  const seated = dropToBed(bounds, { ...rotated, position: [rotated.position[0], rotated.position[1], 0] });
   const changed = !winner.isCurrent && winner.quaternion.angleTo(currentQuaternion) > 1e-4;
   return { transform: seated, changed };
 }

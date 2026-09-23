@@ -22,7 +22,12 @@ function rayTo(point: [number, number, number]) {
 }
 
 function seedObject(id: string, transform: ObjectTransform = IDENTITY_TRANSFORM) {
-  plate.addObject({ id, name: id, transform, triangleCount: 12, bounds: { min: [-5, -5, 0], max: [5, 5, 10] } });
+  const bounds = { min: [-5, -5, 0] as [number, number, number], max: [5, 5, 10] as [number, number, number] };
+  plate.addObject({ id, name: id, transform, triangleCount: 12, bounds });
+  // addObject always re-seats a fresh import at world Z = 0 (correct for a real import), so a test
+  // that wants to seed an object already lifted off the plate (e.g. by a prior Z-arrow drag) has to
+  // set that exact transform afterward, the same way a real lift leaves the store: dropToBed: false.
+  if (transform.position[2] !== 0) plate.updateTransform(id, transform, { dropToBed: false });
   return plate.state.objects.find(object => object.id === id)!;
 }
 const current = (id = 'a') => plate.state.objects.find(object => object.id === id)!.transform;
