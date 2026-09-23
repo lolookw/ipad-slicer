@@ -22,7 +22,8 @@
   .viewer-import { position: absolute; top: 1rem; left: 1rem; z-index: 3; gap: .75rem; padding: 4px 4px 4px 12px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--color-surface) 88%, transparent); backdrop-filter: blur(6px); }
   .viewer-error { position: absolute; top: 4.5rem; left: 1rem; right: 1rem; z-index: 3; }
   .viewer-objects { position: absolute; left: 1rem; right: 1rem; bottom: 1rem; z-index: 3; }
-  /* The transform rail shares the left edge with the floating import pill above it; give it room. */
-  .viewer-transform-toolbar { top: 4.75rem; max-height: calc(100% - 4.75rem - 12px); }
+  /* The transform rail shares the left edge with the floating import pill above it and the object
+   * chips below it; leave room on both ends so a longer tool list never overlaps either one. */
+  .viewer-transform-toolbar { top: 4.75rem; max-height: calc(100% - 4.75rem - 12px - 4rem); }
 }
 @media (max-width: 699px) { .viewer-workspace { padding: .5rem; } }
