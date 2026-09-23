@@ -16,7 +16,10 @@ export const MOUSE_PICK_RADIUS_PX = 3;
 interface Point { x: number; y: number; time: number }
 
 type Primary =
-  | { kind: 'camera'; pointerId: number; start: Point }
+  /** `moved` latches once the pointer ever crosses the tap threshold, so a drag that wanders out and
+   * back within the threshold before release still counts as a drag, not a tap (only the release-time
+   * displacement was checked before, which missed exactly that out-and-back case). */
+  | { kind: 'camera'; pointerId: number; start: Point; moved: boolean }
   | { kind: 'gizmo' | 'body'; pointerId: number; start: Point; dragging: boolean };
 
 export interface GestureOptions {
@@ -106,6 +109,9 @@ export function createViewerGestures(options: GestureOptions): ViewerGestures {
 
     const handle = object ? options.handles.hitTest(event.clientX - rect.left, event.clientY - rect.top, options.camera, width, height) : undefined;
     if (object && handle) {
+      // A deselect scheduled by a prior empty tap (see emptyTap()) must not fire mid-drag: it would hide
+      // the gizmo and clear selection while this drag session keeps transforming the (now hidden) object.
+      cancelPendingDeselect();
       options.gizmo.begin(object, { kind: handle.kind, axis: handle.axis }, rayAt(event));
       primary = { kind: 'gizmo', pointerId: event.pointerId, start, dragging: true };
       setPressed(handle);
@@ -127,7 +133,7 @@ export function createViewerGestures(options: GestureOptions): ViewerGestures {
       return;
     }
 
-    primary = { kind: 'camera', pointerId: event.pointerId, start };
+    primary = { kind: 'camera', pointerId: event.pointerId, start, moved: false };
     syncCamera();
   };
 
@@ -148,7 +154,10 @@ export function createViewerGestures(options: GestureOptions): ViewerGestures {
       }
     }
     if (primary && primary.pointerId === event.pointerId) {
-      if (primary.kind === 'camera') return;
+      if (primary.kind === 'camera') {
+        if (!primary.moved && Math.hypot(event.clientX - primary.start.x, event.clientY - primary.start.y) > TAP_MAX_DISTANCE_PX) primary.moved = true;
+        return;
+      }
       if (primary.kind === 'body' && !primary.dragging) {
         if (Math.hypot(event.clientX - primary.start.x, event.clientY - primary.start.y) <= TAP_MAX_DISTANCE_PX) return;
         primary.dragging = true;
@@ -189,8 +198,7 @@ export function createViewerGestures(options: GestureOptions): ViewerGestures {
       const finished = primary;
       if (finished.kind === 'camera') {
         primary = undefined;
-        const distance = Math.hypot(event.clientX - finished.start.x, event.clientY - finished.start.y);
-        if (!cancelled && !multiTouch && distance <= TAP_MAX_DISTANCE_PX && event.timeStamp - finished.start.time <= TAP_MAX_DURATION_MS) emptyTap(event);
+        if (!cancelled && !multiTouch && !finished.moved && event.timeStamp - finished.start.time <= TAP_MAX_DURATION_MS) emptyTap(event);
       } else {
         abandonTransform(cancelled);
         primary = undefined;

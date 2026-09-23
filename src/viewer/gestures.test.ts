@@ -115,6 +115,34 @@ describe('viewer gestures', () => {
     expect(Number.isInteger(plate.state.objects[0]!.transform.position[0])).toBe(true);
   });
 
+  it('does not let a pending empty-space deselect fire while a gizmo handle drag is active', () => {
+    const positionalHandles = { hitTest: vi.fn((x: number) => (x < 40 ? { kind: 'ring', axis: 'z' } as GizmoHandle : undefined)),
+      setHover: vi.fn(() => false), setPressed: vi.fn(() => false) } as unknown as GizmoView;
+    const { onSelect } = setup({ handles: positionalHandles });
+    plate.select('one');
+    onSelect.mockClear();
+    // Tap far from the object and from any handle: schedules a deferred deselect (see emptyTap()).
+    canvas.dispatchEvent(pointer('pointerdown', { clientX: 80, clientY: 50, timeStamp: 1 }));
+    canvas.dispatchEvent(pointer('pointerup', { clientX: 80, clientY: 50, timeStamp: 20 }));
+    expect(onSelect).not.toHaveBeenCalled();
+    // Before that deferred deselect fires, press a ring handle on the still-selected object.
+    canvas.dispatchEvent(pointer('pointerdown', { clientX: 25, clientY: 50, timeStamp: 30 }));
+    vi.advanceTimersByTime(DOUBLE_TAP_MAX_DELAY_MS + 5);
+    expect(onSelect).not.toHaveBeenCalledWith(undefined);
+    expect(plate.state.selectedId).toBe('one');
+  });
+
+  it('treats a drag that wanders past the tap threshold and back before release as a drag, not a tap', () => {
+    const { onSelect } = setup();
+    plate.select('one');
+    onSelect.mockClear();
+    canvas.dispatchEvent(pointer('pointerdown', { clientX: 80, clientY: 50, timeStamp: 1 }));
+    canvas.dispatchEvent(pointer('pointermove', { clientX: 80, clientY: 90, timeStamp: 10 })); // crosses the 5px threshold
+    canvas.dispatchEvent(pointer('pointerup', { clientX: 80, clientY: 51, timeStamp: 20 })); // back within 5px of start
+    vi.advanceTimersByTime(DOUBLE_TAP_MAX_DELAY_MS * 3);
+    expect(onSelect).not.toHaveBeenCalled(); // a real drag must never schedule (or fire) the empty-tap deselect
+  });
+
   it('lets a gizmo handle win over the object underneath and restores the camera afterwards', () => {
     const handles = fakeHandles({ kind: 'arrow', axis: 'y' });
     const { controls, onSelect } = setup({ handles });

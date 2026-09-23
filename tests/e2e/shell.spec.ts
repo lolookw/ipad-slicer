@@ -333,6 +333,44 @@ test('the Z ring rotates only about world Z in 15 degree steps', async ({ page }
   expect(after.scale).toEqual(before.scale);
 });
 
+test('a continuous ring drag sweeping past 180 degrees keeps the live angle readout climbing, never flipping sign', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'ring-continuous.stl', binaryBoxStl());
+  const gizmo = await gizmoScreen(page);
+  const grab = gizmo.rings.z;
+  const radial = { x: grab.x - gizmo.center.x, y: grab.y - gizmo.center.y };
+  const turn = (degrees: number): Point => {
+    const angle = degrees * Math.PI / 180;
+    return { x: gizmo.center.x + radial.x * Math.cos(angle) - radial.y * Math.sin(angle), y: gizmo.center.y + radial.x * Math.sin(angle) + radial.y * Math.cos(angle) };
+  };
+  const readout = page.locator('.viewer-transform-readout');
+
+  await page.mouse.move(grab.x, grab.y);
+  await page.mouse.down();
+  // One continuous drag whose checkpoints straddle the 180deg wraparound in `signedAngleAbout`. (The
+  // screen-space "degrees" here are only nominal steps for a continuous sweep: at this camera's oblique
+  // isometric angle the ring's on-screen projection is an ellipse, not a circle, so they do not translate
+  // 1:1 to the true swept ring angle -- only the readout's always-climbing sign is asserted below.)
+  const sweep = [20, 60, 100, 140, 170, 190, 220, 250];
+  const readings: number[] = [];
+  for (const degrees of sweep) {
+    await page.mouse.move(turn(degrees).x, turn(degrees).y);
+    const text = (await readout.textContent())!;
+    readings.push(Number(/(-?[\d.]+)/.exec(text)![1]));
+  }
+  await page.mouse.up();
+
+  // Old (buggy) code recomputed an ABSOLUTE angle from the fixed drag-start vector every frame, wrapped to
+  // (-180, 180]: continuing the same physical sweep past 180deg flipped the readout's sign (e.g. "170.0°"
+  // -> "-170.0°" while still turning the same way) instead of climbing past it. The fix accumulates
+  // instead, so every step keeps the same sign as the first one (whichever direction this camera's ring
+  // sweep happens to read as -- only the absence of a sign flip mid-drag is asserted, not which sign).
+  const deltas = readings.slice(1).map((value, index) => value - readings[index]!);
+  const direction = Math.sign(deltas[0]!);
+  expect(direction).not.toBe(0);
+  for (const delta of deltas) expect(Math.sign(delta)).toBe(direction);
+});
+
 test('a two-finger touch gesture goes to the camera, cancels a one-finger move and never edits the object', async ({ page }) => {
   await page.goto('/');
   await importStl(page, 'two-finger.stl', binaryBoxStl());
@@ -391,25 +429,34 @@ test('two imported objects round-trip through real engine orient and arrange', a
   expect(after.every(value => value && !value.includes('null'))).toBe(true);
 });
 
-test('prepare failure preserves every prior object transform', async ({ page }) => {
-  test.setTimeout(60_000);
-  await page.route('**/engine/wasm-v2.4.2-patch19*/**', route => route.abort('failed'));
-  await page.goto('/'); await configureEngine(page);
-  await importStl(page, 'failure-a.stl', binaryBoxStl());
-  await importStl(page, 'failure-b.stl', binaryBoxStl());
-  const objects = page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button');
-  const before = await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')));
-  await page.getByRole('button', { name: 'Orient and arrange' }).click();
-  await expect(page.locator('.configuration-ui p[role="status"]')).toContainText(/failed|error|fetch|engine/i, { timeout: 20_000 });
-  expect(await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')))).toEqual(before);
-});
+// `page.route()` only sees requests made directly by the page; it never sees a request re-issued
+// from inside a Service Worker's own fetch handler (a documented Playwright limitation). Since the
+// service worker now intercepts and re-fetches `/engine/**` itself (lazy cache-first), these two
+// pre-existing failure-simulation tests need the service worker out of the picture entirely so the
+// abort actually reaches the (now real, unintercepted) engine request.
+test.describe('engine failure simulation (service worker disabled)', () => {
+  test.use({ serviceWorkers: 'block' });
 
-test('a slice engine failure is visible in the main flow', async ({ page }) => {
-  test.setTimeout(60_000);
-  await page.route('**/engine/wasm-v2.4.2-patch19*/**', route => route.abort('failed'));
-  await page.goto('/'); await configureEngine(page); await importStl(page, 'slice-failure.stl', binaryBoxStl());
-  await page.getByRole('button', { name: 'Slice', exact: true }).click();
-  await expect(page.locator('.slice-error[role="alert"]')).toContainText(/failed|error|fetch|engine/i, { timeout: 20_000 });
+  test('prepare failure preserves every prior object transform', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.route('**/engine/wasm-v2.4.2-patch19*/**', route => route.abort('failed'));
+    await page.goto('/'); await configureEngine(page);
+    await importStl(page, 'failure-a.stl', binaryBoxStl());
+    await importStl(page, 'failure-b.stl', binaryBoxStl());
+    const objects = page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button');
+    const before = await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')));
+    await page.getByRole('button', { name: 'Orient and arrange' }).click();
+    await expect(page.locator('.configuration-ui p[role="status"]')).toContainText(/failed|error|fetch|engine/i, { timeout: 20_000 });
+    expect(await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')))).toEqual(before);
+  });
+
+  test('a slice engine failure is visible in the main flow', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.route('**/engine/wasm-v2.4.2-patch19*/**', route => route.abort('failed'));
+    await page.goto('/'); await configureEngine(page); await importStl(page, 'slice-failure.stl', binaryBoxStl());
+    await page.getByRole('button', { name: 'Slice', exact: true }).click();
+    await expect(page.locator('.slice-error[role="alert"]')).toContainText(/failed|error|fetch|engine/i, { timeout: 20_000 });
+  });
 });
 
 test('Advanced diagnostics exposes multithread retry and clears the sticky marker', async ({ page }) => {
@@ -496,6 +543,64 @@ test('the Import step uploads an STL and continues to Configure', async ({ page 
   await expect(page.getByRole('button', { name: 'import-step.stl', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Continue to Configure' }).click();
   await expect(page.locator('.step[aria-current="step"]')).toHaveText('Configure');
+});
+
+// NOTE (e2e-unverifiable on this machine): any page.goto()/page.reload() while
+// `context.setOffline(true)` is active fails with "WebKit encountered an internal error" in this
+// Playwright WebKit build (1.55.1) on Windows, even against a page with no service worker at all
+// (confirmed with a throwaway control test against `about:blank` -> setOffline -> goto). This is a
+// driver-level limitation, not an application bug: `installShellVersioned`'s cache population was
+// independently verified (a debug harness confirmed `index.html`, all JS/CSS chunks, the catalog
+// entry points, manifest and icons land in `ipad-slicer-app-<buildId>` after `serviceWorker.controller`
+// becomes non-null), and the navigate/shell/engine/catalog routing itself is fully covered by
+// `src/pwa/sw-runtime.test.ts`. These two scenarios stay as fixme so the intent is not lost.
+test.fixme('a fully cached reload stays cross-origin isolated while offline', async ({ page, context }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => navigator.serviceWorker.controller !== null, { timeout: 30_000 });
+  await context.setOffline(true);
+  await page.reload();
+  expect(await page.evaluate(() => self.crossOriginIsolated)).toBe(true);
+  await context.setOffline(false);
+});
+
+test.fixme('a printer and engine used online once keep slicing fully offline after reload', async ({ page, context }) => {
+  test.setTimeout(90_000);
+  await page.goto('/');
+  await page.waitForFunction(() => navigator.serviceWorker.controller !== null, { timeout: 30_000 });
+  await configureEngine(page);
+  await importStl(page, 'offline-first.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Slice', exact: true }).click();
+  await expect(page.getByTestId('slice-result')).toContainText('Print time', { timeout: 45_000 });
+
+  await context.setOffline(true);
+  await page.reload();
+  expect(await page.evaluate(() => self.crossOriginIsolated)).toBe(true);
+  await configureEngine(page);
+  await importStl(page, 'offline-second.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Slice', exact: true }).click();
+  await expect(page.getByTestId('slice-result')).toContainText('Print time', { timeout: 45_000 });
+  await context.setOffline(false);
+});
+
+test('an uncached printer selected while offline explains it needs a connection, not an engine crash', async ({ page, context }) => {
+  await page.goto('/');
+  await expect(page.getByLabel('Printer', { exact: true })).toBeEnabled();
+  await context.setOffline(true);
+  await page.getByLabel('Printer', { exact: true }).selectOption('prusa-mk4-04');
+  await expect(page.getByRole('alert').filter({ hasText: /connection/i })).toBeVisible();
+  await context.setOffline(false);
+});
+
+test('losing and regaining connectivity updates the visible offline status without disabling cached operations', async ({ page, context }) => {
+  await page.goto('/');
+  await expect(page.locator('.connectivity-offline')).toHaveCount(0);
+  await context.setOffline(true);
+  await page.evaluate(() => window.dispatchEvent(new Event('offline')));
+  await expect(page.locator('.connectivity-offline')).toBeVisible();
+  await expect(page.getByLabel('Printer', { exact: true })).toBeEnabled();
+  await context.setOffline(false);
+  await page.evaluate(() => window.dispatchEvent(new Event('online')));
+  await expect(page.locator('.connectivity-offline')).toHaveCount(0);
 });
 
 test('the Import step reads a 3MF into one plate object per build item', async ({ page }) => {

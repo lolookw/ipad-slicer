@@ -2,7 +2,7 @@ import type { Ray, Vector3 } from 'three';
 import { AXIS_INDEX, axisVector, formatMoveReadout, formatRotateReadout, keepAbovePlate, type AxisName } from './axis';
 import {
   MOVE_SNAP_MM, ROTATE_SNAP_RAD, closestParamOnAxis, intersectHorizontalPlane, objectCenter, restsOnPlate, ringVector,
-  rotateAboutWorldAxis, settleAfterRotate, signedAngleAbout, snapValue,
+  rotateAboutWorldAxis, settleAfterRotate, signedAngleAbout, snapValue, unwrapDelta,
 } from './drag-math';
 import { plate, type PlateObject } from '../app/stores/plate';
 import { resolvedSettings } from '../app/stores/configuration';
@@ -28,6 +28,14 @@ interface Session {
   /** Arrow: axis parameter under the pointer at press. Ring: start vector in the ring plane. */
   startParam?: number;
   startVector?: Vector3;
+  /**
+   * Ring drag only. `signedAngleAbout` returns an ABSOLUTE angle from `startVector`, wrapped to (-PI, PI],
+   * recomputed fresh every frame. `lastRingAngle` is that raw wrapped reading from the previous frame, and
+   * `accumulatedRingAngle` is the continuous running total (never wrapped) actually applied to the
+   * transform, so a drag that sweeps past 180 degrees keeps turning instead of snapping backward.
+   */
+  lastRingAngle?: number;
+  accumulatedRingAngle?: number;
 }
 
 export interface Gizmo {
@@ -80,7 +88,11 @@ export function createGizmo(onReadout?: (value: string | undefined) => void): Gi
       session = { objectId: object.id, target, bounds: object.bounds, startTransform, center, wasOnPlate: restsOnPlate(object.bounds, startTransform) };
       if (target.kind === 'body') session.startPoint = intersectHorizontalPlane(ray, target.hitPoint.z) ?? target.hitPoint.clone();
       else if (target.kind === 'arrow') session.startParam = closestParamOnAxis(ray, center, axisVector(target.axis));
-      else session.startVector = ringVector(ray, center, axisVector(target.axis));
+      else {
+        session.startVector = ringVector(ray, center, axisVector(target.axis));
+        session.lastRingAngle = 0;
+        session.accumulatedRingAngle = 0;
+      }
     },
     update(ray, snap) {
       if (!session) return;
@@ -109,9 +121,12 @@ export function createGizmo(onReadout?: (value: string | undefined) => void): Gi
       } else {
         const axis = axisVector(target.axis);
         const now = ringVector(ray, session.center, axis);
-        if (!now) return;
-        session.startVector ??= now;
-        let angle = signedAngleAbout(axis, session.startVector, now);
+        if (!now) return; // Ray grazes the ring plane: freeze at the last committed angle rather than guess.
+        if (!session.startVector) { session.startVector = now; session.lastRingAngle = 0; session.accumulatedRingAngle = 0; }
+        const raw = signedAngleAbout(axis, session.startVector, now);
+        session.accumulatedRingAngle = (session.accumulatedRingAngle ?? 0) + unwrapDelta(session.lastRingAngle ?? 0, raw);
+        session.lastRingAngle = raw;
+        let angle = session.accumulatedRingAngle;
         if (snap) angle = snapValue(angle, ROTATE_SNAP_RAD);
         commit(settleAfterRotate(rotateAboutWorldAxis(startTransform, bounds, target.axis, angle), bounds, session.wasOnPlate));
         onReadout?.(formatRotateReadout(target.axis, angle));

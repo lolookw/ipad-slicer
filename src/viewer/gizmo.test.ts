@@ -129,6 +129,99 @@ describe('createGizmo sessions', () => {
     expect(Math.abs(actual.dot(expected))).toBeCloseTo(1, 5);
   });
 
+  describe('ring drag continuity past 180 degrees', () => {
+    const at = (degrees: number): [number, number, number] => [40 * Math.cos(degrees * Math.PI / 180), 40 * Math.sin(degrees * Math.PI / 180), 5];
+
+    /**
+     * NOTE on what this can and cannot prove: `rotateAboutWorldAxis` applies the angle through
+     * `Quaternion.setFromAxisAngle`, which is exactly periodic in its angle argument (period 2*PI) up to a
+     * global sign that itself represents the identical rotation matrix. That means a wrapped raw angle of
+     * -170deg and a continuous accumulated angle of +190deg produce the IDENTICAL committed 3D orientation
+     * (and therefore the identical Euler `rotation[2]` readback) -- there is no per-frame "snap" in the
+     * rendered object from this wraparound, for either the old or the new code, as long as the pointer's
+     * true per-frame angular travel stays under 180deg. This is verified below. What genuinely differs
+     * between the old and the new code is the live angle READOUT shown to the user during the drag: the
+     * old code's readout flips sign at the crossing (e.g. "Z 170.0°" -> "Z -170.0°" while still turning the
+     * same way), which is the real, user-visible discontinuity this fix removes.
+     */
+    it('matches each frame\'s true angular step, with no extra jump at the 180-degree wrap', () => {
+      const object = seedObject('a');
+      const gizmo = createGizmo();
+      gizmo.begin(object, { kind: 'ring', axis: 'z' }, rayTo(at(0)));
+      let previous = new Quaternion().setFromEuler(new Euler(...current().rotation, 'XYZ'));
+      let previousDegrees = 0;
+      for (const degrees of [10, 60, 120, 170, 179, 181, 190, 250, 300, 350]) {
+        gizmo.update(rayTo(at(degrees)), false);
+        const orientation = new Quaternion().setFromEuler(new Euler(...current().rotation, 'XYZ'));
+        const stepDegrees = Math.acos(Math.min(1, Math.abs(previous.dot(orientation)))) * 2 * 180 / Math.PI;
+        // A real "snap" would show up here as an unexplained extra ~360deg jump at the 179->181 step.
+        expect(stepDegrees).toBeCloseTo(degrees - previousDegrees, 1);
+        previous = orientation;
+        previousDegrees = degrees;
+      }
+      gizmo.end();
+    });
+
+    it('keeps the live angle readout continuous across the wrap instead of flipping sign', () => {
+      const object = seedObject('a');
+      const readout = vi.fn();
+      const gizmo = createGizmo(readout);
+      gizmo.begin(object, { kind: 'ring', axis: 'z' }, rayTo(at(0)));
+      gizmo.update(rayTo(at(170)), false);
+      expect(readout).toHaveBeenLastCalledWith('Z 170.0°');
+      gizmo.update(rayTo(at(190)), false);
+      // The critical assertion: continuing the same physical sweep must keep the readout climbing
+      // ("Z 190.0°"), not flip its sign to "Z -170.0°" as the pre-fix code did.
+      expect(readout).toHaveBeenLastCalledWith('Z 190.0°');
+      gizmo.update(rayTo(at(350)), false);
+      expect(readout).toHaveBeenLastCalledWith('Z 350.0°');
+      // Multiple full turns, each frame step kept under 180deg (as a real drag would be sampled).
+      for (const degrees of [410, 470, 530, 590, 650, 710, 725]) gizmo.update(rayTo(at(degrees)), false);
+      expect(readout).toHaveBeenLastCalledWith('Z 725.0°');
+      gizmo.end();
+    });
+
+    it('starts a fresh accumulator from zero on release and re-press', () => {
+      const object = seedObject('a');
+      const readout = vi.fn();
+      const gizmo = createGizmo(readout);
+      gizmo.begin(object, { kind: 'ring', axis: 'z' }, rayTo(at(0)));
+      gizmo.update(rayTo(at(170)), false);
+      expect(readout).toHaveBeenLastCalledWith('Z 170.0°');
+      gizmo.end();
+
+      gizmo.begin(object, { kind: 'ring', axis: 'z' }, rayTo(at(170)));
+      gizmo.update(rayTo(at(190)), false);
+      expect(readout).toHaveBeenLastCalledWith('Z 20.0°'); // fresh session: only the new 20deg sweep, not 190.
+      gizmo.end();
+    });
+
+    it('freezes (never jumps) when the ring plane is grazed mid-drag, then resumes continuously', () => {
+      const object = seedObject('a');
+      const readout = vi.fn();
+      const gizmo = createGizmo(readout);
+      gizmo.begin(object, { kind: 'ring', axis: 'z' }, rayTo(at(0)));
+      gizmo.update(rayTo(at(20)), false);
+      expect(readout).toHaveBeenLastCalledWith('Z 20.0°');
+
+      // A near-horizontal look direction grazes the z-normal ring plane (mirrors the drag-math.test.ts
+      // "ignores a ring seen exactly edge-on" setup), so `ringVector` returns undefined for this frame.
+      const edgeOnCamera = new PerspectiveCamera(45, 1, 1, 2000);
+      edgeOnCamera.up.set(0, 0, 1);
+      edgeOnCamera.position.set(0, -200, 0);
+      edgeOnCamera.lookAt(0, 0, 0);
+      edgeOnCamera.updateMatrixWorld();
+      const grazingRay = rayFromNdc(edgeOnCamera, 0.3, 0);
+
+      gizmo.update(grazingRay, false);
+      expect(readout).toHaveBeenLastCalledWith('Z 20.0°'); // frozen, not jumped/reset
+
+      gizmo.update(rayTo(at(35)), false);
+      expect(readout).toHaveBeenLastCalledWith('Z 35.0°'); // resumes the same accumulator
+      gizmo.end();
+    });
+  });
+
   it('cancel() restores the transform from before the gesture', () => {
     const object = seedObject('a');
     const before = JSON.stringify(current());

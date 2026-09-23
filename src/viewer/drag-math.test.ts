@@ -4,7 +4,7 @@ import { axisVector } from './axis';
 import {
   classifyWheel, closestParamOnAxis, distanceToPolyline2D, distanceToSegment2D, intersectHorizontalPlane, isSnapping, objectCenter,
   orbitPivot, pickOffsets, rayFromNdc, restsOnPlate, ringAngle, rotateAboutWorldAxis, screenPanDelta, settleAfterRotate, signedAngleAbout,
-  snapValue, tightClipPlanes, worldPerPixel, ROTATE_SNAP_RAD,
+  snapValue, tightClipPlanes, unwrapDelta, worldPerPixel, ROTATE_SNAP_RAD,
 } from './drag-math';
 import { IDENTITY_TRANSFORM, type LocalBounds, type ObjectTransform } from './transforms';
 
@@ -43,6 +43,14 @@ describe('ray helpers', () => {
     expect(lifted.z).toBeCloseTo(30);
     expect(lifted.y).not.toBeCloseTo(bed.y);
     expect(intersectHorizontalPlane(new Ray(new Vector3(0, 0, 10), new Vector3(1, 0, 0)), 0)).toBeUndefined();
+  });
+
+  it('refuses a near-horizontal ray instead of returning a point thousands of mm away', () => {
+    // A camera close to eye level with the plate: the ray to its center is nearly parallel to it.
+    const view = camera([0, -300, 2]);
+    const ray = rayFromNdc(view, 0, 0);
+    expect(Math.abs(ray.direction.z)).toBeLessThan(0.04); // sanity: this genuinely grazes the plane
+    expect(intersectHorizontalPlane(ray, 0)).toBeUndefined();
   });
 
   it('finds the axis parameter closest to the pointer ray, relative positions being exact', () => {
@@ -85,6 +93,39 @@ describe('ring angle', () => {
   it('ignores a ring seen exactly edge-on', () => {
     const edgeOn = camera([0, -200, 0]);
     expect(ringAngle(rayFromNdc(edgeOn, 0.3, 0), center, z, new Vector3(1, 0, 0))).toBeUndefined();
+  });
+});
+
+describe('unwrapDelta', () => {
+  it('returns the plain difference when it does not cross the +-PI seam', () => {
+    expect(unwrapDelta(0, Math.PI / 4)).toBeCloseTo(Math.PI / 4);
+    expect(unwrapDelta(Math.PI / 4, 0)).toBeCloseTo(-Math.PI / 4);
+    expect(unwrapDelta(-1, 1)).toBeCloseTo(2);
+  });
+
+  it('takes the short way across the wrap instead of the raw (wrong) long way', () => {
+    // Reading in radians: previous is just under +PI, current is just under -PI (wrapped). The pointer
+    // actually moved forward by a small amount, not backward by nearly a full turn.
+    const justUnderPi = Math.PI - 0.01;
+    const justUnderMinusPi = -Math.PI + 0.01;
+    expect(unwrapDelta(justUnderPi, justUnderMinusPi)).toBeCloseTo(0.02);
+    expect(unwrapDelta(justUnderMinusPi, justUnderPi)).toBeCloseTo(-0.02);
+  });
+
+  it('accumulates through repeated wraps to reconstruct a continuous multi-turn sweep', () => {
+    // Simulates signedAngleAbout's wrapped (-PI, PI] readings for a steady one-direction sweep from
+    // 0 to 720 degrees in 24 steps (30deg each): the readings themselves saw-tooth, but folding each
+    // step's unwrapDelta into a running total reconstructs the true continuous angle.
+    let accumulated = 0;
+    let lastRaw = 0;
+    let trueDegrees = 0;
+    for (let step = 1; step <= 24; step += 1) {
+      trueDegrees += 30;
+      const raw = Math.atan2(Math.sin(trueDegrees * Math.PI / 180), Math.cos(trueDegrees * Math.PI / 180));
+      accumulated += unwrapDelta(lastRaw, raw);
+      lastRaw = raw;
+    }
+    expect(accumulated).toBeCloseTo(720 * Math.PI / 180, 6);
   });
 });
 

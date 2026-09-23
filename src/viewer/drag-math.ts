@@ -9,6 +9,8 @@ export const ROTATE_SNAP_RAD = 15 * Math.PI / 180;
 const MAX_AXIS_TRAVEL_MM = 5000;
 /** Below this |cos| between the ray and the ring plane the intersection is numerically meaningless. */
 const MIN_RING_PLANE_COS = 0.04;
+/** Below this |cos| between the ray and the horizontal plane's normal the intersection runs away to infinity. */
+const MIN_HORIZONTAL_PLANE_COS = 0.04;
 /** Below this 1 - cos^2 between the ray and the axis the closest point runs away. */
 const MIN_AXIS_SKEW = 1e-3;
 
@@ -23,8 +25,9 @@ export function rayFromNdc(camera: PerspectiveCamera, ndcX: number, ndcY: number
   return new Ray(origin, target.sub(origin).normalize());
 }
 
-/** Point where the ray meets the horizontal plane at `z`, or undefined when parallel/behind. */
+/** Point where the ray meets the horizontal plane at `z`, or undefined when parallel/behind/too grazing. */
 export function intersectHorizontalPlane(ray: Ray, z: number): Vector3 | undefined {
+  if (Math.abs(ray.direction.z) < MIN_HORIZONTAL_PLANE_COS) return undefined;
   return ray.intersectPlane(new Plane(new Vector3(0, 0, 1), -z), new Vector3()) ?? undefined;
 }
 
@@ -51,6 +54,17 @@ export function intersectRingPlane(ray: Ray, center: Vector3, axis: Vector3): Ve
 export function signedAngleAbout(axis: Vector3, from: Vector3, to: Vector3): number {
   const cross = new Vector3().crossVectors(from, to);
   return Math.atan2(cross.dot(axis), from.dot(to));
+}
+
+/**
+ * Shortest signed delta from `previous` to `current`, both angles in (-PI, PI], folded into (-PI, PI].
+ * Frame-to-frame, `signedAngleAbout` only ever gives an ABSOLUTE angle back to a fixed reference, so it
+ * wraps discontinuously once the swept angle passes +-PI. Feeding consecutive raw readings through this
+ * and summing the deltas (never the raw readings themselves) turns that into a continuous running total,
+ * so a drag that sweeps past 180 degrees, 360 degrees, or several full turns keeps climbing smoothly.
+ */
+export function unwrapDelta(previous: number, current: number): number {
+  return Math.atan2(Math.sin(current - previous), Math.cos(current - previous));
 }
 
 /** Vector from the ring center to where the ray meets the ring plane, or undefined while it misses. */
