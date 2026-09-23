@@ -10,6 +10,7 @@ export interface TransformToolbarLabels extends ScaleSheetLabels {
   snap: string;
   deselect: string;
   layFlat: string;
+  autoOrient: string;
   rotateX: string;
   rotateY: string;
   scale: string;
@@ -34,12 +35,14 @@ export interface TransformToolbarProps {
   onTransform: (transform: ObjectTransform) => void;
   onDeselect: () => void;
   onLayFlat: () => void;
+  onAutoOrient: () => void;
 }
 
 const Svg = (props: { d: string }) => <svg viewBox="0 0 24 24" aria-hidden="true"><path d={props.d} /></svg>;
 const ICONS = {
   snap: 'M6 4v7a6 6 0 0 0 12 0V4M6 8h4M14 8h4',
   flat: 'M4 19h16M7 15h10V9H7z',
+  autoOrient: 'M12 2v4M12 18v4M2 12h4M18 12h4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
   rotX: 'M4 12h16M15 7l5 5-5 5',
   rotY: 'M12 4v16M7 9l5-5 5 5',
   scale: 'M15 4h5v5M9 20H4v-5M20 4l-6 6M4 20l6-6',
@@ -55,6 +58,7 @@ export function TransformToolbar(props: TransformToolbarProps) {
       <Button variant="secondary" icon={<Svg d={ICONS.snap} />} aria-pressed={props.snapEnabled}
         onClick={props.onSnapToggle}>{props.labels.snap}</Button>
       <Button variant="secondary" icon={<Svg d={ICONS.flat} />} onClick={props.onLayFlat}>{props.labels.layFlat}</Button>
+      <Button variant="secondary" icon={<Svg d={ICONS.autoOrient} />} onClick={props.onAutoOrient}>{props.labels.autoOrient}</Button>
       <Button variant="secondary" icon={<Svg d={ICONS.rotX} />} onClick={() => props.onRotate('x')}>{props.labels.rotateX}</Button>
       <Button variant="secondary" icon={<Svg d={ICONS.rotY} />} onClick={() => props.onRotate('y')}>{props.labels.rotateY}</Button>
       <Button variant="secondary" icon={<Svg d={ICONS.scale} />} onClick={props.onScaleOpen}>{props.labels.scale}</Button>

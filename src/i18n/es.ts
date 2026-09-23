@@ -83,6 +83,8 @@ export const es = {
     deselect: 'Deseleccionar',
     layFlat: 'Apoyar en una cara',
     layFlatPending: 'Esta función se habilitará después de integrar el motor en la fase 7.',
+    autoOrient: 'Auto-orientar',
+    autoOrientNoFreeSpot: 'La auto-orientación colocó el objeto en el centro de la placa; no se encontró un lugar totalmente libre.',
     rotateX: 'Girar 90° en X',
     rotateY: 'Girar 90° en Y',
     scale: 'Escalar',
