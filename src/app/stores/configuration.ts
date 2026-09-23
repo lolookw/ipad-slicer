@@ -9,7 +9,7 @@ import { validateSettings, type ValidationContext } from '../../settings/validat
 import type { SettingKey, SettingValue } from '../../settings/schema';
 
 export type SettingsMode = 'simple' | 'advanced';
-export type ConfigurationError = 'profileUnavailable' | 'invalidCustom' | 'invalidImport';
+export type ConfigurationError = 'profileUnavailable' | 'offlinePack' | 'invalidCustom' | 'invalidImport';
 
 const signal = <T,>(initial: T) => {
   const [get, set] = createSignal(initial);
@@ -67,7 +67,12 @@ export const configuration = {
       const pack = await loadPrinterPack({ url: `/catalog/${model.pack}`, bytes: model.bytes, sha256: model.sha256 });
       if (generation === requestGeneration) this.pack.set(pack);
     } catch (error) {
-      if (generation === requestGeneration) { this.error.set(error instanceof Error ? error.message : String(error)); this.errorKind.set('profileUnavailable'); }
+      if (generation === requestGeneration) {
+        this.error.set(error instanceof Error ? error.message : String(error));
+        // Offline with an uncached pack reads as a connectivity issue, not an engine crash
+        // (offline-pwa: "Uncached printer selection").
+        this.errorKind.set(typeof navigator !== 'undefined' && navigator.onLine === false ? 'offlinePack' : 'profileUnavailable');
+      }
     } finally { if (generation === requestGeneration) this.loading.set(false); }
   },
   selectFilament(id: string): void {

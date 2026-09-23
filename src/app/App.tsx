@@ -9,6 +9,7 @@ import { ImportPaneContainer } from './import/ImportPaneContainer';
 import { ViewerWorkspace } from '../viewer/ViewerWorkspace';
 import { PreviewContainer } from '../preview/PreviewContainer';
 import { SliceActivity, SliceResults, type SliceResultLabels } from '../slice/components/SliceResults';
+import { UpdateToast } from '../pwa/UpdateToast';
 
 const STEPS: { id: Step; label: TranslationKey }[] = [
   { id: 'import', label: 'steps.import' },
@@ -125,23 +126,28 @@ function Shell(): JSX.Element {
     return binaries.getResult('current');
   });
   return (
-    <Layout
-      sidebar={
-        <>
-          <h1 class="title">{app.t('app.title')}</h1>
-          <StepBar />
-          <Preferences />
-        </>
-      }
-      canvas={
-        <>
-          <ViewerWorkspace tierDecision={app.tierDecision} previewOpen={() => Boolean(previewGcode())}
-            preview={<Show when={previewGcode()} keyed>{gcode => <PreviewContainer gcode={gcode} />}</Show>} />
-          <StepPane />
-          <p class="engine-state">{app.t('app.engine')}: <code>{app.engine.state.get()}</code></p>
-        </>
-      }
-    />
+    <>
+      <Layout
+        sidebar={
+          <>
+            <h1 class="title">{app.t('app.title')}</h1>
+            <StepBar />
+            <Preferences />
+          </>
+        }
+        canvas={
+          <>
+            <ViewerWorkspace tierDecision={app.tierDecision} previewOpen={() => Boolean(previewGcode())}
+              preview={<Show when={previewGcode()} keyed>{gcode => <PreviewContainer gcode={gcode} />}</Show>} />
+            <StepPane />
+            <Show when={!app.connectivity.online()}><p class="connectivity-offline" role="status">{app.t('app.offline')}</p></Show>
+            <p class="engine-state">{app.t('app.engine')}: <code>{app.engine.state.get()}</code></p>
+          </>
+        }
+      />
+      <UpdateToast open={app.updateToastOpen()} labels={{ message: app.t('pwa.updateMessage'), update: app.t('pwa.update'), dismiss: app.t('pwa.dismiss') }}
+        onAccept={() => app.applyUpdate()} onDismiss={() => app.dismissUpdate()} />
+    </>
   );
 }
 

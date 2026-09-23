@@ -15,6 +15,8 @@ import { EngineClientError } from '../engine/client';
 import { summarizeSlice } from '../slice/summary';
 import { diagnosticsLog } from '../instrumentation/log';
 import { gcodeFileName, saveGcode } from '../export/save-gcode';
+import { bindConnectivityEvents, connectivity } from './stores/connectivity';
+import { registerServiceWorker, requestPersistentStorage, type RegistrationHandle } from '../pwa/register';
 
 /** iPad regular width (sidebar + canvas) versus compact width (stacked with sheets). */
 const REGULAR_WIDTH = '(min-width: 700px)';
@@ -41,6 +43,14 @@ function createAppValue() {
   const i18n = createI18n(prefs.locale.get);
   const [sliceFailure, setSliceFailure] = createSignal<string | CodedError>();
   const [tierRevision, setTierRevision] = createSignal(0);
+  const [updateDismissed, setUpdateDismissed] = createSignal(false);
+  let swRegistration: RegistrationHandle | undefined;
+  let persistRequested = false;
+  async function maybePersist(): Promise<void> {
+    if (persistRequested) return;
+    persistRequested = true;
+    connectivity.setPersisted(await requestPersistentStorage());
+  }
   const translateError = (error: string | CodedError): string => {
     const coded = typeof error === 'string'
       ? (ERROR_CODES.includes(error as ErrorCode) ? { code: error as ErrorCode } : undefined)
@@ -70,9 +80,23 @@ function createAppValue() {
   createEffect(on(() => sliceInputFingerprint(resolvedSettings(), plate.state.objects),
     () => result.markStale(), { defer: true }));
   createEffect(on(() => result.state.status, status => { if (status !== 'error') setSliceFailure(undefined); }, { defer: true }));
+  createEffect(() => {
+    result.state.status; result.state.finishingPreviousSlice;
+    swRegistration?.notifyIdle();
+  });
   onMount(() => {
     void openSettingsDatabase().then(database => database.close()).catch(() => undefined);
     void configuration.loadIndex();
+    onCleanup(bindConnectivityEvents());
+    void registerServiceWorker({
+      isBusy: () => result.state.status === 'slicing' || result.state.finishingPreviousSlice,
+      onUpdateAvailable: () => { setUpdateDismissed(false); connectivity.setUpdateAvailable(true); },
+    }).then(handle => { swRegistration = handle; });
+    if (typeof window !== 'undefined') {
+      const onInstalled = () => void maybePersist();
+      window.addEventListener('appinstalled', onInstalled);
+      onCleanup(() => window.removeEventListener('appinstalled', onInstalled));
+    }
   });
   onCleanup(() => themeController?.dispose());
 
@@ -125,9 +149,13 @@ function createAppValue() {
     saveResult(): void {
       const gcode = binaries.getResult('current'); if (!gcode) return;
       const fileName = gcodeFileName(plate.state.objects[0]?.name ?? 'model.stl');
-      void saveGcode(gcode, fileName).then(saved => diagnosticsLog.append('gcode-save', saved), error =>
+      void saveGcode(gcode, fileName).then(saved => { diagnosticsLog.append('gcode-save', saved); void maybePersist(); }, error =>
         diagnosticsLog.append('engine-error', { stage: 'export', message: error instanceof Error ? error.message : String(error) }));
     },
+    connectivity,
+    updateToastOpen(): boolean { return connectivity.updateAvailable() && !updateDismissed(); },
+    applyUpdate(): void { swRegistration?.applyUpdate(); setUpdateDismissed(true); },
+    dismissUpdate(): void { setUpdateDismissed(true); },
     reachableSteps,
     /** Navigation is refused for steps the flow has not unlocked yet. */
     goTo(step: Step): boolean {

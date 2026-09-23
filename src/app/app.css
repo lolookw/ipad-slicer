@@ -179,6 +179,17 @@ select {
 select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; border-color: var(--color-primary); }
 
 .configuration-error { color: var(--color-danger); margin: 0; }
+.connectivity-offline { margin: 0; padding: 0 var(--space-1); font-size: 0.75rem; color: var(--color-muted); }
+
+/* ---------- Update toast: a dismissible bottom-anchored banner ---------- */
+.update-toast {
+  position: fixed; left: var(--space-2); right: var(--space-2); bottom: calc(var(--space-2) + var(--safe-bottom)); z-index: 200;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-1) var(--space-2);
+  max-width: 28rem; margin: 0 auto; padding: var(--space-1) var(--space-2);
+  background: var(--color-surface); color: var(--color-text); border-radius: var(--radius-md); box-shadow: var(--shadow-card);
+}
+.update-toast p { margin: 0; font-size: 0.9375rem; font-weight: 500; }
+.update-toast-actions { display: flex; gap: var(--space-1); }
 
 /* ---------- Settings panel ---------- */
 .pane {

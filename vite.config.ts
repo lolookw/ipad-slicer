@@ -1,5 +1,6 @@
 import solid from 'vite-plugin-solid';
 import { defineConfig } from 'vitest/config';
+import { swPlugin } from './src/pwa/vite-sw-plugin';
 
 // Mirror the production cross-origin isolation headers (public/_headers) locally,
 // so SharedArrayBuffer behaves the same in dev and preview as on Cloudflare.
@@ -14,7 +15,7 @@ const isolationHeaders = {
 const isTest = Boolean(process.env.VITEST);
 
 export default defineConfig({
-  plugins: [solid({ hot: !isTest })],
+  plugins: [solid({ hot: !isTest }), swPlugin()],
   build: { target: 'es2022' },
   worker: {
     format: 'es',
