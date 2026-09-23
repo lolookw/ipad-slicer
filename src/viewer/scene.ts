@@ -1,9 +1,11 @@
-import { AmbientLight, AxesHelper, BufferGeometry, Color, DirectionalLight, Float32BufferAttribute, Group, LineBasicMaterial, LineSegments, Mesh, MeshStandardMaterial, PerspectiveCamera, Raycaster, Scene, Vector2 } from 'three';
+import { AmbientLight, AxesHelper, Box3, Color, DirectionalLight, Group, Mesh, MeshStandardMaterial, PerspectiveCamera, Raycaster, Scene, Vector2, Vector3 } from 'three';
 import type { PlateObject } from '../app/stores/plate';
 import { createBed, type BedSize } from './bed';
 import { getGeometry } from './geometry-cache';
 import { createRenderer, rendererLimits, type ViewerRenderer } from './renderer';
-import { AXIS_COLORS } from './axis';
+import { objectCenter, pickOffsets } from './drag-math';
+import { AXIS_NAMES } from './axis';
+import { createGizmoView, ringGrabPoint, type GizmoView } from './gizmo-handles';
 import { applyTransform } from './transforms';
 import type { TierDecision } from '../app/tier/decide';
 
@@ -19,8 +21,11 @@ export interface Viewer {
   requestRender(): void;
   /** Rebuilds the visible mesh list from the plate store + geometry cache. Cheap: reuses cached geometry. */
   syncObjects(objects: readonly PlateObject[], selectedId: string | undefined): void;
-  meshFor(id: string): Mesh | undefined;
-  meshAt(ndcX: number, ndcY: number): Mesh | undefined;
+  /** Tolerant pick: tries the exact point, then rays offset by up to `radiusPx` CSS pixels. Returns the mesh and the world hit point. */
+  pickAt(ndcX: number, ndcY: number, radiusPx: number): { mesh: Mesh; point: Vector3 } | undefined;
+  /** World box of one object, else of every object, else of the empty plate. */
+  boundsFor(id: string | undefined): Box3;
+  gizmo: GizmoView;
   objectRoot: Group;
   start(): void;
   /** Stops rendering and frees the GPU copies of the plate meshes (CPU arrays stay in the geometry cache). */
@@ -32,22 +37,6 @@ export interface Viewer {
 
 const SELECTED_COLOR = 0x60a5fa;
 const DEFAULT_COLOR = 0x9ca3af;
-
-/** Unit-length X/Y/Z lines in both directions through the origin; scaled and moved onto the selected object. */
-function createSelectionAxes(): Group {
-  const group = new Group();
-  group.name = 'selection-axes';
-  group.visible = false;
-  const ends: [number, number, number][] = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
-  (['x', 'y', 'z'] as const).forEach((axis, index) => {
-    const end = ends[index]!;
-    const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute([-end[0], -end[1], -end[2], ...end], 3));
-    const line = new LineSegments(geometry, new LineBasicMaterial({ color: AXIS_COLORS[axis], depthTest: false, transparent: true }));
-    line.renderOrder = 10;
-    group.add(line);
-  });
-  return group;
-}
 
 /**
  * Owns the Scene/Camera/Renderer and a minimal on-demand render loop (not a constant RAF render):
@@ -70,7 +59,8 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
   origin.position.set(-bedSize.widthMm / 2, -bedSize.depthMm / 2, 0);
   origin.name = 'origin-axes';
   scene.add(origin);
-  const selectionAxes = createSelectionAxes(); scene.add(selectionAxes);
+  const gizmo = createGizmoView(); scene.add(gizmo.root);
+  const bedBox = new Box3(new Vector3(-bedSize.widthMm / 2, -bedSize.depthMm / 2, 0), new Vector3(bedSize.widthMm / 2, bedSize.depthMm / 2, 1));
   const objects = new Group(); objects.name = 'objects'; scene.add(objects);
   const meshes = new Map<string, Mesh>();
   const raycaster = new Raycaster();
@@ -94,13 +84,29 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
   const resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(canvas);
 
+  /** Keeps the gizmo at constant screen size and publishes its screen layout (canvas-relative CSS px) for tests and diagnostics. */
+  function syncGizmo(): void {
+    const { clientWidth: width, clientHeight: height } = canvas;
+    if (!width || !height) return;
+    gizmo.sync(camera, width, height);
+    const layout = gizmo.layout(camera, width, height);
+    if (!layout) { delete canvas.dataset.gizmo; return; }
+    const round = (point: readonly [number, number]) => [Math.round(point[0] * 10) / 10, Math.round(point[1] * 10) / 10];
+    const summary: Record<string, unknown> = { center: round(layout.center), arrows: {}, rings: {} };
+    for (const axis of AXIS_NAMES) {
+      (summary.arrows as Record<string, unknown>)[axis] = round(layout.arrows[axis].tip);
+      (summary.rings as Record<string, unknown>)[axis] = round(ringGrabPoint(layout, axis));
+    }
+    canvas.dataset.gizmo = JSON.stringify(summary);
+  }
+
   function tick(time: number): void {
     if (!running) return;
     const delta = lastTime ? (time - lastTime) / 1000 : 0;
     lastTime = time;
     let needsRender = dirty;
     for (const callback of frameCallbacks) if (callback(delta)) needsRender = true;
-    if (needsRender) { renderer.render([scene, camera]); dirty = false; }
+    if (needsRender) { syncGizmo(); renderer.render([scene, camera]); dirty = false; }
     frame = requestAnimationFrame(tick);
   }
 
@@ -110,11 +116,24 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
     scene, camera, renderer, objectRoot: objects,
     onFrame(callback) { frameCallbacks.add(callback); return () => frameCallbacks.delete(callback); },
     requestRender() { dirty = true; },
-    meshFor(id) { return meshes.get(id); },
-    meshAt(ndcX, ndcY) {
-      raycaster.setFromCamera(new Vector2(ndcX, ndcY), camera);
-      return raycaster.intersectObjects([...meshes.values()], false)[0]?.object as Mesh | undefined;
+    pickAt(ndcX, ndcY, radiusPx) {
+      const width = Math.max(canvas.clientWidth, 1); const height = Math.max(canvas.clientHeight, 1);
+      const targets = [...meshes.values()];
+      for (const [dx, dy] of pickOffsets(radiusPx)) {
+        raycaster.setFromCamera(new Vector2(ndcX + dx / width * 2, ndcY - dy / height * 2), camera);
+        const hit = raycaster.intersectObjects(targets, false)[0];
+        if (hit) return { mesh: hit.object as Mesh, point: hit.point.clone() };
+      }
+      return undefined;
     },
+    boundsFor(id) {
+      const box = new Box3();
+      const mesh = id ? meshes.get(id) : undefined;
+      if (mesh) { mesh.updateMatrixWorld(true); return box.setFromObject(mesh); }
+      if (meshes.size) { objects.updateMatrixWorld(true); return box.setFromObject(objects); }
+      return bedBox.clone();
+    },
+    gizmo,
     syncObjects(next, selectedId) {
       const seen = new Set<string>();
       for (const object of next) {
@@ -138,13 +157,7 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
         meshes.delete(id);
       }
       const selected = selectedId ? next.find(object => object.id === selectedId) : undefined;
-      selectionAxes.visible = Boolean(selected && meshes.has(selected.id));
-      if (selected) {
-        const [sx, sy, sz] = selected.transform.scale;
-        const reach = Math.max(...selected.bounds.max.map((v, i) => Math.max(Math.abs(v), Math.abs(selected.bounds.min[i]!)) * [sx, sy, sz][i]!)) + 15;
-        selectionAxes.position.set(...selected.transform.position);
-        selectionAxes.scale.setScalar(reach);
-      }
+      gizmo.setCenter(selected && meshes.has(selected.id) ? objectCenter(selected.bounds, selected.transform) : undefined);
       dirty = true;
     },
     start,
@@ -164,6 +177,7 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
       frameCallbacks.clear();
       for (const mesh of meshes.values()) (mesh.material as MeshStandardMaterial).dispose();
       meshes.clear();
+      gizmo.dispose();
       renderer.dispose();
       renderer.forceContextLoss();
     },

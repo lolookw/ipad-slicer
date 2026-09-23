@@ -80,10 +80,8 @@ export const en = {
   viewer: {
     workspace: 'Model workspace', importModel: 'Import model', buildPlate: '3D build plate', plateObjects: 'Plate objects', objectCount: '{count}/{limit} objects',
     toolbar: 'Selected object tools',
-    axisLock: 'Axis lock', axisFree: 'Free', axisX: 'X', axisY: 'Y', axisZ: 'Z',
-    interactionMode: 'Touch transform mode',
-    moveMode: 'Move',
-    rotateMode: 'Rotate',
+    snap: 'Snap',
+    viewPresets: 'Camera view', viewFit: 'Fit', viewTop: 'Top', viewFront: 'Front', viewIso: 'Iso',
     deselect: 'Deselect',
     layFlat: 'Lay flat',
     layFlatPending: 'Lay flat unlocks after engine integration in phase 7.',

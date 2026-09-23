@@ -20,21 +20,6 @@ async function openPreferences(page: import('@playwright/test').Page) {
   if (!(await menu.evaluate((el) => (el as HTMLDetailsElement).open))) await menu.locator('summary').click();
 }
 
-async function selectedMeshPoint(page: import('@playwright/test').Page, objectName: string) {
-  const object = page.getByRole('button', { name: objectName, exact: true });
-  const canvas = page.getByTestId('viewer-canvas');
-  const box = await canvas.boundingBox();
-  if (!box) throw new Error('Viewer canvas has no bounding box');
-  const fractions = [[.55, .49], [.53, .49], [.57, .49], [.55, .47], [.55, .51]];
-  for (const [xFraction, yFraction] of fractions) {
-    await object.click();
-    const point = { x: box.x + box.width * xFraction!, y: box.y + box.height * yFraction! };
-    await page.mouse.click(point.x, point.y);
-    if (await object.getAttribute('aria-pressed') === 'true') return point;
-  }
-  throw new Error('Could not locate the selected mesh on the rendered canvas');
-}
-
 function binaryBoxStl(): Buffer {
   const vertices = [[0, 0, 0], [20, 0, 0], [20, 20, 0], [0, 20, 0], [0, 0, 10], [20, 0, 10], [20, 20, 10], [0, 20, 10]];
   const faces = [[0, 2, 1], [0, 3, 2], [4, 5, 6], [4, 6, 7], [0, 1, 5], [0, 5, 4],
@@ -236,72 +221,149 @@ test('camera navigation changes the view without changing model transforms', asy
   await expect(object).toHaveAttribute('data-transform', before!);
 });
 
-test('selected-object taps, move drags, and rotate-mode drags commit through real pointer events', async ({ page }) => {
-  await page.goto('/');
-  await importStl(page, 'touch-transform.stl', binaryBoxStl());
-  const object = page.getByRole('button', { name: 'touch-transform.stl', exact: true });
+type Page = import('@playwright/test').Page;
+type Point = { x: number; y: number };
+interface GizmoScreen { center: Point; arrows: Record<'x' | 'y' | 'z', Point>; rings: Record<'x' | 'y' | 'z', Point> }
+
+/** Screen layout of the on-canvas gizmo in page coordinates (the viewer publishes it canvas-relative on `data-gizmo`). */
+async function gizmoScreen(page: Page): Promise<GizmoScreen> {
   const canvas = page.getByTestId('viewer-canvas');
+  await expect(canvas).toHaveAttribute('data-gizmo', /.+/);
   const box = await canvas.boundingBox();
-  expect(box).not.toBeNull();
+  if (!box) throw new Error('Viewer canvas has no bounding box');
+  const raw = JSON.parse((await canvas.getAttribute('data-gizmo'))!) as Record<string, any>;
+  const at = (pair: number[]): Point => ({ x: box.x + pair[0]!, y: box.y + pair[1]! });
+  return { center: at(raw.center), arrows: { x: at(raw.arrows.x), y: at(raw.arrows.y), z: at(raw.arrows.z) }, rings: { x: at(raw.rings.x), y: at(raw.rings.y), z: at(raw.rings.z) } };
+}
+const along = (from: Point, to: Point, fraction: number): Point => ({ x: from.x + (to.x - from.x) * fraction, y: from.y + (to.y - from.y) * fraction });
+const readTransform = async (page: Page, name: string) => JSON.parse((await page.getByRole('button', { name, exact: true }).getAttribute('data-transform'))!) as
+  { position: number[]; rotation: number[]; scale: number[]; mirror: boolean[] };
 
-  const selectedPoint = await selectedMeshPoint(page, 'touch-transform.stl');
+async function dragTo(page: Page, from: Point, to: Point) {
+  await page.mouse.move(from.x, from.y);
+  await page.mouse.down();
+  const steps = 10;
+  for (let i = 1; i <= steps; i += 1) await page.mouse.move(from.x + (to.x - from.x) * i / steps, from.y + (to.y - from.y) * i / steps);
+  await page.mouse.up();
+}
+
+test('dragging an unselected object selects it and moves it on the plate in one gesture', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'direct-drag.stl', binaryBoxStl());
+  const chip = page.getByRole('button', { name: 'direct-drag.stl', exact: true });
+  const { center } = await gizmoScreen(page);
   await page.getByRole('button', { name: 'Deselect', exact: true }).click();
-  await expect(object).toHaveAttribute('aria-pressed', 'false');
+  await expect(chip).toHaveAttribute('aria-pressed', 'false');
+  const before = await readTransform(page, 'direct-drag.stl');
 
-  const moveStart = await selectedMeshPoint(page, 'touch-transform.stl');
-  const beforeMove = await object.getAttribute('data-transform');
-  const moveDirection = moveStart.x < box!.x + box!.width * .65 ? 36 : -36;
-  await page.mouse.move(moveStart.x, moveStart.y);
+  await dragTo(page, center, { x: center.x + 60, y: center.y + 20 });
+
+  await expect(chip).toHaveAttribute('aria-pressed', 'true');
+  const after = await readTransform(page, 'direct-drag.stl');
+  expect(Math.hypot(after.position[0]! - before.position[0]!, after.position[1]! - before.position[1]!)).toBeGreaterThan(5);
+  expect(after.position[2]).toBe(before.position[2]);
+  expect(after.rotation).toEqual(before.rotation);
+  expect(after.scale).toEqual(before.scale);
+});
+
+test('the X arrow moves only along world X, snapped to whole millimeters', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'arrow-x.stl', binaryBoxStl());
+  const gizmo = await gizmoScreen(page);
+  const before = await readTransform(page, 'arrow-x.stl');
+  const grab = along(gizmo.center, gizmo.arrows.x, 0.45);
+  const direction = { x: gizmo.arrows.x.x - gizmo.center.x, y: gizmo.arrows.x.y - gizmo.center.y };
+
+  await dragTo(page, grab, { x: grab.x + direction.x * 0.6, y: grab.y + direction.y * 0.6 });
+
+  await expect.poll(async () => (await readTransform(page, 'arrow-x.stl')).position[0]).not.toBeCloseTo(before.position[0]!, 1);
+  const after = await readTransform(page, 'arrow-x.stl');
+  expect(Number.isInteger(after.position[0])).toBe(true);
+  expect(after.position[1]).toBe(before.position[1]);
+  expect(after.position[2]).toBe(before.position[2]);
+  expect(after.rotation).toEqual(before.rotation);
+  expect(after.scale).toEqual(before.scale);
+  await expect(page.getByRole('button', { name: 'Snap', exact: true })).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('the Z arrow is the only way to lift and never sinks below the plate', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'arrow-z.stl', binaryBoxStl());
+  const gizmo = await gizmoScreen(page);
+  const before = await readTransform(page, 'arrow-z.stl');
+  const grab = along(gizmo.center, gizmo.arrows.z, 0.45);
+  const up = { x: gizmo.arrows.z.x - gizmo.center.x, y: gizmo.arrows.z.y - gizmo.center.y };
+
+  await dragTo(page, grab, { x: grab.x + up.x * 0.5, y: grab.y + up.y * 0.5 });
+  await expect.poll(async () => (await readTransform(page, 'arrow-z.stl')).position[2]).toBeGreaterThan(before.position[2]! + 3);
+  const lifted = await readTransform(page, 'arrow-z.stl');
+  expect(lifted.position[0]).toBe(before.position[0]);
+  expect(lifted.position[1]).toBe(before.position[1]);
+
+  const raised = await gizmoScreen(page);
+  const handle = along(raised.center, raised.arrows.z, 0.45);
+  await dragTo(page, handle, { x: handle.x - up.x * 4, y: handle.y - up.y * 4 });
+  await expect.poll(async () => (await readTransform(page, 'arrow-z.stl')).position[2]).toBeCloseTo(before.position[2]!, 5);
+});
+
+test('the Z ring rotates only about world Z in 15 degree steps', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'ring-z.stl', binaryBoxStl());
+  const gizmo = await gizmoScreen(page);
+  const before = await readTransform(page, 'ring-z.stl');
+  const grab = gizmo.rings.z;
+  const radial = { x: grab.x - gizmo.center.x, y: grab.y - gizmo.center.y };
+  const turn = (degrees: number): Point => {
+    const angle = degrees * Math.PI / 180;
+    return { x: gizmo.center.x + radial.x * Math.cos(angle) - radial.y * Math.sin(angle), y: gizmo.center.y + radial.x * Math.sin(angle) + radial.y * Math.cos(angle) };
+  };
+
+  await page.mouse.move(grab.x, grab.y);
   await page.mouse.down();
-  await page.mouse.move(moveStart.x + Math.sign(moveDirection) * 12, moveStart.y);
-  await page.mouse.move(moveStart.x + moveDirection, moveStart.y);
+  for (const degrees of [15, 40, 70, 100]) await page.mouse.move(turn(degrees).x, turn(degrees).y);
   await page.mouse.up();
-  await expect.poll(() => object.getAttribute('data-transform')).not.toBe(beforeMove);
-  const afterMove = await object.getAttribute('data-transform');
 
-  const axisLock = page.getByRole('group', { name: 'Axis lock', exact: true });
-  await expect(axisLock.getByRole('button', { name: 'Free', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  for (const control of await axisLock.getByRole('button').all()) {
-    const target = await control.boundingBox();
-    expect(target!.width).toBeGreaterThanOrEqual(44);
-    expect(target!.height).toBeGreaterThanOrEqual(44);
+  await expect.poll(async () => Math.abs((await readTransform(page, 'ring-z.stl')).rotation[2]!)).toBeGreaterThan(0.1);
+  const after = await readTransform(page, 'ring-z.stl');
+  expect(after.rotation[0]).toBeCloseTo(0, 6);
+  expect(after.rotation[1]).toBeCloseTo(0, 6);
+  const steps = after.rotation[2]! / (Math.PI / 12);
+  expect(steps).toBeCloseTo(Math.round(steps), 4);
+  expect(after.position[2]).toBe(before.position[2]);
+  expect(after.scale).toEqual(before.scale);
+});
+
+test('a two-finger touch gesture goes to the camera, cancels a one-finger move and never edits the object', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'two-finger.stl', binaryBoxStl());
+  const canvas = page.getByTestId('viewer-canvas');
+  const { center } = await gizmoScreen(page);
+  await page.getByRole('button', { name: 'Deselect', exact: true }).click();
+  const before = JSON.stringify(await readTransform(page, 'two-finger.stl'));
+
+  const touch = (type: string, id: number, x: number, y: number) => canvas.evaluate((element, args) => {
+    element.dispatchEvent(new PointerEvent(args.type, { pointerId: args.id, pointerType: 'touch', isPrimary: args.id === 71, bubbles: true, cancelable: true,
+      clientX: args.x, clientY: args.y, buttons: args.type === 'pointerup' ? 0 : 1 }));
+  }, { type, id, x, y });
+
+  await touch('pointerdown', 71, center.x, center.y);
+  await expect(page.getByRole('button', { name: 'two-finger.stl', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  const layoutBefore = await canvas.getAttribute('data-gizmo');
+  await touch('pointermove', 71, center.x + 20, center.y + 5);
+  await touch('pointermove', 71, center.x + 40, center.y + 10);
+  await expect.poll(async () => JSON.stringify(await readTransform(page, 'two-finger.stl'))).not.toBe(before);
+
+  await touch('pointerdown', 72, center.x - 120, center.y - 80);
+  await expect.poll(async () => JSON.stringify(await readTransform(page, 'two-finger.stl'))).toBe(before);
+  for (let step = 1; step <= 6; step += 1) {
+    await touch('pointermove', 71, center.x + 40 + step * 8, center.y + 10 + step * 6);
+    await touch('pointermove', 72, center.x - 120 - step * 10, center.y - 80 - step * 4);
   }
-  await page.getByRole('button', { name: 'Reset', exact: true }).click();
-  await axisLock.getByRole('button', { name: 'X', exact: true }).click();
-  await expect(axisLock.getByRole('button', { name: 'X', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  const lockedStart = await selectedMeshPoint(page, 'touch-transform.stl');
-  const beforeLockedMove = JSON.parse((await object.getAttribute('data-transform'))!);
-  await page.mouse.move(lockedStart.x, lockedStart.y);
-  await page.mouse.down();
-  await page.mouse.move(lockedStart.x + 12, lockedStart.y);
-  await page.mouse.move(lockedStart.x + 36, lockedStart.y + 18);
-  await page.mouse.up();
-  await expect.poll(async () => JSON.parse((await object.getAttribute('data-transform'))!).position[0]).not.toBeCloseTo(beforeLockedMove.position[0]);
-  const afterLockedMove = JSON.parse((await object.getAttribute('data-transform'))!);
-  expect(afterLockedMove.position.slice(1)).toEqual(beforeLockedMove.position.slice(1));
-  expect(afterLockedMove.rotation).toEqual(beforeLockedMove.rotation);
-  expect(afterLockedMove.scale).toEqual(beforeLockedMove.scale);
+  await touch('pointerup', 71, center.x + 88, center.y + 46);
+  await touch('pointerup', 72, center.x - 180, center.y - 104);
 
-  await page.getByRole('button', { name: 'Reset', exact: true }).click();
-  await page.getByRole('button', { name: 'Rotate', exact: true }).click();
-  await axisLock.getByRole('button', { name: 'Z', exact: true }).click();
-  await expect(axisLock.getByRole('button', { name: 'Z', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.getByRole('button', { name: 'Rotate', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  const rotateStart = await selectedMeshPoint(page, 'touch-transform.stl');
-  const beforeRotate = JSON.parse((await object.getAttribute('data-transform'))!);
-  const rotateDirection = rotateStart.x < box!.x + box!.width * .65 ? 42 : -42;
-  await page.mouse.move(rotateStart.x, rotateStart.y);
-  await page.mouse.down();
-  await page.mouse.move(rotateStart.x + Math.sign(rotateDirection) * 12, rotateStart.y);
-  await page.mouse.move(rotateStart.x + rotateDirection, rotateStart.y);
-  await page.mouse.up();
-  await expect.poll(async () => JSON.parse((await object.getAttribute('data-transform'))!).rotation[2]).not.toBeCloseTo(beforeRotate.rotation[2]);
-  const afterRotate = JSON.parse((await object.getAttribute('data-transform'))!);
-  expect(afterRotate.rotation.slice(0, 2)).toEqual(beforeRotate.rotation.slice(0, 2));
-  expect(afterRotate.position).toEqual(beforeRotate.position);
-  expect(afterRotate.scale).toEqual(beforeRotate.scale);
-  expect(afterRotate.rotation[2] / (Math.PI / 2)).not.toBeCloseTo(Math.round(afterRotate.rotation[2] / (Math.PI / 2)));
-  expect(await object.getAttribute('data-transform')).not.toBe(afterMove);
+  expect(JSON.stringify(await readTransform(page, 'two-finger.stl'))).toBe(before);
+  await expect.poll(() => canvas.getAttribute('data-gizmo')).not.toBe(layoutBefore);
 });
 
 test('changing scale display units preserves the physical millimeter size', async ({ page }) => {

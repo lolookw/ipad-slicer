@@ -1,39 +1,40 @@
-import type { Mesh, PerspectiveCamera } from 'three';
+import type { Mesh, PerspectiveCamera, Vector3 } from 'three';
 import type { PlateObject } from '../app/stores/plate';
-import type { AxisLock } from './axis';
-import type { Gizmo } from './gizmo';
 import type { ViewerCameraControls } from './camera';
+import { classifyWheel, isSnapping, rayFromNdc } from './drag-math';
+import type { Gizmo } from './gizmo';
+import type { GizmoHandle, GizmoView } from './gizmo-handles';
 
-export const TAP_MAX_DISTANCE_PX = 10;
+/** Click-vs-drag threshold shared with OrcaSlicer's 5 px. */
+export const TAP_MAX_DISTANCE_PX = 5;
 export const TAP_MAX_DURATION_MS = 250;
 export const DOUBLE_TAP_MAX_DELAY_MS = 300;
+export const DOUBLE_TAP_MAX_DISTANCE_PX = 24;
+export const TOUCH_PICK_RADIUS_PX = 12;
+export const MOUSE_PICK_RADIUS_PX = 3;
 
 interface Point { x: number; y: number; time: number }
-export type TransformGestureMode = 'move' | 'rotate';
 
-interface TransformCandidate {
-  object: PlateObject;
-  start: Point;
-}
-
-interface ActiveTransform {
-  pointerId: number;
-  mode: TransformGestureMode;
-  startX: number;
-}
+type Primary =
+  | { kind: 'camera'; pointerId: number; start: Point }
+  | { kind: 'gizmo' | 'body'; pointerId: number; start: Point; dragging: boolean };
 
 export interface GestureOptions {
   canvas: HTMLCanvasElement;
   camera: PerspectiveCamera;
   controls: ViewerCameraControls;
   gizmo: Gizmo;
-  selectedMesh: () => Mesh | undefined;
-  selectedObject: () => PlateObject | undefined;
-  transformMode: () => TransformGestureMode;
-  axisLock?: () => AxisLock;
-  meshAt: (xNdc: number, yNdc: number) => Mesh | undefined;
+  handles: GizmoView;
+  selectedId: () => string | undefined;
+  objectById: (id: string) => PlateObject | undefined;
+  pickAt: (xNdc: number, yNdc: number, radiusPx: number) => { mesh: Mesh; point: Vector3 } | undefined;
+  snapEnabled: () => boolean;
   onSelect: (id: string | undefined) => void;
   onFit: () => void;
+  /** Called when the gizmo hover/pressed look changed so the next frame is drawn. */
+  onVisualChange?: () => void;
+  /** A transform gesture finished or was cancelled; the pivot follows the object's new center. */
+  onTransformEnd?: () => void;
 }
 
 export interface ViewerGestures { dispose(): void }
@@ -43,107 +44,189 @@ export function pointerNdc(canvas: HTMLCanvasElement, clientX: number, clientY: 
   return [(clientX - rect.left) / rect.width * 2 - 1, 1 - (clientY - rect.top) / rect.height * 2];
 }
 
-/** Capture-phase ownership gate. A selected-object press stays camera-owned until it exceeds
- * the tap threshold; only then does the transform gesture take exclusive ownership. */
+/**
+ * Capture-phase pointer ownership, in priority order: gizmo handle, then any object, then the camera.
+ *
+ * - One pointer (touch, pen or left mouse) on a handle drags it; on an object it selects immediately and,
+ *   once past the 5 px threshold, moves the object on the horizontal plane through the grab point; on empty
+ *   space camera-controls orbits.
+ * - A second touch always belongs to the camera: it reverts any one-finger transform and stays camera-owned
+ *   until every finger is up (pinch/pan are camera-controls; twist is added here).
+ * - camera-controls still sees every pointerdown so two-finger gestures work; the one-pointer camera action
+ *   is switched off while a transform owns the pointer instead of swallowing the event.
+ */
 export function createViewerGestures(options: GestureOptions): ViewerGestures {
-  const starts = new Map<number, Point>();
-  const candidates = new Map<number, TransformCandidate>();
-  const owned = new Set<number>();
-  let activeTransform: ActiveTransform | undefined;
-  let lastTap: Point | undefined;
+  const { canvas } = options;
+  const touches = new Map<number, { x: number; y: number }>();
+  let primary: Primary | undefined;
+  let multiTouch = false;
+  let twistAngle: number | undefined;
+  let lastEmptyTap: Point | undefined;
+  let pendingDeselect: ReturnType<typeof setTimeout> | undefined;
+  let hover: GizmoHandle | undefined;
+
+  const size = () => { const rect = canvas.getBoundingClientRect(); return { rect, width: Math.max(rect.width, 1), height: Math.max(rect.height, 1) }; };
+  const rayAt = (event: PointerEvent) => { const [x, y] = pointerNdc(canvas, event.clientX, event.clientY); return rayFromNdc(options.camera, x, y); };
+  const cancelPendingDeselect = () => { if (pendingDeselect !== undefined) { clearTimeout(pendingDeselect); pendingDeselect = undefined; } };
+  const capture = (id: number) => { try { canvas.setPointerCapture(id); } catch { /* synthetic or already-released pointer */ } };
+  const release = (id: number) => { try { canvas.releasePointerCapture(id); } catch { /* not captured */ } };
+  const transformOwned = () => primary !== undefined && primary.kind !== 'camera';
+  const syncCamera = () => options.controls.setPrimaryEnabled(!multiTouch && !transformOwned());
+  const setPressed = (handle: GizmoHandle | undefined) => { if (options.handles.setPressed(handle)) options.onVisualChange?.(); };
+
+  const abandonTransform = (revert: boolean) => {
+    if (!primary || primary.kind === 'camera') return;
+    release(primary.pointerId);
+    if (revert) options.gizmo.cancel(); else options.gizmo.end();
+    setPressed(undefined);
+  };
+
+  const enterMultiTouch = () => {
+    multiTouch = true;
+    abandonTransform(true);
+    primary = undefined;
+    const [a, b] = [...touches.values()];
+    twistAngle = a && b ? Math.atan2(b.y - a.y, b.x - a.x) : undefined;
+    syncCamera();
+  };
 
   const down = (event: PointerEvent) => {
-    const point = { x: event.clientX, y: event.clientY, time: event.timeStamp };
-    starts.set(event.pointerId, point);
-    const [x, y] = pointerNdc(options.canvas, event.clientX, event.clientY);
-    const selected = options.selectedMesh();
-    const object = options.selectedObject();
-    if (options.gizmo.active) {
-      owned.add(event.pointerId);
-      options.controls.setEnabled(false);
-      event.stopImmediatePropagation();
-    } else if (selected && object && selected.name === object.id && options.meshAt(x, y) === selected) {
-      candidates.set(event.pointerId, { object, start: point });
+    if (event.pointerType === 'touch') {
+      touches.set(event.pointerId, { x: event.clientX, y: event.clientY });
+      if (touches.size >= 2) { enterMultiTouch(); return; }
+    } else if (event.button !== 0) return; // right/middle mouse: camera pan
+    if (multiTouch) return;
+
+    const start: Point = { x: event.clientX, y: event.clientY, time: event.timeStamp };
+    const [x, y] = pointerNdc(canvas, event.clientX, event.clientY);
+    const { rect, width, height } = size();
+    const selected = options.selectedId();
+    const object = selected ? options.objectById(selected) : undefined;
+    hover = undefined;
+
+    const handle = object ? options.handles.hitTest(event.clientX - rect.left, event.clientY - rect.top, options.camera, width, height) : undefined;
+    if (object && handle) {
+      options.gizmo.begin(object, { kind: handle.kind, axis: handle.axis }, rayAt(event));
+      primary = { kind: 'gizmo', pointerId: event.pointerId, start, dragging: true };
+      setPressed(handle);
+      capture(event.pointerId);
+      syncCamera();
+      return;
     }
+
+    const hit = options.pickAt(x, y, event.pointerType === 'mouse' ? MOUSE_PICK_RADIUS_PX : TOUCH_PICK_RADIUS_PX);
+    const target = hit ? options.objectById(hit.mesh.name) : undefined;
+    if (hit && target) {
+      cancelPendingDeselect();
+      lastEmptyTap = undefined;
+      options.onSelect(target.id);
+      options.gizmo.begin(target, { kind: 'body', hitPoint: hit.point }, rayAt(event));
+      primary = { kind: 'body', pointerId: event.pointerId, start, dragging: false };
+      capture(event.pointerId);
+      syncCamera();
+      return;
+    }
+
+    primary = { kind: 'camera', pointerId: event.pointerId, start };
+    syncCamera();
   };
+
   const move = (event: PointerEvent) => {
-    if (activeTransform?.pointerId === event.pointerId) {
-      const [x, y] = pointerNdc(options.canvas, event.clientX, event.clientY);
-      if (activeTransform.mode === 'move') options.gizmo.moveTo(x, y, options.camera);
-      else {
-        const width = Math.max(options.canvas.getBoundingClientRect().width, 1);
-        options.gizmo.rotateBy((event.clientX - activeTransform.startX) / width * Math.PI * 2);
+    if (event.pointerType === 'touch') {
+      const known = touches.get(event.pointerId);
+      if (known) { known.x = event.clientX; known.y = event.clientY; }
+      if (touches.size >= 2) {
+        const [a, b] = [...touches.values()];
+        const angle = Math.atan2(b!.y - a!.y, b!.x - a!.x);
+        if (twistAngle !== undefined) {
+          let delta = angle - twistAngle;
+          if (delta > Math.PI) delta -= Math.PI * 2; else if (delta < -Math.PI) delta += Math.PI * 2;
+          options.controls.twist(delta);
+        }
+        twistAngle = angle;
+        return;
       }
+    }
+    if (primary && primary.pointerId === event.pointerId) {
+      if (primary.kind === 'camera') return;
+      if (primary.kind === 'body' && !primary.dragging) {
+        if (Math.hypot(event.clientX - primary.start.x, event.clientY - primary.start.y) <= TAP_MAX_DISTANCE_PX) return;
+        primary.dragging = true;
+      }
+      options.gizmo.update(rayAt(event), isSnapping(options.snapEnabled(), event.shiftKey));
       event.stopImmediatePropagation();
       return;
     }
-    if (owned.has(event.pointerId) || options.gizmo.active) {
-      event.stopImmediatePropagation();
-      return;
+    if (event.pointerType !== 'touch' && !primary && options.selectedId()) {
+      const { rect, width, height } = size();
+      const next = options.handles.hitTest(event.clientX - rect.left, event.clientY - rect.top, options.camera, width, height);
+      if (options.handles.setHover(next)) options.onVisualChange?.();
+      if (next?.axis !== hover?.axis || next?.kind !== hover?.kind) canvas.style.cursor = next ? 'grab' : '';
+      hover = next;
     }
-    const candidate = candidates.get(event.pointerId);
-    if (!candidate || Math.hypot(event.clientX - candidate.start.x, event.clientY - candidate.start.y) <= TAP_MAX_DISTANCE_PX) return;
-    const [x, y] = pointerNdc(options.canvas, event.clientX, event.clientY);
-    const mode = options.transformMode();
-    options.gizmo.begin(candidate.object, mode, x, y, options.camera, options.axisLock?.());
-    activeTransform = { pointerId: event.pointerId, mode, startX: event.clientX };
-    candidates.delete(event.pointerId);
-    owned.add(event.pointerId);
-    options.controls.setEnabled(false);
-    event.stopImmediatePropagation();
   };
-  const up = (event: PointerEvent) => {
-    const start = starts.get(event.pointerId);
-    starts.delete(event.pointerId);
-    candidates.delete(event.pointerId);
-    if (owned.delete(event.pointerId)) {
-      if (activeTransform?.pointerId === event.pointerId) {
-        options.gizmo.end();
-        activeTransform = undefined;
-      }
-      if (owned.size === 0) options.controls.setEnabled(true);
-      event.stopImmediatePropagation();
-      return;
-    }
-    if (!start) return;
-    const distance = Math.hypot(event.clientX - start.x, event.clientY - start.y);
-    if (distance > TAP_MAX_DISTANCE_PX || event.timeStamp - start.time > TAP_MAX_DURATION_MS) return;
-    const tap = { x: event.clientX, y: event.clientY, time: event.timeStamp };
-    if (lastTap && tap.time - lastTap.time <= DOUBLE_TAP_MAX_DELAY_MS && Math.hypot(tap.x - lastTap.x, tap.y - lastTap.y) <= TAP_MAX_DISTANCE_PX) {
-      lastTap = undefined;
+
+  const emptyTap = (event: PointerEvent) => {
+    const tap: Point = { x: event.clientX, y: event.clientY, time: event.timeStamp };
+    if (lastEmptyTap && tap.time - lastEmptyTap.time <= DOUBLE_TAP_MAX_DELAY_MS
+      && Math.hypot(tap.x - lastEmptyTap.x, tap.y - lastEmptyTap.y) <= DOUBLE_TAP_MAX_DISTANCE_PX) {
+      lastEmptyTap = undefined;
+      cancelPendingDeselect();
       options.onFit();
       return;
     }
-    lastTap = tap;
-    const [x, y] = pointerNdc(options.canvas, event.clientX, event.clientY);
-    options.onSelect(options.meshAt(x, y)?.name || undefined);
-  };
-  const cancel = (event: PointerEvent) => {
-    const wasOwned = owned.has(event.pointerId) || activeTransform?.pointerId === event.pointerId;
-    starts.delete(event.pointerId);
-    candidates.delete(event.pointerId);
-    owned.delete(event.pointerId);
-    if (activeTransform?.pointerId === event.pointerId) {
-      options.gizmo.end();
-      activeTransform = undefined;
+    lastEmptyTap = tap;
+    // Deselect is deferred so a double-tap fit does not first flicker the selection away.
+    if (options.selectedId()) {
+      cancelPendingDeselect();
+      pendingDeselect = setTimeout(() => { pendingDeselect = undefined; options.onSelect(undefined); }, DOUBLE_TAP_MAX_DELAY_MS);
     }
-    if (owned.size === 0) options.controls.setEnabled(true);
-    if (wasOwned) event.stopImmediatePropagation();
   };
 
-  options.canvas.addEventListener('pointerdown', down, true);
-  options.canvas.addEventListener('pointermove', move, true);
-  options.canvas.addEventListener('pointerup', up, true);
-  options.canvas.addEventListener('pointercancel', cancel, true);
-  options.canvas.addEventListener('contextmenu', event => event.preventDefault());
+  const finish = (event: PointerEvent, cancelled: boolean) => {
+    touches.delete(event.pointerId);
+    if (primary && primary.pointerId === event.pointerId) {
+      const finished = primary;
+      if (finished.kind === 'camera') {
+        primary = undefined;
+        const distance = Math.hypot(event.clientX - finished.start.x, event.clientY - finished.start.y);
+        if (!cancelled && !multiTouch && distance <= TAP_MAX_DISTANCE_PX && event.timeStamp - finished.start.time <= TAP_MAX_DURATION_MS) emptyTap(event);
+      } else {
+        abandonTransform(cancelled);
+        primary = undefined;
+        options.onTransformEnd?.();
+      }
+    }
+    if (touches.size === 0) { multiTouch = false; twistAngle = undefined; } else twistAngle = undefined;
+    syncCamera();
+  };
+  const up = (event: PointerEvent) => finish(event, false);
+  const cancel = (event: PointerEvent) => finish(event, true);
+
+  const wheel = (event: WheelEvent) => {
+    if (classifyWheel(event) !== 'pan') return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    options.controls.panScreen(-event.deltaX, -event.deltaY, size().height);
+  };
+  const contextMenu = (event: Event) => event.preventDefault();
+
+  canvas.addEventListener('pointerdown', down, true);
+  canvas.addEventListener('pointermove', move, true);
+  canvas.addEventListener('pointerup', up, true);
+  canvas.addEventListener('pointercancel', cancel, true);
+  canvas.addEventListener('wheel', wheel, { capture: true, passive: false });
+  canvas.addEventListener('contextmenu', contextMenu);
   return { dispose() {
-    options.canvas.removeEventListener('pointerdown', down, true);
-    options.canvas.removeEventListener('pointermove', move, true);
-    options.canvas.removeEventListener('pointerup', up, true);
-    options.canvas.removeEventListener('pointercancel', cancel, true);
-    starts.clear(); candidates.clear(); owned.clear();
+    canvas.removeEventListener('pointerdown', down, true);
+    canvas.removeEventListener('pointermove', move, true);
+    canvas.removeEventListener('pointerup', up, true);
+    canvas.removeEventListener('pointercancel', cancel, true);
+    canvas.removeEventListener('wheel', wheel, true);
+    canvas.removeEventListener('contextmenu', contextMenu);
+    cancelPendingDeselect();
     if (options.gizmo.active) options.gizmo.end();
-    activeTransform = undefined;
-    options.controls.setEnabled(true);
+    touches.clear(); primary = undefined; multiTouch = false;
+    options.controls.setPrimaryEnabled(true);
   } };
 }

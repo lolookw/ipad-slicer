@@ -1,43 +1,46 @@
-import { Mesh, Plane, Raycaster, Vector2, Vector3, type PerspectiveCamera } from 'three';
-import { AXIS_INDEX, formatMoveReadout, formatRotateReadout, keepAbovePlate, moveAlongAxis, rotateAroundAxis, verticalDragDistance, type AxisLock } from './axis';
+import type { Ray, Vector3 } from 'three';
+import { AXIS_INDEX, axisVector, formatMoveReadout, formatRotateReadout, keepAbovePlate, type AxisName } from './axis';
+import {
+  MOVE_SNAP_MM, ROTATE_SNAP_RAD, closestParamOnAxis, intersectHorizontalPlane, objectCenter, restsOnPlate, ringVector,
+  rotateAboutWorldAxis, settleAfterRotate, signedAngleAbout, snapValue,
+} from './drag-math';
 import { plate, type PlateObject } from '../app/stores/plate';
 import { resolvedSettings } from '../app/stores/configuration';
 import { engineClient } from '../engine/client';
 import { encodeEngineTransforms, fromEngineTransform, toEngineTransform, type ObjectTransform } from './transforms';
 
-export type GizmoMode = 'move' | 'rotate' | 'scale';
+/** What a press grabbed: the object body (horizontal drag), a move arrow, or a rotation ring. */
+export type DragTarget =
+  | { kind: 'body'; hitPoint: Vector3 }
+  | { kind: 'arrow'; axis: AxisName }
+  | { kind: 'ring'; axis: AxisName };
 
-interface GizmoSession {
+interface Session {
   objectId: string;
-  mode: GizmoMode;
-  startTransform: ObjectTransform;
-  axis: AxisLock;
+  target: DragTarget;
   bounds: PlateObject['bounds'];
-  startNdcY: number;
-  liftDistance: number;
-  /** 'move' only: the bed-plane point (world mm) under the pointer when the gesture began. */
-  startPoint: Vector3;
+  startTransform: ObjectTransform;
+  wasOnPlate: boolean;
+  /** Body drag: the point under the pointer on the horizontal plane through the grab depth. */
+  startPoint?: Vector3;
+  /** Arrow/ring drag anchor: the object's world center when the press began. */
+  center: Vector3;
+  /** Arrow: axis parameter under the pointer at press. Ring: start vector in the ring plane. */
+  startParam?: number;
+  startVector?: Vector3;
 }
 
 export interface Gizmo {
-  /** True while a gesture owns the selected object; `gestures.ts` (task 6.3) must check this
-   * before handing a pointer that started on the selection to camera-controls (design.md's
-   * gizmo behavior row: "controls.enabled=false until it ends"). */
   readonly active: boolean;
   readonly lockedObjectId: string | undefined;
-  begin(object: PlateObject, mode: GizmoMode, ndcX: number, ndcY: number, camera: PerspectiveCamera, axis?: AxisLock): void;
-  /** 'move' gestures only. Absolute pointer position each call (not incremental) to avoid drift. */
-  moveTo(ndcX: number, ndcY: number, camera: PerspectiveCamera): void;
-  /** 'rotate' gestures only. Cumulative angle about Z since `begin()`, not a per-call delta. */
-  rotateBy(radiansSinceBegin: number): void;
-  /** 'scale' gestures only. Cumulative uniform multiplier since `begin()`, not a per-call delta. */
-  scaleBy(factorSinceBegin: number): void;
+  /** Snapshots the object and the grab; nothing changes until `update`. */
+  begin(object: PlateObject, target: DragTarget, ray: Ray): void;
+  /** Absolute pointer ray each call (never incremental) so the object cannot drift from the finger. */
+  update(ray: Ray, snap: boolean): void;
+  /** Restores the transform the object had at `begin` (a second finger turned the gesture into a camera move). */
+  cancel(): void;
   end(): void;
 }
-
-const BED_PLANE = new Plane(new Vector3(0, 0, 1), 0);
-const raycaster = new Raycaster();
-const MIN_SCALE = 0.01;
 
 /** Prepares a complete plate snapshot and commits only after a valid full result is received. */
 export async function prepareCurrentPlate(operation: 1 | 2 | 3): Promise<void> {
@@ -52,77 +55,72 @@ export async function prepareCurrentPlate(operation: 1 | 2 | 3): Promise<void> {
   plate.applyPreparedTransforms(next);
 }
 
-function bedPoint(ndcX: number, ndcY: number, camera: PerspectiveCamera): Vector3 | undefined {
-  raycaster.setFromCamera(new Vector2(ndcX, ndcY), camera);
-  const point = new Vector3();
-  return raycaster.ray.intersectPlane(BED_PLANE, point) ?? undefined;
-}
-
-/** Raycasts only against the given mesh, so a gesture starting elsewhere on the plate never
- * steals ownership from the currently selected object. */
-export function hitsSelected(ndcX: number, ndcY: number, camera: PerspectiveCamera, selectedMesh: Mesh): boolean {
-  raycaster.setFromCamera(new Vector2(ndcX, ndcY), camera);
-  return raycaster.intersectObject(selectedMesh, false).length > 0;
-}
+const copy = (transform: ObjectTransform): ObjectTransform => ({
+  position: [...transform.position], rotation: [...transform.rotation], scale: [...transform.scale], mirror: [...transform.mirror],
+});
 
 /**
- * Selected-object gesture ownership, lock state, and bed-drop for the touch transform gizmo.
- * Deliberately app-internal: all math is on `ObjectTransform` (transforms.ts), never the
- * engine's stride-11 encoding, which stays gated behind the task 7.1 contract check.
+ * Drag session for the selected object. Deliberately app-internal: all math is on `ObjectTransform`
+ * (transforms.ts), never the engine's stride-11 encoding. Every update recomputes from the snapshot
+ * taken at `begin`, so a live store reference can never drift mid-gesture.
  */
 export function createGizmo(onReadout?: (value: string | undefined) => void): Gizmo {
-  let session: GizmoSession | undefined;
+  let session: Session | undefined;
+
+  const commit = (transform: ObjectTransform) => {
+    if (session) plate.updateTransform(session.objectId, transform, { dropToBed: false });
+  };
+
   return {
     get active() { return session !== undefined; },
     get lockedObjectId() { return session?.objectId; },
-    begin(object, mode, ndcX, ndcY, camera, axis = 'free') {
-      // Deep-copied on purpose: `object` may be a live store reference, and every rotateBy/scaleBy
-      // call below recomputes from this snapshot (cumulative-since-begin, not a per-call delta) —
-      // a live reference would drift as plate.updateTransform mutates the store mid-gesture.
-      session = {
-        objectId: object.id,
-        axis, bounds: object.bounds, startNdcY: ndcY,
-        liftDistance: camera.position.distanceTo(new Vector3(...object.transform.position)),
-        mode,
-        startTransform: {
-          position: [...object.transform.position],
-          rotation: [...object.transform.rotation],
-          scale: [...object.transform.scale],
-          mirror: [...object.transform.mirror],
-        },
-        startPoint: mode === 'move' ? bedPoint(ndcX, ndcY, camera) ?? new Vector3() : new Vector3(),
-      };
+    begin(object, target, ray) {
+      const startTransform = copy(object.transform);
+      const center = objectCenter(object.bounds, startTransform);
+      session = { objectId: object.id, target, bounds: object.bounds, startTransform, center, wasOnPlate: restsOnPlate(object.bounds, startTransform) };
+      if (target.kind === 'body') session.startPoint = intersectHorizontalPlane(ray, target.hitPoint.z) ?? target.hitPoint.clone();
+      else if (target.kind === 'arrow') session.startParam = closestParamOnAxis(ray, center, axisVector(target.axis));
+      else session.startVector = ringVector(ray, center, axisVector(target.axis));
     },
-    moveTo(ndcX, ndcY, camera) {
-      if (!session || session.mode !== 'move') return;
-      const point = bedPoint(ndcX, ndcY, camera);
-      if (!point && session.axis !== 'z') return;
-      const delta: [number, number, number] = [
-        (point?.x ?? session.startPoint.x) - session.startPoint.x,
-        (point?.y ?? session.startPoint.y) - session.startPoint.y,
-        verticalDragDistance(ndcY - session.startNdcY, session.liftDistance, camera.fov),
-      ];
-      const next = moveAlongAxis(session.startTransform, delta, session.axis, session.bounds);
-      plate.updateTransform(session.objectId, next, { dropToBed: session.axis === 'free' });
-      if (session.axis !== 'free') {
-        const index = AXIS_INDEX[session.axis];
-        const change = next.position[index] - session.startTransform.position[index];
-        onReadout?.(formatMoveReadout(session.axis, change));
+    update(ray, snap) {
+      if (!session) return;
+      const { target, startTransform, bounds } = session;
+      if (target.kind === 'body') {
+        const point = intersectHorizontalPlane(ray, target.hitPoint.z);
+        if (!point || !session.startPoint) return;
+        let dx = point.x - session.startPoint.x;
+        let dy = point.y - session.startPoint.y;
+        if (snap) { dx = snapValue(dx, MOVE_SNAP_MM); dy = snapValue(dy, MOVE_SNAP_MM); }
+        commit({ ...startTransform, position: [startTransform.position[0] + dx, startTransform.position[1] + dy, startTransform.position[2]] });
+        onReadout?.(`${formatMoveReadout('x', dx)}  ${formatMoveReadout('y', dy)}`);
+      } else if (target.kind === 'arrow') {
+        const t = closestParamOnAxis(ray, session.center, axisVector(target.axis));
+        if (t === undefined) return;
+        session.startParam ??= t;
+        let delta = t - session.startParam;
+        if (snap) delta = snapValue(delta, MOVE_SNAP_MM);
+        const index = AXIS_INDEX[target.axis];
+        const position = [...startTransform.position] as ObjectTransform['position'];
+        position[index] += delta;
+        const next = { ...startTransform, position };
+        const settled = target.axis === 'z' ? keepAbovePlate(next, bounds) : next;
+        commit(settled);
+        onReadout?.(formatMoveReadout(target.axis, settled.position[index] - startTransform.position[index]));
+      } else {
+        const axis = axisVector(target.axis);
+        const now = ringVector(ray, session.center, axis);
+        if (!now) return;
+        session.startVector ??= now;
+        let angle = signedAngleAbout(axis, session.startVector, now);
+        if (snap) angle = snapValue(angle, ROTATE_SNAP_RAD);
+        commit(settleAfterRotate(rotateAboutWorldAxis(startTransform, bounds, target.axis, angle), bounds, session.wasOnPlate));
+        onReadout?.(formatRotateReadout(target.axis, angle));
       }
     },
-    rotateBy(radiansSinceBegin) {
-      if (!session || session.mode !== 'rotate') return;
-      const next = rotateAroundAxis(session.startTransform, radiansSinceBegin, session.axis);
-      plate.updateTransform(session.objectId, session.axis === 'free' ? next : keepAbovePlate(next, session.bounds),
-        { dropToBed: session.axis === 'free' });
-      const axis = session.axis === 'free' ? 'z' : session.axis;
-      onReadout?.(formatRotateReadout(axis, next.rotation[AXIS_INDEX[axis]]));
-    },
-    scaleBy(factorSinceBegin) {
-      if (!session || session.mode !== 'scale') return;
-      const multiplier = Math.max(factorSinceBegin, MIN_SCALE);
-      const [sx, sy, sz] = session.startTransform.scale;
-      plate.updateTransform(session.objectId, { ...session.startTransform, scale: [sx * multiplier, sy * multiplier, sz * multiplier] });
+    cancel() {
+      if (session) commit(session.startTransform);
+      session = undefined;
+      onReadout?.(undefined);
     },
     end() { session = undefined; onReadout?.(undefined); },
   };

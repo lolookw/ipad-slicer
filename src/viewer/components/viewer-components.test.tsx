@@ -3,10 +3,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { plate, type PlateObject } from '../../app/stores/plate';
 import type { TransformToolbarLabels } from './TransformToolbar';
 import { PlateObjectToolbar } from './ViewerToolbarContainer';
+import { ViewPresets } from './ViewPresets';
 
 const labels: TransformToolbarLabels = {
-  axisLock: 'Axis lock', axisFree: 'Free', axisX: 'X', axisY: 'Y', axisZ: 'Z',
-  toolbar: 'Object tools', interactionMode: 'Touch transform mode', moveMode: 'Move', rotateMode: 'Rotate',
+  toolbar: 'Object tools', snap: 'Snap',
   deselect: 'Deselect', layFlat: 'Lay flat', rotateX: 'Rotate X', rotateY: 'Rotate Y',
   scale: 'Scale', duplicate: 'Duplicate', delete: 'Delete', reset: 'Reset', title: 'Object size', close: 'Close', size: 'Largest dimension',
   unit: 'Size unit', suspicious: 'Suspicious size', multiply25_4: '×25.4', multiply1000: '×1000', divide10: '÷10', keep: 'Keep as entered', resize: 'Resize',
@@ -66,15 +66,39 @@ it('deselects the object and hides the toolbar when the deselect button is press
   expect(screen.queryByRole('toolbar', { name: 'Object tools' })).toBeNull();
 });
 
-it('shows and changes the active touch transform mode', () => {
+it('offers a Snap toggle that is on by default and reports presses', () => {
   plate.addObject(object('first'));
-  const onTransformMode = vi.fn();
-  render(() => <PlateObjectToolbar labels={labels} transformMode="move" onTransformMode={onTransformMode} />);
+  const onSnapToggle = vi.fn();
+  render(() => <PlateObjectToolbar labels={labels} onSnapToggle={onSnapToggle} />);
 
-  expect(screen.getByRole('button', { name: 'Move' }).getAttribute('aria-pressed')).toBe('true');
-  expect(screen.getByRole('button', { name: 'Rotate' }).getAttribute('aria-pressed')).toBe('false');
-  fireEvent.click(screen.getByRole('button', { name: 'Rotate' }));
-  expect(onTransformMode).toHaveBeenCalledWith('rotate');
+  const snap = screen.getByRole('button', { name: 'Snap' });
+  expect(snap.getAttribute('aria-pressed')).toBe('true');
+  fireEvent.click(snap);
+  expect(onSnapToggle).toHaveBeenCalledOnce();
+});
+
+it('reflects a disabled snap state and no longer shows mode or axis-lock controls', () => {
+  plate.addObject(object('first'));
+  render(() => <PlateObjectToolbar labels={labels} snapEnabled={false} />);
+
+  expect(screen.getByRole('button', { name: 'Snap' }).getAttribute('aria-pressed')).toBe('false');
+  expect(screen.queryByRole('group', { name: 'Axis lock' })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Move' })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Rotate' })).toBeNull();
+  for (const name of ['Lay flat', 'Rotate X', 'Rotate Y', 'Scale', 'Duplicate', 'Delete', 'Reset', 'Deselect']) {
+    expect(screen.getByRole('button', { name })).toBeTruthy();
+  }
+});
+
+it('renders the camera view presets and reports the chosen command', () => {
+  const onView = vi.fn();
+  render(() => <ViewPresets labels={{ group: 'Camera view', fit: 'Fit', top: 'Top', front: 'Front', iso: 'Iso' }} onView={onView} />);
+
+  expect(screen.getByRole('group', { name: 'Camera view' })).toBeTruthy();
+  for (const [name, command] of [['Fit', 'fit'], ['Top', 'top'], ['Front', 'front'], ['Iso', 'iso']] as const) {
+    fireEvent.click(screen.getByRole('button', { name }));
+    expect(onView).toHaveBeenLastCalledWith(command);
+  }
 });
 
 describe.each([4, 2001])('when the committed largest dimension is %s mm', value => {
@@ -113,19 +137,4 @@ it('uses the sheet-open size as the absolute 100 percent baseline', () => {
   commitSize(50);
 
   expect(plate.state.objects[0]!.transform.scale).toEqual([0.5, 0.5, 0.5]);
-});
-
-it('defaults to Free and exposes colored axis lock buttons with pressed state', () => {
-  plate.addObject(object('first'));
-  const onAxisLock = vi.fn();
-  render(() => <PlateObjectToolbar labels={labels} onAxisLock={onAxisLock} />);
-  expect(screen.getByRole('group', { name: 'Axis lock' })).toBeTruthy();
-  expect(screen.getByRole('button', { name: /^Free$/ }).getAttribute('aria-pressed')).toBe('true');
-  for (const axis of ['X', 'Y', 'Z']) {
-    const button = screen.getByRole('button', { name: new RegExp(`^${axis}$`) });
-    expect(button.getAttribute('aria-pressed')).toBe('false');
-    expect(button.getAttribute('data-axis')).toBe(axis.toLowerCase());
-    fireEvent.click(button);
-    expect(onAxisLock).toHaveBeenLastCalledWith(axis.toLowerCase());
-  }
 });

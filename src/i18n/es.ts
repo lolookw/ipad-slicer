@@ -72,10 +72,8 @@ export const es = {
   viewer: {
     workspace: 'Espacio de trabajo del modelo', importModel: 'Importar modelo', buildPlate: 'Placa de impresión 3D', plateObjects: 'Objetos de la placa', objectCount: '{count}/{limit} objetos',
     toolbar: 'Herramientas del objeto seleccionado',
-    axisLock: 'Bloqueo de eje', axisFree: 'Libre', axisX: 'X', axisY: 'Y', axisZ: 'Z',
-    interactionMode: 'Modo de transformación táctil',
-    moveMode: 'Mover',
-    rotateMode: 'Girar',
+    snap: 'Ajuste',
+    viewPresets: 'Vista de cámara', viewFit: 'Ajustar', viewTop: 'Superior', viewFront: 'Frontal', viewIso: 'Iso',
     deselect: 'Deseleccionar',
     layFlat: 'Apoyar en una cara',
     layFlatPending: 'Esta función se habilitará después de integrar el motor en la fase 7.',

@@ -6,18 +6,14 @@ import { TransformToolbar, type TransformToolbarLabels } from './TransformToolba
 import { prepareCurrentPlate } from '../gizmo';
 import { EngineClientError } from '../../engine/client';
 import type { CodedError } from '../../i18n/en';
-import type { AxisLock } from '../axis';
-import type { TransformGestureMode } from '../gestures';
 
 export function PlateObjectToolbar(props: {
   labels: TransformToolbarLabels;
   onPrepareError?: (message: string) => void;
   translateError?: (error: string | CodedError) => string;
-  axisLock?: AxisLock;
-  onAxisLock?: (axis: AxisLock) => void;
   readout?: string;
-  transformMode?: TransformGestureMode;
-  onTransformMode?: (mode: TransformGestureMode) => void;
+  snapEnabled?: boolean;
+  onSnapToggle?: () => void;
 }) {
   const [scaleOpen, setScaleOpen] = createSignal(false);
   const object = () => selectedObject();
@@ -27,8 +23,7 @@ export function PlateObjectToolbar(props: {
     return props.translateError ? props.translateError(coded) : typeof coded === 'string' ? coded : coded.code;
   };
   return <TransformToolbar object={object()} scaleOpen={scaleOpen()} labels={props.labels}
-    axisLock={props.axisLock ?? 'free'} onAxisLock={props.onAxisLock ?? (() => undefined)} readout={props.readout}
-    transformMode={props.transformMode ?? 'move'} onTransformMode={props.onTransformMode ?? (() => undefined)}
+    readout={props.readout} snapEnabled={props.snapEnabled ?? true} onSnapToggle={props.onSnapToggle ?? (() => undefined)}
     onScaleOpen={() => setScaleOpen(true)} onScaleClose={() => setScaleOpen(false)}
     onRotate={axis => { const selected = object(); if (selected) plate.rotate90(selected.id, axis); }}
     onDuplicate={() => { const selected = object(); if (selected) plate.duplicateObject(selected.id, globalThis.crypto.randomUUID()); }}
@@ -39,18 +34,17 @@ export function PlateObjectToolbar(props: {
     onLayFlat={() => void prepareCurrentPlate(1).catch(error => props.onPrepareError?.(translate(error)))} />;
 }
 
-export function ViewerToolbarContainer(props: { axisLock: AxisLock; onAxisLock: (axis: AxisLock) => void; readout?: string; transformMode: TransformGestureMode; onTransformMode: (mode: TransformGestureMode) => void }) {
+export function ViewerToolbarContainer(props: { readout?: string; snapEnabled: boolean; onSnapToggle: () => void }) {
   const app = useApp();
   const { t } = app;
   const labels = (): TransformToolbarLabels => ({
-    axisLock: t('viewer.axisLock'), axisFree: t('viewer.axisFree'), axisX: t('viewer.axisX'), axisY: t('viewer.axisY'), axisZ: t('viewer.axisZ'),
-    toolbar: t('viewer.toolbar'), interactionMode: t('viewer.interactionMode'), moveMode: t('viewer.moveMode'), rotateMode: t('viewer.rotateMode'),
+    toolbar: t('viewer.toolbar'), snap: t('viewer.snap'),
     deselect: t('viewer.deselect'), layFlat: t('viewer.layFlat'),
     rotateX: t('viewer.rotateX'), rotateY: t('viewer.rotateY'), scale: t('viewer.scale'), duplicate: t('viewer.duplicate'),
     delete: t('viewer.delete'), reset: t('viewer.reset'), title: t('viewer.scaleTitle'), close: t('viewer.close'), size: t('viewer.size'),
     unit: t('viewer.unit'), suspicious: t('viewer.suspiciousSize'), multiply25_4: t('viewer.multiply25_4'),
     multiply1000: t('viewer.multiply1000'), divide10: t('viewer.divide10'), keep: t('viewer.keepEntered'), resize: t('viewer.resizeSheet'),
   });
-  return <PlateObjectToolbar labels={labels()} axisLock={props.axisLock} onAxisLock={props.onAxisLock} readout={props.readout} transformMode={props.transformMode} onTransformMode={props.onTransformMode}
+  return <PlateObjectToolbar labels={labels()} readout={props.readout} snapEnabled={props.snapEnabled} onSnapToggle={props.onSnapToggle}
     translateError={app.translateError} onPrepareError={message => configuration.notice.set(message)} />;
 }
