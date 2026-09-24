@@ -4,7 +4,7 @@ import { probeThreading, type ProbeResult } from '../engine/probe';
 import { ENGINE_VARIANT_STORAGE_KEY, engineClient, resolveVariantPreference } from '../engine/client';
 import { diagnosticsLog, type LogEntry, type StorageLike } from '../instrumentation/log';
 import type { VariantPreference } from '../slice/crash-marker';
-import { formatBytes, summarizeLog } from './metrics';
+import { describeEntry, formatBytes, summarizeLog } from './metrics';
 
 export interface DiagnosticsLabels {
   heading: string; isolation: string; variant: string; auto: string; st: string; mt: string;
@@ -56,6 +56,6 @@ export function DiagnosticsSheet(props: Props): JSX.Element {
       <div><dt>{props.labels.slice}</dt><dd>{metrics().sliceMs === undefined ? '-' : `${metrics().sliceMs!.toFixed(0)} ms`}</dd></div>
       <div><dt>{props.labels.heap}</dt><dd>{metrics().peakHeapBytes === undefined ? '-' : formatBytes(metrics().peakHeapBytes!)}</dd></div></dl>
     <button class="ui-target" type="button" onClick={() => void exportLog()}>{props.labels.export}</button>
-    <h4>{props.labels.recent}</h4><ul><For each={entries().slice(-15).reverse()}>{entry => <li>{new Date(entry.ts).toLocaleTimeString()} {entry.type}</li>}</For></ul>
+    <h4>{props.labels.recent}</h4><ul><For each={entries().slice(-15).reverse()}>{entry => <li>{new Date(entry.ts).toLocaleTimeString()} {entry.type}{describeEntry(entry)}</li>}</For></ul>
   </section>;
 }

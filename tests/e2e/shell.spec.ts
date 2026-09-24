@@ -533,6 +533,14 @@ test.describe('engine failure simulation (service worker disabled)', () => {
     await page.goto('/'); await configureEngine(page); await importStl(page, 'slice-failure.stl', binaryBoxStl());
     await page.getByRole('button', { name: 'Slice', exact: true }).click();
     await expect(page.locator('.slice-error[role="alert"]')).toContainText(/failed|error|fetch|engine/i, { timeout: 20_000 });
+    // The recorded diagnostics entry must carry enough context to root-cause the crash later
+    // (product-owner ask: which model, which printer/process, which engine variant) without
+    // having to correlate it against a separate entry by timestamp.
+    const entries = await page.evaluate(() => JSON.parse(localStorage.getItem('ipad-slicer:log') ?? '[]') as { type: string; data?: Record<string, unknown> }[]);
+    const engineError = entries.filter(entry => entry.type === 'engine-error').at(-1);
+    expect(engineError?.data?.stage).toBe('slice');
+    expect(engineError?.data?.models).toEqual(['slice-failure.stl']);
+    expect(engineError?.data?.printerId).toBe('creality-ender3-v2-04');
   });
 });
 

@@ -29,6 +29,20 @@ export function summarizeLog(entries: readonly LogEntry[]): DiagnosticMetrics {
   return metrics;
 }
 
+/**
+ * A short, human-facing summary appended after an entry's type in the recent-entries list — only
+ * 'engine-error' carries one today, since that's the entry the product owner needs to eyeball
+ * during a crash review without opening the exported JSON.
+ */
+export function describeEntry(entry: LogEntry): string {
+  if (entry.type !== 'engine-error' || !entry.data || typeof entry.data !== 'object') return '';
+  const value = entry.data as Record<string, unknown>;
+  const parts: string[] = [];
+  if (typeof value.message === 'string' && value.message) parts.push(value.message);
+  if (Array.isArray(value.models) && value.models.length) parts.push(`(${value.models.join(', ')})`);
+  return parts.length ? ` — ${parts.join(' ')}` : '';
+}
+
 export function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 ** 2) return `${(bytes / 1024).toFixed(1)} KB`;

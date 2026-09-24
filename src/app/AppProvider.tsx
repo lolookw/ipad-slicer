@@ -14,12 +14,30 @@ import { engineClient } from '../engine/client';
 import { EngineClientError } from '../engine/client';
 import { summarizeSlice } from '../slice/summary';
 import { diagnosticsLog } from '../instrumentation/log';
+import { sanitizeStack, summarizePlateObjects } from '../diagnostics/context';
 import { gcodeFileName, saveGcode } from '../export/save-gcode';
 import { bindConnectivityEvents, connectivity } from './stores/connectivity';
 import { registerServiceWorker, requestPersistentStorage, type RegistrationHandle } from '../pwa/register';
 
 /** iPad regular width (sidebar + canvas) versus compact width (stacked with sheets). */
 const REGULAR_WIDTH = '(min-width: 700px)';
+
+/**
+ * Extra context attached to every 'engine-error' diagnostics entry, built only from what the
+ * failing call site already has in scope (no new state introduced): which models were on the
+ * plate, the active printer/quality selection, the loaded engine variant, and a short, redacted
+ * slice of the error's own stack. This is what let a crash like yesterday's "Maximum call stack
+ * size exceeded" be root-caused straight from an exported diagnostics JSON.
+ */
+function engineErrorContext(error: unknown) {
+  return {
+    ...summarizePlateObjects(plate.state.objects),
+    printerId: configuration.printerId.get(),
+    processId: configuration.processId.get(),
+    variant: engine.variant.get(),
+    stack: sanitizeStack(error instanceof Error ? error.stack : undefined),
+  };
+}
 
 function createLayoutSignal() {
   const query = globalThis.matchMedia?.(REGULAR_WIDTH);
@@ -136,7 +154,7 @@ function createAppValue() {
         const failure = error instanceof EngineClientError ? { code: error.code, values: error.values }
           : error instanceof Error ? error.message : String(error);
         const message = error instanceof Error ? error.message : String(error);
-        diagnosticsLog.append('engine-error', { stage: 'slice', message, variant: engine.variant.get() });
+        diagnosticsLog.append('engine-error', { stage: 'slice', message, ...engineErrorContext(error) });
         result.fail(attempt, typeof failure === 'string' ? failure : failure.code); setSliceFailure(failure);
         flow.hasResult.set(false); engine.state.set('error'); engine.message.set(message);
       }
@@ -150,7 +168,7 @@ function createAppValue() {
       const gcode = binaries.getResult('current'); if (!gcode) return;
       const fileName = gcodeFileName(plate.state.objects[0]?.name ?? 'model.stl');
       void saveGcode(gcode, fileName).then(saved => { diagnosticsLog.append('gcode-save', saved); void maybePersist(); }, error =>
-        diagnosticsLog.append('engine-error', { stage: 'export', message: error instanceof Error ? error.message : String(error) }));
+        diagnosticsLog.append('engine-error', { stage: 'export', message: error instanceof Error ? error.message : String(error), ...engineErrorContext(error) }));
     },
     connectivity,
     updateToastOpen(): boolean { return connectivity.updateAvailable() && !updateDismissed(); },
