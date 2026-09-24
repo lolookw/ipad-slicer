@@ -65,6 +65,18 @@ it('bounds the fully expanded simple surface at nine entries and preserves advan
   expect(host.textContent).not.toContain('Per-object');
 });
 
+it('collapses every advanced category except the first by default', () => {
+  dispose = render(() => <SettingsPanels mode="advanced" values={{ ...pack.processes[0]!.settings }} overrides={{}} labels={labels}
+    onMode={() => undefined} onChange={() => undefined} onReset={() => undefined} onArrange={() => undefined} />, host);
+  const details = [...host.querySelectorAll<HTMLDetailsElement>('.settings-panels details')];
+  expect(details.length).toBeGreaterThan(1);
+  expect(details[0]!.open).toBe(true);
+  expect(details.slice(1).every(detail => !detail.open)).toBe(true);
+  const firstSummary = details[0]!.querySelector('summary')!;
+  expect(firstSummary.querySelector('svg')).not.toBeNull();
+  expect(firstSummary.textContent).toContain('Quality');
+});
+
 it('blocks Slice for missing or invalid input and enables it for a valid complete configuration', () => {
   dispose = render(() => <App />, host);
   const slice = () => [...host.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent === 'Slice')!;

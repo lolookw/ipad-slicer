@@ -118,10 +118,11 @@ body {
 .preferences-menu > summary:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
 .preferences-menu[open] > summary { border-color: var(--color-primary); }
 .preferences-menu .preferences {
-  position: absolute; right: 0; top: calc(100% + 8px); z-index: 20; width: min(18rem, 86vw);
-  flex-direction: column; align-items: stretch; padding: 12px;
+  position: absolute; right: 0; top: calc(100% + var(--space-1)); z-index: 20;
+  width: min(18rem, 86vw, calc(100vw - 2 * var(--space-2)));
+  flex-direction: column; align-items: stretch; padding: var(--space-2);
   background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md, 12px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-card);
 }
 .preferences-menu .preferences label { text-transform: none; font-size: 0.8125rem; }
 
@@ -130,7 +131,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 8px;
+  gap: var(--space-2);
   margin: 0 0 0 auto;
   padding: 0;
   border: 0;
@@ -140,7 +141,8 @@ body {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
 }
 .preferences label { display: grid; gap: 2px; font-size: 0.6875rem; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--color-muted); }
-.active-tier { align-self: center; font-size: 0.75rem; color: var(--color-muted); }
+.active-tier { align-self: center; margin-top: var(--space-1); padding-top: var(--space-1); border-top: 1px solid var(--color-border); font-size: 0.75rem; color: var(--color-muted); }
+.preferences-menu .preferences .active-tier { align-self: stretch; }
 
 /*
  * Native <select> chrome (background/text color, dropdown arrow) can ignore explicit CSS colors
@@ -268,15 +270,19 @@ fieldset.control-entry button:disabled { opacity: 0.4; }
 .slice-action:active:not(:disabled) { transform: scale(.98); }
 .slice-action:disabled { opacity: .45; box-shadow: none; }
 
-/* Advanced categories: flat sections with a chevron. */
-.settings-panels details { border: 0; border-top: 1px solid var(--color-border); border-radius: 0; padding: 0 0 var(--space-1); }
+/* Advanced categories: flat sections with a chevron, collapsed by default except the first. */
+.settings-panels details { border: 0; border-top: 1px solid var(--color-border); border-radius: 0; padding: var(--space-1) 0; }
+.settings-panels details:first-of-type { padding-top: 0; }
+.settings-panels details[open] { padding-bottom: var(--space-2); }
 .configuration-ui > details { border-top: 1px solid var(--color-border); padding: 0; }
 summary { min-height: var(--touch-target-min); display: flex; align-items: center; justify-content: space-between; font-weight: 600; cursor: pointer; list-style: none; }
 summary::-webkit-details-marker { display: none; }
 summary::after { content: ''; width: 8px; height: 8px; margin-right: 4px; border-right: 2px solid var(--color-muted); border-bottom: 2px solid var(--color-muted); transform: rotate(45deg); transition: transform .15s ease; }
 details[open] > summary::after { transform: rotate(-135deg); }
 summary:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; border-radius: 6px; }
-.advanced-grid { gap: 2px; }
+.category-heading { display: inline-flex; align-items: center; gap: var(--space-1); }
+.category-icon { flex: none; width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; color: var(--color-muted); }
+.advanced-grid { gap: 2px; margin-top: var(--space-1); }
 .setting-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.5rem; align-items: center; padding: 4px 0; }
 .setting-row label { grid-template-columns: minmax(0, 1fr) minmax(0, 9rem) auto; align-items: center; gap: var(--space-1); color: var(--color-muted); font-size: 0.9375rem; }
 .setting-row label input[type='checkbox'] { width: 28px; height: 28px; margin: 8px; accent-color: var(--color-primary); }

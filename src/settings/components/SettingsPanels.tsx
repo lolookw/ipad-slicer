@@ -27,6 +27,18 @@ const CATEGORIES = {
 } as const satisfies Record<string, readonly SettingKey[]>;
 type AdvancedCategory = keyof typeof CATEGORIES;
 
+// Small decorative glyphs, one per advanced category — same inline-svg convention as the viewer's
+// transform toolbar (24x24 viewBox, stroked via CSS `currentColor`, aria-hidden since the heading
+// text already carries the label).
+const CategoryIcon = (props: { d: string }) => <svg viewBox="0 0 24 24" aria-hidden="true" class="category-icon"><path d={props.d} /></svg>;
+const CATEGORY_ICON_PATHS: Record<AdvancedCategory, string> = {
+  quality: 'M4 9l8-4 8 4-8 4-8-4zM4 9v6l8 4 8-4V9',
+  strength: 'M12 3l7 3v5c0 4.8-3 8.5-7 10-4-1.5-7-5.2-7-10V6z',
+  speed: 'M4 16a8 8 0 1 1 16 0M12 16l3.5-4.5',
+  support: 'M7 20V8M17 20V8M4 8h16l-8-5z',
+  others: 'M12 8a4 4 0 1 0 .001 8.001A4 4 0 0 0 12 8zM12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1l2.1-2.1M17 7l2.1-2.1',
+};
+
 function decoded(values: NativeSettings | undefined, key: SettingKey): SettingValue | undefined {
   const value = values?.[key];
   if (value === undefined) return undefined;
@@ -66,8 +78,8 @@ export function SettingsPanels(props: SettingsPanelProps) {
       <output class="estimate-readout">{props.labels.estimates}: {props.labels.unavailable}</output>
       <p class="plate-wide-note">{props.labels.plateWide}</p>
     </Show>
-    <Show when={props.mode === 'advanced'}><For each={Object.entries(CATEGORIES) as [AdvancedCategory, readonly SettingKey[]][]}>{([category, keys]) =>
-      <details open><summary>{props.labels.categories[category]}</summary><div class="advanced-grid"><For each={category === 'others' && selectedBedTemperatureKey(props.values ?? {}) ? [...keys, selectedBedTemperatureKey(props.values ?? {})!, `${selectedBedTemperatureKey(props.values ?? {})!}_initial_layer`] as SettingKey[] : keys}>{key =>
+    <Show when={props.mode === 'advanced'}><For each={Object.entries(CATEGORIES) as [AdvancedCategory, readonly SettingKey[]][]}>{([category, keys], index) =>
+      <details open={index() === 0}><summary><span class="category-heading"><CategoryIcon d={CATEGORY_ICON_PATHS[category]} />{props.labels.categories[category]}</span></summary><div class="advanced-grid"><For each={category === 'others' && selectedBedTemperatureKey(props.values ?? {}) ? [...keys, selectedBedTemperatureKey(props.values ?? {})!, `${selectedBedTemperatureKey(props.values ?? {})!}_initial_layer`] as SettingKey[] : keys}>{key =>
         <Show when={read(key) !== undefined}><SettingField settingKey={key} value={scalar(read(key))} label={props.labels.setting(key)} overridden={props.overrides[key] !== undefined}
           resetLabel={props.labels.reset} optionLabel={props.labels.optionLabel} onChange={target => change(key, target)} onReset={() => props.onReset(key)} /></Show>
       }</For></div></details>}</For><p class="plate-wide-note">{props.labels.plateWide}</p></Show>
