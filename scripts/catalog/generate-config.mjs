@@ -33,8 +33,8 @@ const RUNGS = {
   standard: { want: 0.2, min: 0.2, max: 0.2, name: 'Standard', keyword: /standard/i },
   draft: { want: 0.24, min: 0.24, max: 0.3, name: 'Draft', keyword: /draft|speed/i },
 };
-const TYPES = ['PLA', 'PETG', 'ABS'];
-const GENERIC_FILAMENT = /^(?:.+ )?Generic (PLA|PETG|ABS)(?: @.+)?$/;
+const TYPES = ['PLA', 'PETG', 'ABS', 'ASA', 'TPU', 'PVA'];
+export const GENERIC_FILAMENT = /^(?:.+ )?Generic (PLA|PETG|ABS|ASA|TPU|PVA)(?: @.+)?$/;
 
 export function pickMachine(modelName, machineNames) {
   return [`${modelName} 0.4 nozzle`, `${modelName} (0.4 nozzle)`].find(name => machineNames.includes(name));

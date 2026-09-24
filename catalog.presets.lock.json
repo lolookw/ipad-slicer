@@ -3,8 +3,8 @@
   "repository": "https://github.com/SoftFever/OrcaSlicer",
   "tag": "v2.4.2",
   "commit": "8500fcdccaa10b5099ac20d252af3a7c560046f1",
-  "configSha256": "f9acdbcdea46c5de34f2a0f21c3bb0c1c3fc08b9a8777007b0471b87114cb82c",
-  "generatedConfigSha256": "6b4c4a293c149a7ac0410ebd8094da0f6b07ab709f7a365702d6ba1c9e19d8f7",
+  "configSha256": "a5bca69549b75d9b8a9fb86a05dc19dc833d6f9e933a976c2a8b491e6d12a0ee",
+  "generatedConfigSha256": "b94ffabce9b911c118a13418c8def68f194360d0e0bfe037deba2ed49d419864",
   "files": [
     {
       "path": "Anker.json",
@@ -20,6 +20,16 @@
       "path": "Anker/filament/Anker Generic ABS.json",
       "bytes": 375,
       "sha256": "9a0c14e59f1445dd0b2bedc241743ddfa63dccfa14233ef191c062c8ab4ceb72"
+    },
+    {
+      "path": "Anker/filament/Anker Generic ASA @base.json",
+      "bytes": 164,
+      "sha256": "14c9457a2d9b849df88ee2c227c6b8870e6134e03b799b818ad3200bb6c0aa24"
+    },
+    {
+      "path": "Anker/filament/Anker Generic ASA.json",
+      "bytes": 375,
+      "sha256": "b14406e8df39cbba992826529f776f7fd5422d40464e4c7c74df89bc6ed75eb1"
     },
     {
       "path": "Anker/filament/Anker Generic PETG @base.json",
@@ -42,9 +52,34 @@
       "sha256": "077471e6bfbe317ac39f9592e360f67bf0f36aec8318609831e480d03b4c7f1a"
     },
     {
+      "path": "Anker/filament/Anker Generic PVA @base.json",
+      "bytes": 164,
+      "sha256": "8b28f3444ed2089139cdeb5ab6ea3f4d9b99d0c8c006a2fa134890a7d90c5513"
+    },
+    {
+      "path": "Anker/filament/Anker Generic PVA.json",
+      "bytes": 375,
+      "sha256": "82f807f20257e297056440dcc9c4c6942dea4ebe9b869a473d0b654147d74a07"
+    },
+    {
+      "path": "Anker/filament/Anker Generic TPU @base.json",
+      "bytes": 346,
+      "sha256": "e2097410c8691756e1dc9321ed581323be9cd1104f81174f467a884fc79ca506"
+    },
+    {
+      "path": "Anker/filament/Anker Generic TPU.json",
+      "bytes": 375,
+      "sha256": "e099e40e1efc9f7582fa7a1bf02ea96ee31a0e0404da240d2a4cb7e6476331a9"
+    },
+    {
       "path": "Anker/filament/fdm_filament_abs.json",
       "bytes": 1148,
       "sha256": "0a1e4fca74f1ae2e89f0d324e53d29e6ce55119d2f75b334f913a0d7f2e45940"
+    },
+    {
+      "path": "Anker/filament/fdm_filament_asa.json",
+      "bytes": 1147,
+      "sha256": "9b2199ebacf08b5b613ccaaa2cbbcb80180631833be1fa3e3b33ed8a012e93cd"
     },
     {
       "path": "Anker/filament/fdm_filament_common.json",
@@ -60,6 +95,16 @@
       "path": "Anker/filament/fdm_filament_pla.json",
       "bytes": 1183,
       "sha256": "71d40030be556cf25fab462fe710982560c6fbae9a8801b3be3f61dc7c02c45a"
+    },
+    {
+      "path": "Anker/filament/fdm_filament_pva.json",
+      "bytes": 1214,
+      "sha256": "068dbf3c047778f4472697a332b222c02c6b422ed9d0cc6873890b9e5f43ef55"
+    },
+    {
+      "path": "Anker/filament/fdm_filament_tpu.json",
+      "bytes": 1145,
+      "sha256": "8ebe1d4d2c6ac47ca20eb951362aa6f90df777f3156f00fa0a0090b5cfcb3272"
     },
     {
       "path": "Anker/machine/Anker M5 0.4 nozzle.json",
@@ -117,6 +162,11 @@
       "sha256": "86f15fbf60fefac9a01d1a91dd73354a19f58eb9b5011179b28bb99a72052a8d"
     },
     {
+      "path": "Anycubic/filament/Anycubic Generic ASA.json",
+      "bytes": 683,
+      "sha256": "6d707644c77374d0d7531602fe7f10270cd14643be49284b5fd9ede5193065ad"
+    },
+    {
       "path": "Anycubic/filament/Anycubic Generic PETG.json",
       "bytes": 1084,
       "sha256": "225fb55a590a68bcf48eedcf3f4a1caa1a8b1e665a1dc088d80997befc1c0a7f"
@@ -127,9 +177,24 @@
       "sha256": "c05a418bb2bc880f062e06d6a177a7f56bb4df86bc817eed7e70dd2d0d8a0ae4"
     },
     {
+      "path": "Anycubic/filament/Anycubic Generic PVA.json",
+      "bytes": 687,
+      "sha256": "71fda46a29850185f286f1eb2800e0fc0ef21e83c2d54dc4dc1cd279a2011632"
+    },
+    {
+      "path": "Anycubic/filament/Anycubic Generic TPU.json",
+      "bytes": 645,
+      "sha256": "096c51a0deaf1a8541eb95dbc617f738edd16246c1258f274519337f28f95f31"
+    },
+    {
       "path": "Anycubic/filament/fdm_filament_abs.json",
       "bytes": 1137,
       "sha256": "a017b75d39e592c3f88f7c216c214f5758ca1560a8786d0ab444c326becca860"
+    },
+    {
+      "path": "Anycubic/filament/fdm_filament_asa.json",
+      "bytes": 1137,
+      "sha256": "979f2bf517124c55b5b37ffc328923b1f00a95698b207692bf88182bdc1a1417"
     },
     {
       "path": "Anycubic/filament/fdm_filament_common.json",
@@ -145,6 +210,16 @@
       "path": "Anycubic/filament/fdm_filament_pla.json",
       "bytes": 1236,
       "sha256": "adde78695bfa61d3af4e6d2b01579e7ae968d3788b5e49b50f22a7f2e53f5759"
+    },
+    {
+      "path": "Anycubic/filament/fdm_filament_pva.json",
+      "bytes": 1305,
+      "sha256": "65821db9f3b4fcc9f600fba574a5ae2bad6aec3c0b1927f94854917532d4f205"
+    },
+    {
+      "path": "Anycubic/filament/fdm_filament_tpu.json",
+      "bytes": 1168,
+      "sha256": "8c97eaed1283605db51cafc49b46f23b3422f95ebfb5a73c4cd11800f7e0e024"
     },
     {
       "path": "Anycubic/machine/Anycubic 4Max Pro 0.4 nozzle.json",
@@ -377,6 +452,11 @@
       "sha256": "d5e6e3d0bdad00e9586f7503bd017419aa9f991c8b94b54ed5ea8533abd5b92b"
     },
     {
+      "path": "Artillery/filament/Artillery Generic ASA.json",
+      "bytes": 494,
+      "sha256": "a7aa2ba84792f5cda4127a8bd788c455cc4b0542562511b652650aa333203c0b"
+    },
+    {
       "path": "Artillery/filament/Artillery Generic PETG.json",
       "bytes": 895,
       "sha256": "a160e6052fc781758813d1e4892f1b56a08bfafd683b729673ed287cedcb3050"
@@ -387,9 +467,19 @@
       "sha256": "d45b4b73ab60c39fd767b4eaac00334a2b96a6e891c0efea3be873a289b5b32d"
     },
     {
+      "path": "Artillery/filament/Artillery Generic TPU.json",
+      "bytes": 456,
+      "sha256": "aeee42a0af04cca53bfb6587bf49a95b32b24f7b47b3c22ec62a382f4e869560"
+    },
+    {
       "path": "Artillery/filament/fdm_filament_abs.json",
       "bytes": 1137,
       "sha256": "342ef0783dfaa4d95b95dca3d46ee40482516ae6c28d2004fc7620fd8ed76416"
+    },
+    {
+      "path": "Artillery/filament/fdm_filament_asa.json",
+      "bytes": 1137,
+      "sha256": "9838cdd526b396069e2303cebdcb11e5bb4524efbbc656357d1731be5de29b41"
     },
     {
       "path": "Artillery/filament/fdm_filament_common.json",
@@ -405,6 +495,11 @@
       "path": "Artillery/filament/fdm_filament_pla.json",
       "bytes": 1236,
       "sha256": "c1fd3112353ad3c42dd62f5fe531075b3aa39c364ed984964a2d7fed6b25f5fa"
+    },
+    {
+      "path": "Artillery/filament/fdm_filament_tpu.json",
+      "bytes": 1168,
+      "sha256": "0f0c24092576e8984f659cacf238bd064dd28b977ae15e07c4d4bd7040457d23"
     },
     {
       "path": "Artillery/machine/Artillery Genius 0.4 nozzle.json",
@@ -517,6 +612,11 @@
       "sha256": "d5e0aa1c6ae393838b654e8251d9d7f634903decea70f8ce13019e03b25fd000"
     },
     {
+      "path": "BBL/filament/fdm_filament_asa.json",
+      "bytes": 1356,
+      "sha256": "3b8a716c4fa587a7005e131fd707a572ff62ff3c95505c4b7babfd7d8e7b6548"
+    },
+    {
       "path": "BBL/filament/fdm_filament_common.json",
       "bytes": 4468,
       "sha256": "05725cc129f96ea903dc77c40d248fa1bd0137cfc41216d09d952cfdd37d3683"
@@ -530,6 +630,16 @@
       "path": "BBL/filament/fdm_filament_pla.json",
       "bytes": 1697,
       "sha256": "79f257ca32c8a938f49df82623cc84ca86d1044a818d600714b024e6b6499642"
+    },
+    {
+      "path": "BBL/filament/fdm_filament_pva.json",
+      "bytes": 1770,
+      "sha256": "e71353f951e1f5cf663784fbe2c5ad6f8c840e4dcef6cb7a32aafe29ef7cd1ec"
+    },
+    {
+      "path": "BBL/filament/fdm_filament_tpu.json",
+      "bytes": 1726,
+      "sha256": "c01337285c798a07fdba2a264abbb9807d3c317a8db7b272a8516d15e2965a16"
     },
     {
       "path": "BBL/filament/Generic ABS @base.json",
@@ -575,6 +685,51 @@
       "path": "BBL/filament/Generic ABS.json",
       "bytes": 513,
       "sha256": "8a62703d8fb44d4c84782d828e3888c5d92db35f3081ce05b916e7ca828589c2"
+    },
+    {
+      "path": "BBL/filament/Generic ASA @base.json",
+      "bytes": 704,
+      "sha256": "cc46d346741480e549e877bb9d13b92553b570289f9440df4410d33d3a7ebb6b"
+    },
+    {
+      "path": "BBL/filament/Generic ASA @BBL A1.json",
+      "bytes": 279,
+      "sha256": "6336e13f7f572cf5c61d7e6d9cad63c64aabf701ff0b91ec6e349158a17483e4"
+    },
+    {
+      "path": "BBL/filament/Generic ASA @BBL H2D.json",
+      "bytes": 1947,
+      "sha256": "6b9f562fa46b78ec2a014bf3806e68440cd7ff03ccb21da4861d7816a368fac1"
+    },
+    {
+      "path": "BBL/filament/Generic ASA @BBL H2DP.json",
+      "bytes": 1954,
+      "sha256": "f47d6bbd73b58fd72a72cedade7f7db1d530046cdb242163903df5dfa102c995"
+    },
+    {
+      "path": "BBL/filament/Generic ASA @BBL H2S 0.4 nozzle.json",
+      "bytes": 2189,
+      "sha256": "5f7f03d3ddcfb3f9d64ac29d29d3de51608d934d91c7abb9e8d9794a2f5280ce"
+    },
+    {
+      "path": "BBL/filament/Generic ASA @BBL P2S.json",
+      "bytes": 2684,
+      "sha256": "5d13d4037efcaff2b60591be311568dc7814f0312f3dc841bd2a8991c2e05665"
+    },
+    {
+      "path": "BBL/filament/Generic ASA @BBL X1E.json",
+      "bytes": 1784,
+      "sha256": "55c662430d9a1a0ccced015fb3b0b95e4df546a4e751f3a24ddec3e484b797d5"
+    },
+    {
+      "path": "BBL/filament/Generic ASA @BBL X2D 0.4 nozzle.json",
+      "bytes": 3355,
+      "sha256": "be9d46bc4adf24548e8609ce62611386a37f4bd04d5c16ff8a9ca07cbb7e2022"
+    },
+    {
+      "path": "BBL/filament/Generic ASA.json",
+      "bytes": 466,
+      "sha256": "1521cb629d1044788bce779c7a940e8274daffae717e78dde79562d712a8524d"
     },
     {
       "path": "BBL/filament/Generic PETG @base.json",
@@ -667,9 +822,104 @@
       "sha256": "d8ff56f56066bcbc810411ebc0f6763cc9f12de752d781da9ad7c29534ae2314"
     },
     {
+      "path": "BBL/filament/Generic PVA @base.json",
+      "bytes": 587,
+      "sha256": "2fd7cabb1fd2b005c75b4e04b5f46d0f3240a74d758701fb6bdbc68b6db11957"
+    },
+    {
+      "path": "BBL/filament/Generic PVA @BBL A1.json",
+      "bytes": 584,
+      "sha256": "ba2c741412fe4dc02ddae47e8f341596da4f5aeed89b535ea28744bc87fad4bc"
+    },
+    {
+      "path": "BBL/filament/Generic PVA @BBL A1M.json",
+      "bytes": 600,
+      "sha256": "72e4b192d2b6ad344375b90e0eefd6487ad34c59556c3121394a4ababb816cda"
+    },
+    {
+      "path": "BBL/filament/Generic PVA @BBL H2D.json",
+      "bytes": 1985,
+      "sha256": "1db163be71d3204f8bd4c12fbdb8cc3736a5f083c28d265034377e914182c684"
+    },
+    {
+      "path": "BBL/filament/Generic PVA @BBL H2DP.json",
+      "bytes": 1998,
+      "sha256": "15e5a3dd7b842310deabac7e00f1b6e8fcf10011c2f9cf820374319b40c85829"
+    },
+    {
+      "path": "BBL/filament/Generic PVA @BBL H2S 0.4 nozzle.json",
+      "bytes": 1980,
+      "sha256": "5655a8f50bb64a58328db9ae79663323790e980ae872e198c88045f3a9af055a"
+    },
+    {
+      "path": "BBL/filament/Generic PVA @BBL P2S.json",
+      "bytes": 2521,
+      "sha256": "6fd0f5c8b66f127b13292fc307c2e91f309a9a73a2b2e8f55c94be2213f34e30"
+    },
+    {
+      "path": "BBL/filament/Generic PVA @BBL X2D 0.4 nozzle.json",
+      "bytes": 3436,
+      "sha256": "15c793f9b8e05315190a306cbbbcb84e469a6f1512a74b903e78f023694d1ce9"
+    },
+    {
+      "path": "BBL/filament/Generic PVA.json",
+      "bytes": 556,
+      "sha256": "c803badda355ffd4625605aa3045b5308421fc6994c0f2affee8fed273581d58"
+    },
+    {
+      "path": "BBL/filament/Generic TPU @base.json",
+      "bytes": 852,
+      "sha256": "4edc327fc602f6a30f408838b2ec7275cee5abeb4052bb96d8658db07c3c24a8"
+    },
+    {
+      "path": "BBL/filament/Generic TPU @BBL A1.json",
+      "bytes": 885,
+      "sha256": "6b662064c1c75f586305c4f867f1924888e7dcf1e73672312599ce93a3582843"
+    },
+    {
+      "path": "BBL/filament/Generic TPU @BBL A1M.json",
+      "bytes": 901,
+      "sha256": "5aa25298ddef824ac68f9794b1b1e1272d42cfca06f84d113f3b5bb68d808950"
+    },
+    {
+      "path": "BBL/filament/Generic TPU @BBL H2D.json",
+      "bytes": 2071,
+      "sha256": "2ae4ff614f60c7e78cd6ef5f32e86097a4c55d5c3b430fd973d861c989625913"
+    },
+    {
+      "path": "BBL/filament/Generic TPU @BBL H2DP.json",
+      "bytes": 2084,
+      "sha256": "62dea7189e3772b3776cc7989ad2c11ba4d7a417e82023e87ddb2f9db4eebe77"
+    },
+    {
+      "path": "BBL/filament/Generic TPU @BBL H2S.json",
+      "bytes": 2059,
+      "sha256": "e377ebc71aafe32a1e5d1af1791def95113432396e9f29e5242625129848e67d"
+    },
+    {
+      "path": "BBL/filament/Generic TPU @BBL P2S.json",
+      "bytes": 2517,
+      "sha256": "c7c9cbb20cb73d79805c55b98236d51eaa606359c58043ac2416417476e39baf"
+    },
+    {
+      "path": "BBL/filament/Generic TPU @BBL X2D 0.4 nozzle.json",
+      "bytes": 3463,
+      "sha256": "5947c3c5feacbf20168f349121da16a73fa45fcde112104d4ba6b9c45ddf2303"
+    },
+    {
+      "path": "BBL/filament/Generic TPU.json",
+      "bytes": 556,
+      "sha256": "77aec1a9af95aa519f413ece3f2402463dab1b6bf0086d0ef4e299e8f42d81a6"
+    },
+    {
       "path": "BBL/filament/P1P/Generic ABS @BBL P1P.json",
       "bytes": 2034,
       "sha256": "ef796f592b9c2a842fe02744f5232333e4a9ff7339610dab8a75192594191f7f"
+    },
+    {
+      "path": "BBL/filament/P1P/Generic ASA @BBL P1P.json",
+      "bytes": 1790,
+      "sha256": "f5385e2de060a46f9d57a83662ad917077f5f5fe4bd1fb2789712e808ba0446d"
     },
     {
       "path": "BBL/filament/P1P/Generic PETG @BBL P1P.json",
@@ -680,6 +930,16 @@
       "path": "BBL/filament/P1P/Generic PLA @BBL P1P.json",
       "bytes": 2027,
       "sha256": "63d5f934d8ff193ee44ede76bb7343245f9fded2c329e874f619ba2c70a6c3d7"
+    },
+    {
+      "path": "BBL/filament/P1P/Generic PVA @BBL P1P.json",
+      "bytes": 2027,
+      "sha256": "df3fdb3add6a9953b1ce33235730b0de2044eb5c1d80f87fb438fb0ef74781ee"
+    },
+    {
+      "path": "BBL/filament/P1P/Generic TPU @BBL P1P.json",
+      "bytes": 2398,
+      "sha256": "37f4c7a036c583ed96c3675be296d8656d5ebe9f9dfe1003de97ab1a6f4c36bf"
     },
     {
       "path": "BBL/machine/Bambu Lab A1 0.4 nozzle.json",
@@ -947,6 +1207,11 @@
       "sha256": "ac94d7c9b7589d8b89b5250203110a222f8e05983a0a23aca52fcf1c44015478"
     },
     {
+      "path": "Blocks/filament/Blocks Generic ASA.json",
+      "bytes": 1437,
+      "sha256": "8c141e32524b7bb3b135dd976371dabc8b505949d3da368196199a5b6adc8d91"
+    },
+    {
       "path": "Blocks/filament/Blocks Generic PETG.json",
       "bytes": 1597,
       "sha256": "340841c23cff872856b6d81905ae32da5813b1c52cf63d453468184a4cb07ce6"
@@ -957,9 +1222,24 @@
       "sha256": "b30889acf794be1c6c2cf491cbccdc58f1f28c4adf1ce0a134a769d0705548d4"
     },
     {
+      "path": "Blocks/filament/Blocks Generic PVA.json",
+      "bytes": 487,
+      "sha256": "44dbb19b65f74842be8c59679e2fd3eac7673e3b9993cfafc6e06dbe4baed019"
+    },
+    {
+      "path": "Blocks/filament/Blocks Generic TPU.json",
+      "bytes": 1227,
+      "sha256": "b6b14b33816be9576daa01b3bbb9b43156105bd1809793078a5f0e04793ab733"
+    },
+    {
       "path": "Blocks/filament/fdm_filament_abs.json",
       "bytes": 1329,
       "sha256": "56194cabaad5b96621414acd378c1f679b25d207c4f639c31b3004c1cfddace9"
+    },
+    {
+      "path": "Blocks/filament/fdm_filament_asa.json",
+      "bytes": 1330,
+      "sha256": "91b6382c297134857e73eac7f64d1f795e7100494a8e99e94098282bfcad3485"
     },
     {
       "path": "Blocks/filament/fdm_filament_common.json",
@@ -975,6 +1255,16 @@
       "path": "Blocks/filament/fdm_filament_pla.json",
       "bytes": 1324,
       "sha256": "8af642564ed4a6fe0c29d240efc7192bf612fe400feb7cf188d6696f99c3aa45"
+    },
+    {
+      "path": "Blocks/filament/fdm_filament_pva.json",
+      "bytes": 1393,
+      "sha256": "b64e8cd9535acba67a9b190ce66bc1b1d4b949f53095797a64fc1ddf97e21c8d"
+    },
+    {
+      "path": "Blocks/filament/fdm_filament_tpu.json",
+      "bytes": 1324,
+      "sha256": "56c256a5a43e6e7c4cfef0e7bf096760d2bcd2cbeaea0df19eee493b8cfd2143"
     },
     {
       "path": "Blocks/machine/BLOCKS Pro S100 0.4 nozzle.json",
@@ -1087,6 +1377,16 @@
       "sha256": "044f35107b0502fd9448a57753f3a064b5c5f016fddcdc76ce2c616d7a0ca0dc"
     },
     {
+      "path": "CoLiDo/filament/CoLiDo Generic TPU @CoLiDo DIY 4.0.json",
+      "bytes": 704,
+      "sha256": "c5035083170362f88b7092dd8daeeb7610f8cc198e0f31d4ab201b6010a0e883"
+    },
+    {
+      "path": "CoLiDo/filament/CoLiDo Generic TPU @CoLiDo X16.json",
+      "bytes": 726,
+      "sha256": "4516d6445444859256c31796af64f2f41b95e7d047605c6883bec84d349cb3df"
+    },
+    {
       "path": "CoLiDo/filament/fdm_filament_abs.json",
       "bytes": 1124,
       "sha256": "673ffe81b936ceabebc3c12f091c137ad5515acbd414f2698fa37bc87bc46401"
@@ -1105,6 +1405,11 @@
       "path": "CoLiDo/filament/fdm_filament_pla.json",
       "bytes": 3651,
       "sha256": "83471d3c6cb2a922d3322d0decaf0c647b9a6b405a2b2b77afec85a7fc66aeb3"
+    },
+    {
+      "path": "CoLiDo/filament/fdm_filament_tpu.json",
+      "bytes": 1530,
+      "sha256": "064f39096a6c785187aa1444111a81ac80053c31ce3ef48da0c5a39465bf9ec2"
     },
     {
       "path": "CoLiDo/machine/CoLiDo 160 V2 0.4 nozzle.json",
@@ -1292,6 +1597,26 @@
       "sha256": "fa97c6addfd38ba115f4e86b2a0b610698d6b6263f98a93ad302ed51c34727ef"
     },
     {
+      "path": "Creality/filament/Creality Generic ASA @Ender-3V3-all.json",
+      "bytes": 650,
+      "sha256": "58aa6ee0f2f1a2e59ea7ef0e975e6882522b2ebf9023a15bd813e60241903546"
+    },
+    {
+      "path": "Creality/filament/Creality Generic ASA @Ender-5Max-all.json",
+      "bytes": 3279,
+      "sha256": "e469c707334adcd19ae8a2af9430fdfeacb31dcfd7b4c40be11365fffa214b1a"
+    },
+    {
+      "path": "Creality/filament/Creality Generic ASA @Hi-all.json",
+      "bytes": 530,
+      "sha256": "482c7ecd5a09298006a3bc95bee659388605e416e60c9d2b8aea6bd468b69a9b"
+    },
+    {
+      "path": "Creality/filament/Creality Generic ASA.json",
+      "bytes": 1867,
+      "sha256": "09f2b36f7633325c3dc54b08e45ba5697631ac54e100f8a41e5a6c41181839bc"
+    },
+    {
       "path": "Creality/filament/Creality Generic PETG @Ender-3V3-all.json",
       "bytes": 1064,
       "sha256": "d40f1bcc70751fa3aee363ac23918592c049b1d504c369a5e203b6f8ec88db25"
@@ -1322,9 +1647,34 @@
       "sha256": "074cd303b4e3f575cb248c40165842382d2308f23552f7fb42e824990e307c89"
     },
     {
+      "path": "Creality/filament/Creality Generic TPU @Ender-3V3-all.json",
+      "bytes": 906,
+      "sha256": "3a608a10a46a8bedee714eca18b1b29a0da2a0c43ab62ead62e278bc35f0df4f"
+    },
+    {
+      "path": "Creality/filament/Creality Generic TPU @Ender-5Max-all.json",
+      "bytes": 3272,
+      "sha256": "3a0655f2d266bc6410eec943544231c3bd5e52b11ecbda758e3e7750e6e73557"
+    },
+    {
+      "path": "Creality/filament/Creality Generic TPU @Hi-all.json",
+      "bytes": 786,
+      "sha256": "3178c752add5467fa57546205233f874102be4049c03e960ef8c2a1ff835a206"
+    },
+    {
+      "path": "Creality/filament/Creality Generic TPU.json",
+      "bytes": 780,
+      "sha256": "d74673c287e2e3300c6bf0913d0e244a61ef50fe2e206668ab6164b8ac35e88e"
+    },
+    {
       "path": "Creality/filament/fdm_filament_abs.json",
       "bytes": 1227,
       "sha256": "a14590be42ced5dd408a1c2f6f3a2a542cb68c0d4a5c06cd739d6dc75fd83622"
+    },
+    {
+      "path": "Creality/filament/fdm_filament_asa.json",
+      "bytes": 1227,
+      "sha256": "230a55d42d623a881f76159c339e294b100fa8a367b27ec5bda6e6dccf957b80"
     },
     {
       "path": "Creality/filament/fdm_filament_common.json",
@@ -1345,6 +1695,11 @@
       "path": "Creality/filament/fdm_filament_pla.json",
       "bytes": 1326,
       "sha256": "e757e61291913e32ff2fa6f666353ec80291c4b6ae9eb2866e2802fba226e255"
+    },
+    {
+      "path": "Creality/filament/fdm_filament_tpu.json",
+      "bytes": 1168,
+      "sha256": "13d4d74898cfa3fd50115c643c90ea3d1fdddd513fd925b5d8005f5658142e2c"
     },
     {
       "path": "Creality/filament/Generic ABS @Ender-3 V4-all.json",
@@ -1405,6 +1760,56 @@
       "path": "Creality/filament/Generic ABS @K2-all.json",
       "bytes": 4050,
       "sha256": "4757c600b2b35a5c1ca45f0b267b406279beb77cb1c1f5d44cec0f091d0166ee"
+    },
+    {
+      "path": "Creality/filament/Generic ASA @K1 Max_CFS-C-all.json",
+      "bytes": 3898,
+      "sha256": "d0958c150ff280671b4ab73866b5687b0e5c929f8c7fee257b40b8d126f2a397"
+    },
+    {
+      "path": "Creality/filament/Generic ASA @K1 SE_CFS-C-all.json",
+      "bytes": 4178,
+      "sha256": "37ca168530b1ff07b9cb5d372cac37dfcd24c6d8d844ff6a022567e9814f29b2"
+    },
+    {
+      "path": "Creality/filament/Generic ASA @K1 SE-all.json",
+      "bytes": 4166,
+      "sha256": "58021062258e3ae41b878779e9365c6df231b088704644fd4b92296c86a3a730"
+    },
+    {
+      "path": "Creality/filament/Generic ASA @K1_CFS-C-all.json",
+      "bytes": 3890,
+      "sha256": "fa8dd1609100234666ce236439dbc80ed3a71bc24f8c4319284aa26daa5ef72c"
+    },
+    {
+      "path": "Creality/filament/Generic ASA @K1C_CFS-C-all.json",
+      "bytes": 3892,
+      "sha256": "5a03c62b8e77b7b75e584624e5419825c622bf26895e1f43b5d711efd624f638"
+    },
+    {
+      "path": "Creality/filament/Generic ASA @K1C-all.json",
+      "bytes": 3880,
+      "sha256": "8f2b85b6704a35001ca53bb8d24af780fe0b5852412e7a67d10fb650a66829ae"
+    },
+    {
+      "path": "Creality/filament/Generic ASA @K2 Plus-all.json",
+      "bytes": 3948,
+      "sha256": "bb0f2c914cd99eaa7775077340daf59180d580d66465f5199a343583c1f0a8f3"
+    },
+    {
+      "path": "Creality/filament/Generic ASA @K2 Pro-all.json",
+      "bytes": 3980,
+      "sha256": "347192ceb347ee3d9aea04c7d4ee0afcfb21f05e006d14e472939d2e25d724c5"
+    },
+    {
+      "path": "Creality/filament/Generic ASA @K2 SE-all.json",
+      "bytes": 4299,
+      "sha256": "a41a9a8256ba5380c9cdce26e36aba928e1e317758c7ba7db124dac1e2967bd3"
+    },
+    {
+      "path": "Creality/filament/Generic ASA @K2-all.json",
+      "bytes": 4133,
+      "sha256": "328d34d608ea002660aec942fb32d399efd93d5ed68733f8ff79ce6617f50b4a"
     },
     {
       "path": "Creality/filament/Generic PETG @Ender-3 V4-all.json",
@@ -1535,6 +1940,106 @@
       "path": "Creality/filament/Generic PLA @SPARKX i7-all.json",
       "bytes": 4058,
       "sha256": "be8f193d7ebeba3bfe48d69a037886441dd80d9ae36c112d7271dd7dd4208e21"
+    },
+    {
+      "path": "Creality/filament/Generic PVA @Hi-all.json",
+      "bytes": 3835,
+      "sha256": "45e46bf47cd050215dc1edcaaa17749761293081426e221fb92eebbfc87860e3"
+    },
+    {
+      "path": "Creality/filament/Generic PVA @K1 Max_CFS-C-all.json",
+      "bytes": 3317,
+      "sha256": "9a37d0e44c3f9782a68a547f507638cfa1d842588a6407f7302cfc510d93a367"
+    },
+    {
+      "path": "Creality/filament/Generic PVA @K1_CFS-C-all.json",
+      "bytes": 3347,
+      "sha256": "d3ca9365267c02e592b4f1fd1d8392522957f36a068cf58021d6ef762b990ece"
+    },
+    {
+      "path": "Creality/filament/Generic PVA @K1C_CFS-C-all.json",
+      "bytes": 3351,
+      "sha256": "6e3be8e78b48fe8b5e006b1f3bbb0f3dabc1b6a29fac159c75a77815264c228d"
+    },
+    {
+      "path": "Creality/filament/Generic PVA @K1C-all.json",
+      "bytes": 3343,
+      "sha256": "484b096422ff29b730d78a93c567b2d576075509a1f02c9a49fd9ce2922f40aa"
+    },
+    {
+      "path": "Creality/filament/Generic PVA @K2 Plus-all.json",
+      "bytes": 3687,
+      "sha256": "327a861606e2401d3b8ef1746018b64de5beed7c50f9f13f42702f2dd9bf0c4b"
+    },
+    {
+      "path": "Creality/filament/Generic PVA @K2 Pro-all.json",
+      "bytes": 3690,
+      "sha256": "442c5ad3f4165b2d94e3fb49ed1c8c701513f6a7f3c6654199c3fa93496db525"
+    },
+    {
+      "path": "Creality/filament/Generic PVA @K2-all.json",
+      "bytes": 3681,
+      "sha256": "2d95708af9650045b942289944eb3c1ec8dc685498422663ffdffdf70945bb3d"
+    },
+    {
+      "path": "Creality/filament/Generic TPU @Ender-3 V4-all.json",
+      "bytes": 4175,
+      "sha256": "966f906b52103b54ba0cd4dced7fd1753bfac3906f0aa8c537b3e62d5a3ab180"
+    },
+    {
+      "path": "Creality/filament/Generic TPU @K1 Max_CFS-C-all.json",
+      "bytes": 3752,
+      "sha256": "312d15edd614f38f422feb54b66067176ff5315cbfa5e02aa2c05d33a759ed65"
+    },
+    {
+      "path": "Creality/filament/Generic TPU @K1 SE_CFS-C-all.json",
+      "bytes": 3995,
+      "sha256": "c6b5289217f75ae690f77da33763da2bafe9b4e55740563e98422a049d1fcd7e"
+    },
+    {
+      "path": "Creality/filament/Generic TPU @K1 SE-all.json",
+      "bytes": 3983,
+      "sha256": "de86153b6f0fba2bd5c3b2a6bfd72dd3e2b2eaa27e6fbde5fe19954fb40e2144"
+    },
+    {
+      "path": "Creality/filament/Generic TPU @K1_CFS-C-all.json",
+      "bytes": 3782,
+      "sha256": "aac764cd060e220add5fd2d95fc5c586ebef4fd0f280c4cd5f24e3b020697e92"
+    },
+    {
+      "path": "Creality/filament/Generic TPU @K1C_CFS-C-all.json",
+      "bytes": 3786,
+      "sha256": "13c060ee189c9fce8600afee8a018e7833a7b7d69cc888322345b687c8025777"
+    },
+    {
+      "path": "Creality/filament/Generic TPU @K1C-all.json",
+      "bytes": 3778,
+      "sha256": "c8ef30177531210825b32f158b9618c0fdefd6e3e8a9b704871c359d2e870b47"
+    },
+    {
+      "path": "Creality/filament/Generic TPU @K2 Plus-all.json",
+      "bytes": 3961,
+      "sha256": "0095946361c2d0b8729cbfd3d80eed26fc6d3b2ebadc9efb0e93f713944acb97"
+    },
+    {
+      "path": "Creality/filament/Generic TPU @K2 Pro-all.json",
+      "bytes": 4100,
+      "sha256": "5a70bbf53fb01f5743488df8e843590c1fc129e85eaf56e63999d591e68c1901"
+    },
+    {
+      "path": "Creality/filament/Generic TPU @K2 SE-all.json",
+      "bytes": 4008,
+      "sha256": "4b5ecd79517f7fd3d1945f055293be29697b2f9f268ab489e4dcafd8daa9e13e"
+    },
+    {
+      "path": "Creality/filament/Generic TPU @K2-all.json",
+      "bytes": 4094,
+      "sha256": "67c84525e514f22b333b0e479e99852759be366118207cd18613e7a16720d96d"
+    },
+    {
+      "path": "Creality/filament/Generic TPU @SPARKX i7-all.json",
+      "bytes": 4074,
+      "sha256": "057440d60acb68acba543b5f07ccf20b66c46cc6b8b4576ec51d4480052ddbc6"
     },
     {
       "path": "Creality/machine/Creality CR-10 Max 0.4 nozzle.json",
@@ -2322,6 +2827,11 @@
       "sha256": "4e23cb8a34251d465fbd186a5aba2f7cd24dd95c8347a15e78d8671db87222e6"
     },
     {
+      "path": "Elegoo/filament/BASE/Generic ASA @base.json",
+      "bytes": 277,
+      "sha256": "ec413f9e08e708a0cdcdd0a3ccc4df4041f416e8de3141eb038ce966f0da8623"
+    },
+    {
       "path": "Elegoo/filament/BASE/Generic PETG @base.json",
       "bytes": 1021,
       "sha256": "13bd0af89669729ec6d561587e96ea99014b63747ab193a9e99cccb7e508b4ef"
@@ -2335,6 +2845,11 @@
       "path": "Elegoo/filament/fdm_filament_abs.json",
       "bytes": 1160,
       "sha256": "76d1417fa6c1ecc5f14fdbd575b2c8c73fb704fcb6dbb07a1f23b2de50958529"
+    },
+    {
+      "path": "Elegoo/filament/fdm_filament_asa.json",
+      "bytes": 1160,
+      "sha256": "19831a4f6167184b1dc38de04acd22e62208b659559b913555b28b3e7fcd26c2"
     },
     {
       "path": "Elegoo/filament/fdm_filament_common.json",
@@ -2360,6 +2875,11 @@
       "path": "Elegoo/filament/Generic/Generic ABS @Elegoo.json",
       "bytes": 3958,
       "sha256": "f71499ad61f6b5c89af7366c1d014231cedb55120858d4108099b95a2cbe7ce4"
+    },
+    {
+      "path": "Elegoo/filament/Generic/Generic ASA @Elegoo.json",
+      "bytes": 3916,
+      "sha256": "d17dd89f583ab24f6f7c6697615e5071b80eca1fc8deb8fa1389b96de17d2fb5"
     },
     {
       "path": "Elegoo/filament/Generic/Generic PETG @Elegoo.json",
@@ -2662,6 +3182,11 @@
       "sha256": "392f48e32178fe25ea08b8cad6f402fbe7ce2c92c94d79de5156b61e8db2a74d"
     },
     {
+      "path": "Flashforge/filament/fdm_filament_asa.json",
+      "bytes": 1137,
+      "sha256": "f4797e568f7eeac388c6a3b50040149872351c5ccf79dec93279511c5eaa8cd5"
+    },
+    {
       "path": "Flashforge/filament/fdm_filament_common.json",
       "bytes": 1995,
       "sha256": "f3e9217dbc09b202b2261e4a49eb9d6a5d4db68e3fe8b4ffeabd958e34066ff2"
@@ -2687,6 +3212,16 @@
       "sha256": "2038f8c41a97f4cc58938d58b09941380994de80889ea2e9abea75713f47ed3d"
     },
     {
+      "path": "Flashforge/filament/Flashforge Generic ASA @G3U.json",
+      "bytes": 3997,
+      "sha256": "33568cac78610750e9ee56ad16b6a8e9054e119df541aecd08d65e943bec2d92"
+    },
+    {
+      "path": "Flashforge/filament/Flashforge Generic ASA.json",
+      "bytes": 3119,
+      "sha256": "29a1222d23a3aef40e8b11f1f758b69392165e3ee8e8bf3a087ec4cd084a01c7"
+    },
+    {
       "path": "Flashforge/filament/Flashforge Generic PETG @G3U.json",
       "bytes": 3997,
       "sha256": "d7ef7181359b8b4a8388fcbaa142e86e6fc43ff3c9ab9bda59536f6dbd7af7fe"
@@ -2705,6 +3240,11 @@
       "path": "Flashforge/filament/Flashforge Generic PLA.json",
       "bytes": 1364,
       "sha256": "9f4122920ebcef1506166c64a0bfe62e9bc0b0703d54e8f0f6a908a04853107b"
+    },
+    {
+      "path": "Flashforge/filament/Flashforge Generic PVA.json",
+      "bytes": 4011,
+      "sha256": "2fbe19a36954fe14a8247b6f3fc0e7749c352af8f8736021985c11ae19e3f1ed"
     },
     {
       "path": "Flashforge/machine/fdm_adventurer5m_common.json",
@@ -2797,6 +3337,11 @@
       "sha256": "e628e1d120dda5c7fe0cd936ed2fb1101b84685fdaa066d78ffcc127ffe9aa51"
     },
     {
+      "path": "FLSun/filament/fdm_filament_asa.json",
+      "bytes": 1137,
+      "sha256": "f4797e568f7eeac388c6a3b50040149872351c5ccf79dec93279511c5eaa8cd5"
+    },
+    {
       "path": "FLSun/filament/fdm_filament_common.json",
       "bytes": 1899,
       "sha256": "3340d58325edd81893ad8a37868405c1a85c595972709d1f9c50698c6cdf67a3"
@@ -2812,9 +3357,24 @@
       "sha256": "035fc18dffb16a80e829ae670fb6d6dcf9cc29b9fc02fe911811bb919188b08f"
     },
     {
+      "path": "FLSun/filament/fdm_filament_pva.json",
+      "bytes": 1305,
+      "sha256": "0f7cdd15a1b884c6294dc1b65c403612965d96f45693e35872bc4226d7f26986"
+    },
+    {
+      "path": "FLSun/filament/fdm_filament_tpu.json",
+      "bytes": 1168,
+      "sha256": "13d4d74898cfa3fd50115c643c90ea3d1fdddd513fd925b5d8005f5658142e2c"
+    },
+    {
       "path": "FLSun/filament/FLSun Generic ABS.json",
       "bytes": 425,
       "sha256": "9f841d29259e4c5e661a05241b81926c8f24a0ff62134499fb345ece761b4717"
+    },
+    {
+      "path": "FLSun/filament/FLSun Generic ASA.json",
+      "bytes": 424,
+      "sha256": "85877b87cf0f25a8f92019608dec6aa24b93507f974b7eb18dc04b908c1029b7"
     },
     {
       "path": "FLSun/filament/FLSun Generic PETG.json",
@@ -2825,6 +3385,16 @@
       "path": "FLSun/filament/FLSun Generic PLA.json",
       "bytes": 461,
       "sha256": "bad988fc583a50c7f196a8c9bebaced923d397e246eb2c81e41973a90a558ae3"
+    },
+    {
+      "path": "FLSun/filament/FLSun Generic PVA.json",
+      "bytes": 498,
+      "sha256": "6b90c41b6f83809507ecd831ca81a070540b0f7dfa34a1678c5740831b2dd072"
+    },
+    {
+      "path": "FLSun/filament/FLSun Generic TPU.json",
+      "bytes": 386,
+      "sha256": "5b1ba313d10bc1fea28e9cb23482182d4795633d25caefb13ab3abe00b47223c"
     },
     {
       "path": "FLSun/machine/fdm_machine_common.json",
@@ -2917,6 +3487,11 @@
       "sha256": "17f99badbf6051983cd177ab3a29db785c266ffa0ca74faa7e7a17748f3ac8b9"
     },
     {
+      "path": "InfiMech/filament/fdm_filament_tpu.json",
+      "bytes": 1362,
+      "sha256": "eb795cf58e3ca1e8cf021123489854c7f67ebb6f190a78fc3802aabaeeed496c"
+    },
+    {
       "path": "InfiMech/filament/InfiMech Generic ABS.json",
       "bytes": 460,
       "sha256": "73692dba0fa7dfb248a803689417ff4e1d7ecfe34b99f80baf85396b36c003c1"
@@ -2930,6 +3505,11 @@
       "path": "InfiMech/filament/InfiMech Generic PLA.json",
       "bytes": 452,
       "sha256": "10122ee6920e5c7bf5277a2485e361b9405e0c3b8523e8b82c5fd6ab29440e6a"
+    },
+    {
+      "path": "InfiMech/filament/InfiMech Generic TPU.json",
+      "bytes": 413,
+      "sha256": "fca9a8e1c6024b5b46f5cb180a009fdae8d245b7e8eb96cd07314d7383942675"
     },
     {
       "path": "InfiMech/machine/HSN/fdm_klipper_common.json",
@@ -2977,6 +3557,11 @@
       "sha256": "4fb5029ea689a63d66e6f083530904e539387b387c19e64fbcc2bfd3bf7b7d47"
     },
     {
+      "path": "OrcaArena/filament/fdm_filament_asa.json",
+      "bytes": 1217,
+      "sha256": "61e8ab3f0d3a5096a060dcb2a54939223f4c35098a229a156a2c78dd215b25b9"
+    },
+    {
       "path": "OrcaArena/filament/fdm_filament_common.json",
       "bytes": 2037,
       "sha256": "5891fea86111c289760df5f87b1b582467a5b6ebf3bd08428cc1cd95acc34c69"
@@ -2992,6 +3577,16 @@
       "sha256": "0ddbc587fa1dc802735847f54043ccb060b2f5dad7ae6b7b1e34c08324ef3ef7"
     },
     {
+      "path": "OrcaArena/filament/fdm_filament_pva.json",
+      "bytes": 1629,
+      "sha256": "84756e8feb5befbb8c1f2dfc5044a7f73a1fd95ce59db7574a525a5c5b6614fb"
+    },
+    {
+      "path": "OrcaArena/filament/fdm_filament_tpu.json",
+      "bytes": 1492,
+      "sha256": "889a1304c1084b5237a61d1074e45b8a5fed6b7e89a463f71de26eac3b687982"
+    },
+    {
       "path": "OrcaArena/filament/OrcaArena Generic ABS @base.json",
       "bytes": 254,
       "sha256": "442c40fa977416d29019cb3d518ba41ad20d24ea8c6ef78ce283b77ec31e9536"
@@ -3000,6 +3595,16 @@
       "path": "OrcaArena/filament/OrcaArena Generic ABS.json",
       "bytes": 322,
       "sha256": "ae7c829cb1ae0243e94765b417a4bffbd741717e9f021ad0e093f2f056a591a9"
+    },
+    {
+      "path": "OrcaArena/filament/OrcaArena Generic ASA @base.json",
+      "bytes": 254,
+      "sha256": "21e4ac47c78cd613d0b3bb0ffdc19f2f7a3a4c534dede396512ea80144fa07fb"
+    },
+    {
+      "path": "OrcaArena/filament/OrcaArena Generic ASA.json",
+      "bytes": 322,
+      "sha256": "a8ce439ef4b10f49b7c8b82ee43547f2926c6cd071a5a03b0358ddb94837c6e1"
     },
     {
       "path": "OrcaArena/filament/OrcaArena Generic PETG @base.json",
@@ -3020,6 +3625,21 @@
       "path": "OrcaArena/filament/OrcaArena Generic PLA.json",
       "bytes": 322,
       "sha256": "643afd3c9532ffe17496486ad4a8d3a71f5b960dbe774894d01536c21bd7fa66"
+    },
+    {
+      "path": "OrcaArena/filament/OrcaArena Generic PVA @base.json",
+      "bytes": 328,
+      "sha256": "76c429755bcc87e93a6ce5b9f48a2bb2d21505e2a0420cf4085fe3b82afb88a7"
+    },
+    {
+      "path": "OrcaArena/filament/OrcaArena Generic PVA.json",
+      "bytes": 322,
+      "sha256": "5e708371fc445b684a217069fecb3e4d215c460c7c329fd449bb6fcaa119fe32"
+    },
+    {
+      "path": "OrcaArena/filament/OrcaArena Generic TPU.json",
+      "bytes": 680,
+      "sha256": "ba264781f1c39b0fc0b75b83f4b3f33302fa75a40b3d98f1079fda25c98e7f67"
     },
     {
       "path": "OrcaArena/machine/fdm_bbl_3dp_001_common.json",
@@ -3182,6 +3802,11 @@
       "sha256": "20fd9ba6eea1e4eecf357c2899bfb833f1c73b2cfe7743f70f2e31683489e260"
     },
     {
+      "path": "Prusa/filament/fdm_filament_asa.json",
+      "bytes": 1188,
+      "sha256": "d8d03621328d819b90ff57972b2074ed2a2542ded24d67b93b6dd7a76882e2cd"
+    },
+    {
       "path": "Prusa/filament/fdm_filament_common.json",
       "bytes": 1860,
       "sha256": "2a0f65f43fd868552ece3c2b94978175265fadc81464faf61301b528a82191ab"
@@ -3195,6 +3820,16 @@
       "path": "Prusa/filament/fdm_filament_pla.json",
       "bytes": 1287,
       "sha256": "4874a8ef80673066489fcbcd02479a7f92a5ec91b2af543fc4203e15c9661170"
+    },
+    {
+      "path": "Prusa/filament/fdm_filament_pva.json",
+      "bytes": 1356,
+      "sha256": "b926eea8ce90623ba49434affb442f83d7b35c1b9c2cc623a06883df5e597a45"
+    },
+    {
+      "path": "Prusa/filament/fdm_filament_tpu.json",
+      "bytes": 1219,
+      "sha256": "2cbb610cf28d81bc20a4b0c749ac6965eef9a73262ee101aa3a8e93990c2bd52"
     },
     {
       "path": "Prusa/filament/Prusa Generic ABS @MK3.5.json",
@@ -3220,6 +3855,21 @@
       "path": "Prusa/filament/Prusa Generic ABS.json",
       "bytes": 1096,
       "sha256": "79768423c92dfe6a1921316b50590c30c92c90b1f8e31b9c7a7e46937e812006"
+    },
+    {
+      "path": "Prusa/filament/Prusa Generic ASA @MK3.5.json",
+      "bytes": 759,
+      "sha256": "8532c2d4b7af1752ad0e2c0dcede9ffbfbd162f9a30babfd8094653abd9d4c03"
+    },
+    {
+      "path": "Prusa/filament/Prusa Generic ASA @MK4.json",
+      "bytes": 1074,
+      "sha256": "546ddc61c77468d34c8929004959a8dfe4640793e2d082ad4b8e759adb6fcd5b"
+    },
+    {
+      "path": "Prusa/filament/Prusa Generic ASA.json",
+      "bytes": 1095,
+      "sha256": "e61c86f881b93748b0db8ac344a13f932508eeb8289be91a63de7f4b8b1234f5"
     },
     {
       "path": "Prusa/filament/Prusa Generic PETG @MK3.5.json",
@@ -3270,6 +3920,26 @@
       "path": "Prusa/filament/Prusa Generic PLA.json",
       "bytes": 1138,
       "sha256": "56c9c3eea993da107a79c269a90e143e400060c2af09d0307b05b4847b9db145"
+    },
+    {
+      "path": "Prusa/filament/Prusa Generic PVA @MK3.5.json",
+      "bytes": 490,
+      "sha256": "bfb66aaa122e6b7e2c9d056af6400a9d9f1ea37467270d3b8149c59b50e29833"
+    },
+    {
+      "path": "Prusa/filament/Prusa Generic PVA.json",
+      "bytes": 679,
+      "sha256": "1bcccdb3a9f12ee4e8f6994e99d5083da76c0075a5dec35aec6947dc81a709a6"
+    },
+    {
+      "path": "Prusa/filament/Prusa Generic TPU @MK4.json",
+      "bytes": 393,
+      "sha256": "062b0479dd74265db89b2fc1bd0f1d326ac629a74eedae200b3399750277702d"
+    },
+    {
+      "path": "Prusa/filament/Prusa Generic TPU.json",
+      "bytes": 462,
+      "sha256": "c5804026b475d6dc930430bac4a762d1688cbe7f47ea4b4dd588ba47bc8158bd"
     },
     {
       "path": "Prusa/machine/fdm_machine_common_xl_5t.json",
@@ -3422,6 +4092,11 @@
       "sha256": "020580654c8c2bfc3818f912369d2fd6dd35e5e1bea198f1cf4cf99186157da2"
     },
     {
+      "path": "Qidi/filament/fdm_filament_asa.json",
+      "bytes": 1539,
+      "sha256": "e7e26cdae06c443818b7d3264c19b204efa6d324f00f06b7b916a70f764f47d3"
+    },
+    {
       "path": "Qidi/filament/fdm_filament_common.json",
       "bytes": 2355,
       "sha256": "3182d31eb618a071db0df489e4f47f1e3021ca1d1830ac050c9024549709e6c2"
@@ -3435,6 +4110,16 @@
       "path": "Qidi/filament/fdm_filament_pla.json",
       "bytes": 1574,
       "sha256": "6a76c1cad7a1d52d2b99d0517c6361b4080e0fc33fa9c34c60b120464d9e585b"
+    },
+    {
+      "path": "Qidi/filament/fdm_filament_pva.json",
+      "bytes": 1333,
+      "sha256": "2e82523d8a4f4399222a902a7d56b583e2ebc569ea46f9502f9d46a50581b9ae"
+    },
+    {
+      "path": "Qidi/filament/fdm_filament_tpu.json",
+      "bytes": 1417,
+      "sha256": "4ed0591e84d6e9895dfd32b76d0c4e1086ff2e4683256053564e502a5a759d81"
     },
     {
       "path": "Qidi/filament/Q2/fdm_filament_q_common.json",
@@ -3517,6 +4202,21 @@
       "sha256": "f0aedcf066b1669a99a82902dc25f204a2d14c0f9ec4e53d148fc1319b55d47e"
     },
     {
+      "path": "Qidi/filament/Qidi Generic ASA @Qidi Q1 Pro 0.4 nozzle.json",
+      "bytes": 804,
+      "sha256": "b91a3630d19e71a9455f4780363a2690350ed2d9c7d1111a782f7590ccf1bd74"
+    },
+    {
+      "path": "Qidi/filament/Qidi Generic ASA @Qidi X-Plus 4 0.4 nozzle.json",
+      "bytes": 810,
+      "sha256": "20471a030e22757889f5d861c62b1bcdf68bbed5b4456c6ffb3ffb943726b3e5"
+    },
+    {
+      "path": "Qidi/filament/Qidi Generic ASA.json",
+      "bytes": 1004,
+      "sha256": "dd1874c2c836f065492931726a2c0193f3e8f552b642d1991eb25ca84bc0f24c"
+    },
+    {
       "path": "Qidi/filament/Qidi Generic PETG @Qidi Q1 Pro 0.4 nozzle.json",
       "bytes": 814,
       "sha256": "db1eeb5a5b8ca3b425204330bf5b77624491c2319e4ed18b3ae0af8318ffffeb"
@@ -3545,6 +4245,26 @@
       "path": "Qidi/filament/Qidi Generic PLA.json",
       "bytes": 665,
       "sha256": "1e4e52891f3e52af046e355f5ef60582d70c24183722674e2cabbfa608c6934f"
+    },
+    {
+      "path": "Qidi/filament/Qidi Generic PVA.json",
+      "bytes": 1223,
+      "sha256": "0798da07290d6c4d1d3ff78091dae5debc98451830fefc2a4762d20fbf634194"
+    },
+    {
+      "path": "Qidi/filament/Qidi Generic TPU @Qidi Q1 Pro 0.4 nozzle.json",
+      "bytes": 522,
+      "sha256": "963554782cad7d5c4926c30bd542c87a4e3f3c5c705d049cc7a2969f4408f988"
+    },
+    {
+      "path": "Qidi/filament/Qidi Generic TPU @Qidi X-Plus 4 0.4 nozzle.json",
+      "bytes": 528,
+      "sha256": "14b2767d8b071816af6447b3fa362bb9dfc73d29ba0f070cec735337087369a5"
+    },
+    {
+      "path": "Qidi/filament/Qidi Generic TPU.json",
+      "bytes": 970,
+      "sha256": "dfac35dfb7670632c8710c63fd657a5dbcd20f62739119682e83254049cd8f37"
     },
     {
       "path": "Qidi/filament/X4/fdm_filament_x4_common.json",
@@ -3872,6 +4592,11 @@
       "sha256": "a14590be42ced5dd408a1c2f6f3a2a542cb68c0d4a5c06cd739d6dc75fd83622"
     },
     {
+      "path": "Ratrig/filament/fdm_filament_asa.json",
+      "bytes": 1227,
+      "sha256": "79c2e1e66825c1d40e8305906505e7049481fb13e171a3a2cab214b3ae66a39a"
+    },
+    {
       "path": "Ratrig/filament/fdm_filament_common.json",
       "bytes": 1948,
       "sha256": "65c3724987e134dd8f11289a68007fa1fe30716e11bfc9ebe7314b4ec6fb1db7"
@@ -3887,9 +4612,24 @@
       "sha256": "e757e61291913e32ff2fa6f666353ec80291c4b6ae9eb2866e2802fba226e255"
     },
     {
+      "path": "Ratrig/filament/fdm_filament_pva.json",
+      "bytes": 1393,
+      "sha256": "b64e8cd9535acba67a9b190ce66bc1b1d4b949f53095797a64fc1ddf97e21c8d"
+    },
+    {
+      "path": "Ratrig/filament/fdm_filament_tpu.json",
+      "bytes": 1256,
+      "sha256": "b3d7d457bc488d4be9c56599fa2e2cb9c8b1995b3c7c7e36e559edebeb086419"
+    },
+    {
       "path": "Ratrig/filament/RatRig Generic ABS.json",
       "bytes": 2050,
       "sha256": "1f63a1f8af3f69b851906fd5d834f244b0e3b3db2b45fadab0452362c0c6ce23"
+    },
+    {
+      "path": "Ratrig/filament/RatRig Generic ASA.json",
+      "bytes": 1950,
+      "sha256": "45497320b47015f7f141334c113e68af47939f92a3d618baa8158fdc878017c0"
     },
     {
       "path": "Ratrig/filament/RatRig Generic PETG.json",
@@ -3900,6 +4640,16 @@
       "path": "Ratrig/filament/RatRig Generic PLA.json",
       "bytes": 1856,
       "sha256": "0962f182942408c56e71f17d1a466de266300b1dcb0bca14d860e5b9eccf8865"
+    },
+    {
+      "path": "Ratrig/filament/RatRig Generic PVA.json",
+      "bytes": 1805,
+      "sha256": "83df5a4807e602ff44f6f62f5b527b292c1205350286327906c4c19ecd7ed51b"
+    },
+    {
+      "path": "Ratrig/filament/RatRig Generic TPU.json",
+      "bytes": 1778,
+      "sha256": "1ae72c6f33d44569e9f99472f18438dba74480c721a2aa11e167ef4ee240507a"
     },
     {
       "path": "Ratrig/machine/fdm_klipper_common.json",

@@ -56,6 +56,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -106,6 +112,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Creality Generic TPU"
       }
      ],
      "fixups": {
@@ -150,6 +162,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -188,6 +206,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Creality Generic TPU"
       }
      ],
      "fixups": {
@@ -238,6 +268,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -288,6 +324,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -382,6 +424,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -432,6 +480,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -476,6 +530,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Creality Generic TPU"
       }
      ],
      "fixups": {
@@ -570,6 +636,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Creality Generic TPU"
       }
      ],
      "fixups": {
@@ -620,6 +698,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -670,6 +754,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS @Ender-3V3-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA @Ender-3V3-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Creality Generic TPU @Ender-3V3-all"
       }
      ],
      "fixups": {
@@ -720,6 +816,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS @Ender-3V3-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA @Ender-3V3-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Creality Generic TPU @Ender-3V3-all"
       }
      ],
      "fixups": {
@@ -770,6 +878,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS @Ender-3V3-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA @Ender-3V3-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Creality Generic TPU @Ender-3V3-all"
       }
      ],
      "fixups": {
@@ -820,6 +940,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Ender-3 V4-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @Ender-3 V4-all"
       }
      ],
      "fixups": {
@@ -864,6 +990,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -902,6 +1034,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS @Ender-5Max-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA @Ender-5Max-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Creality Generic TPU @Ender-5Max-all"
       }
      ],
      "fixups": {
@@ -946,6 +1090,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -996,6 +1146,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -1040,6 +1196,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -1084,6 +1246,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -1128,6 +1296,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
       }
      ],
      "fixups": {
@@ -1178,6 +1352,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Hi-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA @Hi-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Creality Generic TPU @Hi-all"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @Hi-all"
       }
      ],
      "fixups": {
@@ -1228,6 +1420,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @K1_CFS-C-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @K1_CFS-C-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @K1_CFS-C-all"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @K1_CFS-C-all"
       }
      ],
      "fixups": {
@@ -1278,6 +1488,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Creality Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Creality Generic TPU"
       }
      ],
      "fixups": {
@@ -1328,6 +1550,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @K1 Max_CFS-C-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @K1 Max_CFS-C-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @K1 Max_CFS-C-all"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @K1 Max_CFS-C-all"
       }
      ],
      "fixups": {
@@ -1378,6 +1618,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @K1 SE-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @K1 SE-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @K1 SE-all"
       }
      ],
      "fixups": {
@@ -1428,6 +1680,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @K1 SE_CFS-C-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @K1 SE_CFS-C-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @K1 SE_CFS-C-all"
       }
      ],
      "fixups": {
@@ -1478,6 +1742,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @K1C-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @K1C-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @K1C-all"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @K1C-all"
       }
      ],
      "fixups": {
@@ -1528,6 +1810,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @K1C_CFS-C-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @K1C_CFS-C-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @K1C_CFS-C-all"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @K1C_CFS-C-all"
       }
      ],
      "fixups": {
@@ -1578,6 +1878,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @K2-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @K2-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @K2-all"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @K2-all"
       }
      ],
      "fixups": {
@@ -1628,6 +1946,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @K2 SE-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @K2 SE-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @K2 SE-all"
       }
      ],
      "fixups": {
@@ -1678,6 +2008,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @K2 Plus-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @K2 Plus-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @K2 Plus-all"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @K2 Plus-all"
       }
      ],
      "fixups": {
@@ -1728,6 +2076,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @K2 Pro-all"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @K2 Pro-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @K2 Pro-all"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @K2 Pro-all"
       }
      ],
      "fixups": {
@@ -1772,6 +2138,12 @@
        "name": "Generic PETG",
        "type": "PETG",
        "preset": "Generic PETG @SPARKX i7-all"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @SPARKX i7-all"
       }
      ],
      "fixups": {
@@ -1822,6 +2194,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Creality Generic ABS"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Creality Generic TPU"
       }
      ],
      "fixups": {
@@ -2011,6 +2389,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Elegoo"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @Elegoo"
       }
      ],
      "fixups": {
@@ -2061,6 +2445,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Elegoo"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @Elegoo"
       }
      ],
      "fixups": {
@@ -2111,6 +2501,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Elegoo"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @Elegoo"
       }
      ],
      "fixups": {
@@ -2161,6 +2557,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Elegoo"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @Elegoo"
       }
      ],
      "fixups": {
@@ -2211,6 +2613,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Elegoo"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @Elegoo"
       }
      ],
      "fixups": {
@@ -2261,6 +2669,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Elegoo"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @Elegoo"
       }
      ],
      "fixups": {
@@ -2311,6 +2725,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Elegoo"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @Elegoo"
       }
      ],
      "fixups": {
@@ -2361,6 +2781,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Elegoo"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @Elegoo"
       }
      ],
      "fixups": {
@@ -2411,6 +2837,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Elegoo"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @Elegoo"
       }
      ],
      "fixups": {
@@ -2461,6 +2893,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Elegoo"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @Elegoo"
       }
      ],
      "fixups": {
@@ -2506,6 +2944,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Anycubic Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Anycubic Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Anycubic Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Anycubic Generic PVA"
       }
      ],
      "fixups": {
@@ -2556,6 +3012,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Anycubic Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Anycubic Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Anycubic Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Anycubic Generic PVA"
       }
      ],
      "fixups": {
@@ -2606,6 +3080,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Anycubic Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Anycubic Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Anycubic Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Anycubic Generic PVA"
       }
      ],
      "fixups": {
@@ -2656,6 +3148,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Anycubic Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Anycubic Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Anycubic Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Anycubic Generic PVA"
       }
      ],
      "fixups": {
@@ -2706,6 +3216,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Anycubic Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Anycubic Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Anycubic Generic TPU"
       }
      ],
      "fixups": {
@@ -2756,6 +3278,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Anycubic Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Anycubic Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Anycubic Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Anycubic Generic PVA"
       }
      ],
      "fixups": {
@@ -2806,6 +3346,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Anycubic Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Anycubic Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Anycubic Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Anycubic Generic PVA"
       }
      ],
      "fixups": {
@@ -2856,6 +3414,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Anycubic Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Anycubic Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Anycubic Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Anycubic Generic PVA"
       }
      ],
      "fixups": {
@@ -2907,6 +3483,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Prusa Generic ABS @MK3.5"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Prusa Generic ASA @MK3.5"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Prusa Generic PVA @MK3.5"
       }
      ],
      "fixups": {
@@ -3058,6 +3646,18 @@
        "name": "Generic PETG",
        "type": "PETG",
        "preset": "Generic PETG @BBL A1M"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @BBL A1M"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @BBL A1M"
       }
      ],
      "fixups": {
@@ -3109,6 +3709,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @BBL H2D"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @BBL H2D"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @BBL H2D"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @BBL H2D"
       }
      ],
      "fixups": {
@@ -3160,6 +3778,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @BBL H2DP"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @BBL H2DP"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @BBL H2DP"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @BBL H2DP"
       }
      ],
      "fixups": {
@@ -3211,6 +3847,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @BBL H2S 0.4 nozzle"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @BBL H2S 0.4 nozzle"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @BBL H2S"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @BBL H2S 0.4 nozzle"
       }
      ],
      "fixups": {
@@ -3262,6 +3916,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @BBL P2S"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @BBL P2S"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @BBL P2S"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @BBL P2S"
       }
      ],
      "fixups": {
@@ -3313,6 +3985,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA"
       }
      ],
      "fixups": {
@@ -3364,6 +4054,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @BBL X1E"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @BBL X1E"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA"
       }
      ],
      "fixups": {
@@ -3415,6 +4123,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @BBL X2D 0.4 nozzle"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Generic ASA @BBL X2D 0.4 nozzle"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Generic TPU @BBL X2D 0.4 nozzle"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Generic PVA @BBL X2D 0.4 nozzle"
       }
      ],
      "fixups": {
@@ -3473,6 +4199,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Qidi Generic ABS @Qidi Q1 Pro 0.4 nozzle"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Qidi Generic ASA @Qidi Q1 Pro 0.4 nozzle"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Qidi Generic TPU @Qidi Q1 Pro 0.4 nozzle"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Qidi Generic PVA"
       }
      ],
      "fixups": {
@@ -3523,6 +4267,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Generic ABS @Qidi Q2 0.4 nozzle"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Qidi Generic PVA"
       }
      ],
      "fixups": {
@@ -3623,6 +4373,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Qidi Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Qidi Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Qidi Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Qidi Generic PVA"
       }
      ],
      "fixups": {
@@ -3673,6 +4441,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Qidi Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Qidi Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Qidi Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Qidi Generic PVA"
       }
      ],
      "fixups": {
@@ -3723,6 +4509,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Qidi Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Qidi Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Qidi Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Qidi Generic PVA"
       }
      ],
      "fixups": {
@@ -3823,6 +4627,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Qidi Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Qidi Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Qidi Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Qidi Generic PVA"
       }
      ],
      "fixups": {
@@ -3873,6 +4695,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Qidi Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Qidi Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Qidi Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Qidi Generic PVA"
       }
      ],
      "fixups": {
@@ -3923,6 +4763,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Qidi Generic ABS @Qidi X-Plus 4 0.4 nozzle"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Qidi Generic ASA @Qidi X-Plus 4 0.4 nozzle"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Qidi Generic TPU @Qidi X-Plus 4 0.4 nozzle"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Qidi Generic PVA"
       }
      ],
      "fixups": {
@@ -3973,6 +4831,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Qidi Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Qidi Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Qidi Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Qidi Generic PVA"
       }
      ],
      "fixups": {
@@ -4030,6 +4906,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Flashforge Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Flashforge Generic ASA"
       }
      ],
      "fixups": {
@@ -4080,6 +4962,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Flashforge Generic ABS @G3U"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Flashforge Generic ASA @G3U"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Flashforge Generic PVA"
       }
      ],
      "fixups": {
@@ -4137,6 +5031,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Artillery Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Artillery Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Artillery Generic TPU"
       }
      ],
      "fixups": {
@@ -4187,6 +5093,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Artillery Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Artillery Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Artillery Generic TPU"
       }
      ],
      "fixups": {
@@ -4237,6 +5155,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Artillery Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Artillery Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Artillery Generic TPU"
       }
      ],
      "fixups": {
@@ -4287,6 +5217,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Artillery Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Artillery Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Artillery Generic TPU"
       }
      ],
      "fixups": {
@@ -4325,6 +5267,18 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Artillery Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Artillery Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Artillery Generic TPU"
       }
      ],
      "fixups": {
@@ -4382,6 +5336,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "FLSun Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "FLSun Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "FLSun Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "FLSun Generic PVA"
       }
      ],
      "fixups": {
@@ -4432,6 +5404,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "FLSun Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "FLSun Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "FLSun Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "FLSun Generic PVA"
       }
      ],
      "fixups": {
@@ -4470,6 +5460,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "FLSun Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "FLSun Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "FLSun Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "FLSun Generic PVA"
       }
      ],
      "fixups": {
@@ -4527,6 +5535,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -4577,6 +5603,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -4627,6 +5671,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -4677,6 +5739,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -4727,6 +5807,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -4771,6 +5869,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -4815,6 +5931,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -4859,6 +5993,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -4903,6 +6055,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -4947,6 +6117,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -4991,6 +6179,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -5035,6 +6241,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -5079,6 +6303,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -5123,6 +6365,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -5173,6 +6433,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "RatRig Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "RatRig Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "RatRig Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "RatRig Generic PVA"
       }
      ],
      "fixups": {
@@ -5230,6 +6508,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Anker Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Anker Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Anker Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Anker Generic PVA"
       }
      ],
      "fixups": {
@@ -5280,6 +6576,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Anker Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Anker Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Anker Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Anker Generic PVA"
       }
      ],
      "fixups": {
@@ -5325,6 +6639,12 @@
        "name": "Generic PETG",
        "type": "PETG",
        "preset": "Blocks Generic PETG"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Blocks Generic TPU"
       }
      ],
      "fixups": {
@@ -5375,6 +6695,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Blocks Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Blocks Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Blocks Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Blocks Generic PVA"
       }
      ],
      "fixups": {
@@ -5425,6 +6763,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "Blocks Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "Blocks Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "Blocks Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "Blocks Generic PVA"
       }
      ],
      "fixups": {
@@ -5482,6 +6838,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "CoLiDo Generic ABS @CoLiDo X16"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "CoLiDo Generic TPU @CoLiDo X16"
       }
      ],
      "fixups": {
@@ -5532,6 +6894,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "CoLiDo Generic ABS @CoLiDo DIY 4.0"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "CoLiDo Generic TPU @CoLiDo DIY 4.0"
       }
      ],
      "fixups": {
@@ -5582,6 +6950,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "CoLiDo Generic ABS @CoLiDo X16"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "CoLiDo Generic TPU @CoLiDo X16"
       }
      ],
      "fixups": {
@@ -5696,6 +7070,12 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "InfiMech Generic ABS"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "InfiMech Generic TPU"
       }
      ],
      "fixups": {
@@ -5810,6 +7190,24 @@
        "name": "Generic ABS",
        "type": "ABS",
        "preset": "OrcaArena Generic ABS"
+      },
+      {
+       "id": "asa",
+       "name": "Generic ASA",
+       "type": "ASA",
+       "preset": "OrcaArena Generic ASA"
+      },
+      {
+       "id": "tpu",
+       "name": "Generic TPU",
+       "type": "TPU",
+       "preset": "OrcaArena Generic TPU"
+      },
+      {
+       "id": "pva",
+       "name": "Generic PVA",
+       "type": "PVA",
+       "preset": "OrcaArena Generic PVA"
       }
      ],
      "fixups": {

@@ -21,7 +21,10 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Generic PLA" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Generic PETG" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Generic ASA" },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "preset": "Generic TPU" },
+          { "id": "pva", "name": "Generic PVA", "type": "PVA", "preset": "Generic PVA" }
         ],
         "fixups": { "curr_bed_type": "Textured PEI Plate", "use_relative_e_distances": "1" }
       }, {
@@ -35,7 +38,10 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Generic PLA" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Generic PETG" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Generic ASA" },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "preset": "Generic TPU" },
+          { "id": "pva", "name": "Generic PVA", "type": "PVA", "preset": "Generic PVA" }
         ],
         "fixups": { "curr_bed_type": "Textured PEI Plate", "use_relative_e_distances": "1" }
       }, {
@@ -49,7 +55,10 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Generic PLA @BBL P1P" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Generic PETG @BBL P1P" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS @BBL P1P" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS @BBL P1P" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Generic ASA @BBL P1P" },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "preset": "Generic TPU @BBL P1P" },
+          { "id": "pva", "name": "Generic PVA", "type": "PVA", "preset": "Generic PVA @BBL P1P" }
         ],
         "fixups": { "curr_bed_type": "Textured PEI Plate", "use_relative_e_distances": "1" }
       }, {
@@ -63,7 +72,10 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Generic PLA @BBL A1" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Generic PETG @BBL A1" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS @BBL A1" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS @BBL A1" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Generic ASA @BBL A1" },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "preset": "Generic TPU @BBL A1" },
+          { "id": "pva", "name": "Generic PVA", "type": "PVA", "preset": "Generic PVA @BBL A1" }
         ],
         "fixups": { "curr_bed_type": "Textured PEI Plate", "use_relative_e_distances": "1" }
       }]
@@ -81,7 +93,10 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Prusa Generic PLA @MK4" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Prusa Generic PETG @MK4" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Prusa Generic ABS @MK4" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Prusa Generic ABS @MK4" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Prusa Generic ASA @MK4" },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "preset": "Prusa Generic TPU @MK4" },
+          { "id": "pva", "name": "Generic PVA", "type": "PVA", "preset": "Prusa Generic PVA" }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }, {
@@ -95,7 +110,10 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Prusa Generic PLA" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Prusa Generic PETG" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Prusa Generic ABS" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Prusa Generic ABS" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Prusa Generic ASA" },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "preset": "Prusa Generic TPU" },
+          { "id": "pva", "name": "Generic PVA", "type": "PVA", "preset": "Prusa Generic PVA" }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }, {
@@ -109,7 +127,10 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Prusa Generic PLA" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Prusa Generic PETG" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Prusa Generic ABS" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Prusa Generic ABS" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Prusa Generic ASA" },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "preset": "Prusa Generic TPU" },
+          { "id": "pva", "name": "Generic PVA", "type": "PVA", "preset": "Prusa Generic PVA" }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }]
@@ -127,7 +148,8 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Creality Generic PLA" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Creality Generic PETG" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Creality Generic ABS" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Creality Generic ABS" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Creality Generic ASA" }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }, {
@@ -141,7 +163,9 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Creality Generic PLA" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Creality Generic PETG" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Creality Generic ABS" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Creality Generic ABS" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Creality Generic ASA" },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "preset": "Creality Generic TPU" }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }, {
@@ -155,7 +179,9 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Creality Generic PLA @Ender-3V3-all" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Creality Generic PETG @Ender-3V3-all" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Creality Generic ABS @Ender-3V3-all" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Creality Generic ABS @Ender-3V3-all" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Creality Generic ASA @Ender-3V3-all" },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "preset": "Creality Generic TPU @Ender-3V3-all" }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }]
@@ -173,7 +199,8 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Generic PLA @Elegoo" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Generic PETG @Elegoo" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS @Elegoo" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS @Elegoo" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Generic ASA @Elegoo" }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }, {
@@ -187,7 +214,8 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Generic PLA @Elegoo" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Generic PETG @Elegoo" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS @Elegoo" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS @Elegoo" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Generic ASA @Elegoo" }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }, {
@@ -201,7 +229,8 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Generic PLA @Elegoo" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Generic PETG @Elegoo" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS @Elegoo" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Generic ABS @Elegoo" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Generic ASA @Elegoo" }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }]
@@ -219,7 +248,10 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Anycubic Generic PLA" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Anycubic Generic PETG" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Anycubic Generic ABS" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Anycubic Generic ABS" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Anycubic Generic ASA" },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "preset": "Anycubic Generic TPU" },
+          { "id": "pva", "name": "Generic PVA", "type": "PVA", "preset": "Anycubic Generic PVA" }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }, {
@@ -233,7 +265,10 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Anycubic Generic PLA" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Anycubic Generic PETG" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Anycubic Generic ABS" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Anycubic Generic ABS" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Anycubic Generic ASA" },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "preset": "Anycubic Generic TPU" },
+          { "id": "pva", "name": "Generic PVA", "type": "PVA", "preset": "Anycubic Generic PVA" }
         ],
         "fixups": { "use_relative_e_distances": "1", "before_layer_change_gcode": "G92 E0" }
       }, {
@@ -247,7 +282,9 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "preset": "Anycubic Generic PLA" },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "preset": "Anycubic Generic PETG" },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Anycubic Generic ABS" }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "preset": "Anycubic Generic ABS" },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "preset": "Anycubic Generic ASA" },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "preset": "Anycubic Generic TPU" }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }]
@@ -265,7 +302,10 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "source": "BBL", "preset": "Generic PLA @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "source": "BBL", "preset": "Generic PETG @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "source": "BBL", "preset": "Generic ABS @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "source": "BBL", "preset": "Generic ABS @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "source": "BBL", "preset": "Generic ASA @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "source": "BBL", "preset": "Generic TPU @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
+          { "id": "pva", "name": "Generic PVA", "type": "PVA", "source": "BBL", "preset": "Generic PVA @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }, {
@@ -279,7 +319,10 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "source": "BBL", "preset": "Generic PLA @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "source": "BBL", "preset": "Generic PETG @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "source": "BBL", "preset": "Generic ABS @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "source": "BBL", "preset": "Generic ABS @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "source": "BBL", "preset": "Generic ASA @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "source": "BBL", "preset": "Generic TPU @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
+          { "id": "pva", "name": "Generic PVA", "type": "PVA", "source": "BBL", "preset": "Generic PVA @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }, {
@@ -293,7 +336,10 @@
         "filaments": [
           { "id": "pla", "name": "Generic PLA", "type": "PLA", "source": "BBL", "preset": "Generic PLA @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
           { "id": "petg", "name": "Generic PETG", "type": "PETG", "source": "BBL", "preset": "Generic PETG @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
-          { "id": "abs", "name": "Generic ABS", "type": "ABS", "source": "BBL", "preset": "Generic ABS @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." }
+          { "id": "abs", "name": "Generic ABS", "type": "ABS", "source": "BBL", "preset": "Generic ABS @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
+          { "id": "asa", "name": "Generic ASA", "type": "ASA", "source": "BBL", "preset": "Generic ASA @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
+          { "id": "tpu", "name": "Generic TPU", "type": "TPU", "source": "BBL", "preset": "Generic TPU @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." },
+          { "id": "pva", "name": "Generic PVA", "type": "PVA", "source": "BBL", "preset": "Generic PVA @base", "conditionOnly": "Voron has no upstream filament list; generic base manually curated and smoke-gated." }
         ],
         "fixups": { "use_relative_e_distances": "1" }
       }]
@@ -309,7 +355,9 @@
     "filaments": [
       { "id": "pla", "name": "Generic PLA", "type": "PLA", "source": "BBL", "preset": "Generic PLA @base", "conditionOnly": "Generic base for user-defined printers; custom instances are not catalog-certified." },
       { "id": "petg", "name": "Generic PETG", "type": "PETG", "source": "BBL", "preset": "Generic PETG @base", "conditionOnly": "Generic base for user-defined printers; custom instances are not catalog-certified." },
-      { "id": "abs", "name": "Generic ABS", "type": "ABS", "source": "BBL", "preset": "Generic ABS @base", "conditionOnly": "Generic base for user-defined printers; custom instances are not catalog-certified." }
+      { "id": "abs", "name": "Generic ABS", "type": "ABS", "source": "BBL", "preset": "Generic ABS @base", "conditionOnly": "Generic base for user-defined printers; custom instances are not catalog-certified." },
+      { "id": "asa", "name": "Generic ASA", "type": "ASA", "source": "BBL", "preset": "Generic ASA @base", "conditionOnly": "Generic base for user-defined printers; custom instances are not catalog-certified." },
+      { "id": "tpu", "name": "Generic TPU", "type": "TPU", "source": "BBL", "preset": "Generic TPU @base", "conditionOnly": "Generic base for user-defined printers; custom instances are not catalog-certified." }
     ],
     "fixups": {
       "printable_area": ["0x0", "220x0", "220x220", "0x220"], "printable_height": "250",

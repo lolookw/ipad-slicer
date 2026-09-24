@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { mergeConfigs } from './config.mjs';
-import { displayName, modelId, pickFilaments, pickMachine, pickProcesses } from './generate-config.mjs';
+import { GENERIC_FILAMENT, displayName, modelId, pickFilaments, pickMachine, pickProcesses } from './generate-config.mjs';
+
+const GENERIC_FILAMENT_TEST_CASES = [
+  ['Generic ASA', true], ['Generic TPU', true], ['Generic PVA', true],
+  ['Anker Generic ASA', true], ['Creality Generic TPU', true],
+  ['Generic ASA @base', true], ['Generic TPU @BBL A1', true], ['Generic PVA @Elegoo', true],
+  ['Generic TPU for AMS', false], ['Generic TPU for AMS @base', false],
+  ['Generic PLA Silk', false], ['Generic ASA-CF', false], ['Generic PA-CF', false],
+];
 
 describe('generated catalog selection', () => {
   it('picks the 0.4 nozzle machine for a model and skips models without one', () => {
@@ -29,9 +37,17 @@ describe('generated catalog selection', () => {
     const picked = pickFilaments([
       { name: 'Generic PLA Silk', type: 'PLA' }, { name: 'Generic PLA', type: 'PLA' },
       { name: 'Generic PETG', type: 'PETG' }, { name: 'Generic ABS', type: 'ABS' }, { name: 'Generic PA', type: 'PA' },
+      { name: 'Generic ASA', type: 'ASA' }, { name: 'Generic TPU', type: 'TPU' }, { name: 'Generic TPU for AMS', type: 'TPU' },
+      { name: 'Generic PVA', type: 'PVA' },
     ]);
-    expect(picked).toEqual({ PLA: 'Generic PLA', PETG: 'Generic PETG', ABS: 'Generic ABS' });
+    expect(picked).toEqual({ PLA: 'Generic PLA', PETG: 'Generic PETG', ABS: 'Generic ABS',
+      ASA: 'Generic ASA', TPU: 'Generic TPU', PVA: 'Generic PVA' });
     expect(pickFilaments([{ name: 'Generic PETG', type: 'PETG' }])).toBeUndefined();
+  });
+
+  it('matches vendor-prefixed and machine-suffixed generic names for the new types, but not decorated variants', () => {
+    expect(GENERIC_FILAMENT_TEST_CASES.filter(([name]) => GENERIC_FILAMENT.exec(name)?.[1]))
+      .toEqual(GENERIC_FILAMENT_TEST_CASES.filter(([, expected]) => expected));
   });
 
   it('derives stable ids and vendor-free display names', () => {

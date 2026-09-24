@@ -9,10 +9,16 @@ export interface PackProcess {
   settings: NativeSettings;
 }
 
+/**
+ * OrcaSlicer's `filament_type` values. The catalog currently ships the six listed here, but the union keeps
+ * a permissive `string` branch so any future type the generator picks up still type-checks without edits here.
+ */
+export type FilamentType = 'PLA' | 'PETG' | 'ABS' | 'ASA' | 'TPU' | 'PVA' | (string & {});
+
 export interface PackFilament {
   id: string;
   name: string;
-  type: 'PLA' | 'PETG' | 'ABS';
+  type: FilamentType;
   settings: NativeSettings;
 }
 
