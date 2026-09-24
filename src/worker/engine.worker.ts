@@ -66,6 +66,22 @@ function configure(module: OrcaModule, hash: string, nativeJson: string): void {
   if (previous) module._onewasm_session_destroy(previous);
 }
 
+/**
+ * A failed prepare/slice call (a genuine engine crash, or the engine's own "session already has an
+ * active operation" guard after one) leaves the session internally marked busy forever; nothing else
+ * ever clears that flag. Without this, `configure()`'s same-hash fast path (line above) would keep
+ * reusing that same wedged session on every later attempt — even a fresh 'config' message for the
+ * unchanged printer/filament reuses it, since the hash didn't change — permanently blocking any
+ * further slice until the whole app reloads. Destroying the session and clearing the globals here
+ * forces the next `configure()` call to build a brand new one, regardless of whether the hash matches.
+ */
+function resetSessionAfterFailure(module: OrcaModule): void {
+  if (!configuredSession) return;
+  try { module._onewasm_session_destroy(configuredSession); } catch { /* best-effort: the module may already consider it gone */ }
+  configuredSession = 0;
+  configuredHash = undefined;
+}
+
 async function readMeshes(generation: number, objects: { meshId: string }[]): Promise<Uint8Array[]> {
   return meshes.read(generation, objects.map(object => object.meshId));
 }
@@ -94,14 +110,23 @@ async function handleV2(message: Exclude<import('./protocol').ToWorker, { t: 'in
     }
     const transforms = new Float32Array(message.objects.length * 11);
     message.objects.forEach((object, index) => transforms.set(object.transform, index * 11));
-    if (message.t === 'preparePlate') {
-      const result = preparePlate(module, session, bytes, transforms, message.operation);
-      post({ t: 'preparePlateResult', requestId: message.requestId, transforms: result as import('../viewer/transforms').EngineTransform[] });
-    } else {
-      const started = performance.now();
-      const gcode = sliceStlMulti(module, session, bytes, transforms, Int32Array.from(message.objects.map(object => object.extruderId)));
-      post({ t: 'sliceMultiResult', requestId: message.requestId, gcode, statistics: getLastStatistics(module, session),
-        sliceMs: performance.now() - started, peakHeapBytes: module.HEAPU8.buffer.byteLength }, [gcode]);
+    // A throw from any of these three calls (a genuine engine crash, or the engine's own busy guard
+    // after one) can leave the session wedged; see resetSessionAfterFailure's own comment. The
+    // session is not trustworthy after ANY failure here, so every one of them resets it, not just
+    // ones that look session-related — we cannot tell from the outside which failures corrupt state.
+    try {
+      if (message.t === 'preparePlate') {
+        const result = preparePlate(module, session, bytes, transforms, message.operation);
+        post({ t: 'preparePlateResult', requestId: message.requestId, transforms: result as import('../viewer/transforms').EngineTransform[] });
+      } else {
+        const started = performance.now();
+        const gcode = sliceStlMulti(module, session, bytes, transforms, Int32Array.from(message.objects.map(object => object.extruderId)));
+        post({ t: 'sliceMultiResult', requestId: message.requestId, gcode, statistics: getLastStatistics(module, session),
+          sliceMs: performance.now() - started, peakHeapBytes: module.HEAPU8.buffer.byteLength }, [gcode]);
+      }
+    } catch (error) {
+      resetSessionAfterFailure(module);
+      throw error;
     }
   } else if (message.t === 'getStatistics') {
     if (!configuredSession) throw new Error('No configured session');
