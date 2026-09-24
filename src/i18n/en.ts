@@ -120,10 +120,13 @@ export const en = {
     arrangePending: 'Orient and arrange becomes available after importing a model.', arrangeComplete: 'Plate orientation and arrangement updated.', estimates: 'Estimated time, filament and cost', reset: 'Reset to preset',
     plateWide: 'Support and brim settings apply to the whole plate. Per-object controls are not available.', notSmokeTested: 'User printer — not individually smoke-tested',
     slice: 'Slice', cancel: 'Cancel slice', finishing: 'Finishing previous slice', sliceComplete: 'Slice complete (layers)', incomplete: 'Choose a compatible printer, filament and quality before slicing.', settingsMode: 'Settings mode', invalidSetting: 'Invalid setting', selectPrinterFirst: 'Select a printer before importing a preset.',
-    profileUnavailable: 'The printer profile is unavailable. Try again.', offlinePack: 'This printer needs a connection to download. Try again once you are back online.', invalidCustom: 'The custom printer is invalid and was not saved.', invalidImport: 'The preset could not be imported; current settings were kept.',
-    imported: 'Preset imported.', importedWithNotices: 'Preset imported. Unsupported settings were omitted.', customSaved: 'Custom printer saved. Choose a compatible filament and quality to continue.',
+    profileUnavailable: 'The printer profile is unavailable. Try again.', offlinePack: 'This printer needs a connection to download. Try again once you are back online.', invalidCustom: 'The custom printer is invalid and was not saved.', invalidCustomFilament: 'The custom filament is invalid and was not saved.', invalidImport: 'The preset could not be imported; current settings were kept.',
+    imported: 'Preset imported.', importedWithNotices: 'Preset imported. Unsupported settings were omitted.', customSaved: 'Custom printer saved. Choose a compatible filament and quality to continue.', customFilamentSaved: 'Custom filament saved and selected.',
     categories: { quality: 'Quality', strength: 'Strength', speed: 'Speed', support: 'Support', others: 'Others' },
-    custom: { heading: 'Custom printer', name: 'Name', width: 'Bed width (mm)', depth: 'Bed depth (mm)', height: 'Printable height (mm)', nozzle: 'Nozzle diameter (mm)', flavor: 'G-code flavor', start: 'Start G-code', end: 'End G-code', heated: 'Heated bed', save: 'Save custom printer' },
+    custom: {
+      heading: 'Custom printer', name: 'Name', width: 'Bed width (mm)', depth: 'Bed depth (mm)', height: 'Printable height (mm)', nozzle: 'Nozzle diameter (mm)', flavor: 'G-code flavor', start: 'Start G-code', end: 'End G-code', heated: 'Heated bed', save: 'Save custom printer',
+      filament: { heading: 'Custom filament', name: 'Filament name', base: 'Base filament', save: 'Save custom filament', disclaimer: 'User filament — not individually smoke-tested' },
+    },
     presets: { heading: 'Preset transfer', json: 'Preset JSON', import: 'Import preset', export: 'Export current preset' },
   },
   settings: {

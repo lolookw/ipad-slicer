@@ -70,8 +70,8 @@ function worldMinZ(bounds: typeof FIN_BOUNDS, transform: { position: number[]; r
 
 async function configureEngine(page: import('@playwright/test').Page) {
   await page.getByLabel('Printer', { exact: true }).selectOption('creality-ender3-v2-04');
-  await expect(page.getByLabel('Filament')).toBeEnabled();
-  await page.getByLabel('Filament').selectOption({ index: 1 });
+  await expect(page.getByLabel('Filament', { exact: true })).toBeEnabled();
+  await page.getByLabel('Filament', { exact: true }).selectOption({ index: 1 });
   await page.getByRole('button', { name: 'Standard', exact: true }).click();
 }
 
@@ -157,7 +157,7 @@ test('IndexedDB presets survive reload and a JSON round trip', async ({ page }) 
   };
   await page.evaluate(async preset => {
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDB.open('ipad-slicer', 1);
+      const request = indexedDB.open('ipad-slicer', 2);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -175,7 +175,7 @@ test('IndexedDB presets survive reload and a JSON round trip', async ({ page }) 
   await page.reload();
   const restored = await page.evaluate(async () => {
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDB.open('ipad-slicer', 1);
+      const request = indexedDB.open('ipad-slicer', 2);
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
     });
@@ -201,8 +201,8 @@ test('IndexedDB presets survive reload and a JSON round trip', async ({ page }) 
 test('configuration stays bounded and rejects unsafe imports without replacing edits', async ({ page }) => {
   await page.goto('/');
   await page.getByLabel('Printer', { exact: true }).selectOption('creality-ender3-v2-04');
-  await expect(page.getByLabel('Filament')).toBeEnabled();
-  await page.getByLabel('Filament').selectOption({ index: 1 });
+  await expect(page.getByLabel('Filament', { exact: true })).toBeEnabled();
+  await page.getByLabel('Filament', { exact: true }).selectOption({ index: 1 });
   await page.getByRole('button', { name: 'Standard', exact: true }).click();
   const supports = page.getByLabel('Supports');
   if (!(await supports.isChecked())) await supports.check();
@@ -224,11 +224,35 @@ test('configuration stays bounded and rejects unsafe imports without replacing e
 
 test('custom printer form rejects invalid dimensions and labels a valid printer as untested', async ({ page }) => {
   await page.goto('/'); await page.locator('summary').filter({ hasText: 'Custom printer' }).click();
-  await page.getByLabel('Name').fill('Workshop printer'); const width = page.getByLabel('Bed width (mm)');
+  await page.getByLabel('Name', { exact: true }).fill('Workshop printer'); const width = page.getByLabel('Bed width (mm)');
   await width.fill('0'); await page.getByRole('button', { name: 'Save custom printer' }).click(); expect(await width.evaluate(input => !(input as HTMLInputElement).checkValidity())).toBe(true);
   await width.fill('235'); await page.getByRole('button', { name: 'Save custom printer' }).click();
   await expect(page.getByText('Custom printer saved', { exact: false })).toBeVisible();
   await expect(page.getByLabel('Printer', { exact: true })).toContainText('not individually smoke-tested');
+});
+
+test('a custom filament is created from a base type, selected, and slices successfully', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto('/'); await configureEngine(page); await importStl(page, 'custom-filament.stl', binaryBoxStl());
+  // Scoped to this one <details> block: "Nozzle temperature"/"Filament cost" are also real Advanced
+  // settings labels elsewhere on the page, and "Custom filament" must not match "Custom printer".
+  const details = page.locator('details').filter({ has: page.locator('summary', { hasText: 'Custom filament' }) });
+  await details.locator('summary').click();
+  await details.getByLabel('Filament name').fill('Workshop PETG');
+  // Within the real Creality Ender-3 V2 pack's Generic PLA safe range (190-230): a value outside it
+  // would correctly be rejected by the same validateSettings() every catalog combination goes through.
+  await details.getByLabel('Nozzle temperature', { exact: true }).fill('225');
+  await details.getByLabel('Filament cost').fill('27');
+  await details.getByRole('button', { name: 'Save custom filament' }).click();
+
+  await expect(page.getByText('Custom filament saved', { exact: false })).toBeVisible();
+  const filament = page.getByLabel('Filament', { exact: true });
+  await expect(filament).toHaveValue(/^custom-filament-/);
+  await expect(filament.locator('option:checked')).toHaveText('Workshop PETG');
+  await expect(page.getByRole('button', { name: 'Slice', exact: true })).toBeEnabled();
+
+  await page.getByRole('button', { name: 'Slice', exact: true }).click();
+  await expect(page.getByTestId('slice-result')).toContainText('Print time', { timeout: 45_000 });
 });
 
 // The Models list nav now also carries a visibility eye-toggle and a "..." menu per row (task 3), so

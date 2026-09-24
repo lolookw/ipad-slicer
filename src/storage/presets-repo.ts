@@ -1,4 +1,4 @@
-import { openSettingsDatabase, requestResult, transactionDone, type StoredCustomPrinter, type StoredPreset } from './db';
+import { openSettingsDatabase, requestResult, transactionDone, type StoredCustomFilament, type StoredCustomPrinter, type StoredPreset } from './db';
 
 export function assertCustomPrinterBase(printer: StoredCustomPrinter): void {
   if (printer.baseId !== 'custom') throw new Error('Custom printers must retain the smoke-tested custom base identity');
@@ -27,6 +27,15 @@ export class PresetRepository {
     const transaction = this.db.transaction('printers', 'readwrite');
     transaction.objectStore('printers').put(printer);
     await transactionDone(transaction);
+  }
+  async saveCustomFilament(filament: StoredCustomFilament): Promise<void> {
+    const transaction = this.db.transaction('filaments', 'readwrite');
+    transaction.objectStore('filaments').put(filament);
+    await transactionDone(transaction);
+  }
+  async listCustomFilaments(): Promise<StoredCustomFilament[]> {
+    const transaction = this.db.transaction('filaments', 'readonly');
+    return requestResult(transaction.objectStore('filaments').getAll()) as Promise<StoredCustomFilament[]>;
   }
   async importAtomic(presets: readonly StoredPreset[], activePresetId: string): Promise<void> {
     const transaction = this.db.transaction(['presets', 'ui'], 'readwrite');

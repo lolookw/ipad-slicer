@@ -1,8 +1,13 @@
-import { Show } from 'solid-js';
+import { createResource, Show } from 'solid-js';
 import { CatalogPickers } from '../catalog/components/CatalogPickers';
 import { CustomPrinterForm, type CustomPrinterValues } from '../catalog/components/CustomPrinterForm';
+import { CustomFilamentForm } from '../catalog/components/CustomFilamentForm';
 import type { NativeSettings, PrinterPack } from '../catalog/types';
 import { mergePackSelection } from '../catalog/merge';
+import {
+  activeBedTemperatureKey, buildCustomFilament, customFilamentBaseOptions, validateCustomFilamentValues,
+  type CustomFilamentBase, type CustomFilamentValues,
+} from '../catalog/custom-filament';
 import { SettingsPanels } from '../settings/components/SettingsPanels';
 import { PresetTransfer } from '../settings/components/PresetTransfer';
 import { decodeNative, encodeNative } from '../settings/codec';
@@ -79,6 +84,36 @@ export function ConfigurationContainer() {
       configuration.useCustomPrinter(pack.id, values.name, pack); configuration.notice.set(t('configuration.customSaved'));
     } catch (error) { configuration.error.set(error instanceof Error ? error.message : String(error)); configuration.errorKind.set('invalidCustom'); }
   };
+  // Same generic template a custom PRINTER clones from, kept only as the base-type fallback for the
+  // custom FILAMENT form when no printer is selected yet (or its pack has no PLA/PETG/ABS-family entry).
+  const [customBase] = createResource(async () => {
+    try { const response = await fetch('/catalog/custom-base.json'); return response.ok ? await response.json() as PrinterPack : undefined; }
+    catch { return undefined; }
+  });
+  const customFilamentBases = (): CustomFilamentBase[] => {
+    const pack = configuration.pack.get();
+    const bedKey = pack ? activeBedTemperatureKey(pack.machine) : 'hot_plate_temp';
+    const fromPack = customFilamentBaseOptions(pack?.filaments ?? [], bedKey);
+    return fromPack.length ? fromPack : customFilamentBaseOptions(customBase()?.filaments ?? [], bedKey);
+  };
+  const makeCustomFilament = async (values: CustomFilamentValues) => {
+    try {
+      const pack = configuration.pack.get(); if (!pack) throw new Error('Select a printer before creating a custom filament.');
+      const bedKey = activeBedTemperatureKey(pack.machine);
+      const base = customFilamentBases().find(candidate => candidate.id === values.baseId); if (!base) throw new Error('Choose a base filament type.');
+      validateCustomFilamentValues(values, bedKey);
+      const filament = buildCustomFilament(`custom-filament-${crypto.randomUUID()}`, base.type, base.settings, bedKey, values);
+      const processId = pack.processes[0]?.id; if (!processId) throw new Error('The selected printer has no compatible process to validate against.');
+      // Validate against a DRAFT pack carrying just this filament, not whatever the live UI has selected.
+      const draftPack: PrinterPack = { ...pack, filaments: [...pack.filaments, filament], combos: [...pack.combos, [processId, filament.id]] };
+      const issues = validateSettings(mergeResolvedSettings(mergePackSelection(draftPack, processId, filament.id)), validationContext(draftPack, filament.id));
+      if (hasBlockingIssues(issues)) throw new Error(issues.map(issue => issue.message).join(' '));
+      const repository = await PresetRepository.open();
+      try { await repository.saveCustomFilament({ id: filament.id, name: filament.name, type: filament.type, settings: filament.settings, updatedAt: Date.now() }); }
+      finally { repository.close(); }
+      configuration.useCustomFilament(filament); configuration.notice.set(t('configuration.customFilamentSaved'));
+    } catch (error) { configuration.error.set(error instanceof Error ? error.message : String(error)); configuration.errorKind.set('invalidCustomFilament'); }
+  };
   const importPresets = async (json: string) => {
     try {
       const pack = configuration.pack.get(); if (!pack) throw new Error(t('configuration.selectPrinterFirst'));
@@ -119,6 +154,13 @@ export function ConfigurationContainer() {
     <Show when={app.result.state.finishingPreviousSlice}><p role="status">{t('configuration.finishing')}</p></Show>
     <Show when={configuration.notice.get()}>{notice => <p role="status">{app.translateError(notice())}</p>}</Show>
     <details><summary>{t('configuration.custom.heading')}</summary><CustomPrinterForm labels={{ heading: t('configuration.custom.heading'), name: t('configuration.custom.name'), width: t('configuration.custom.width'), depth: t('configuration.custom.depth'), height: t('configuration.custom.height'), nozzle: t('configuration.custom.nozzle'), flavor: t('configuration.custom.flavor'), start: t('configuration.custom.start'), end: t('configuration.custom.end'), heated: t('configuration.custom.heated'), save: t('configuration.custom.save'), disclaimer: t('configuration.notSmokeTested') }} onSubmit={makeCustom} /></details>
+    <details><summary>{t('configuration.custom.filament.heading')}</summary><CustomFilamentForm bases={customFilamentBases()} labels={{
+      heading: t('configuration.custom.filament.heading'), name: t('configuration.custom.filament.name'), base: t('configuration.custom.filament.base'),
+      nozzle: t('settings.nozzleTemperature.label'), nozzleInitial: t('settings.initialNozzleTemperature.label'),
+      bed: t('settings.bedTemperature.label'), bedInitial: t('settings.initialBedTemperature.label'),
+      cost: t('settings.filamentCost.label'), density: t('settings.filamentDensity.label'),
+      save: t('configuration.custom.filament.save'), disclaimer: t('configuration.custom.filament.disclaimer'),
+    }} onSubmit={makeCustomFilament} /></details>
     <details><summary>{t('configuration.presets.heading')}</summary><PresetTransfer labels={{ heading: t('configuration.presets.heading'), json: t('configuration.presets.json'), import: t('configuration.presets.import'), export: t('configuration.presets.export') }} onImport={importPresets} onExport={exportPreset} /></details>
     <Show when={configuration.mode.get() === 'advanced'}><details class="diagnostics"><summary>{t('diagnostics.heading')}</summary><DiagnosticsSheet labels={{
       heading: t('diagnostics.heading'), isolation: t('diagnostics.isolation'), variant: t('diagnostics.variant'), auto: t('preferences.auto'), st: t('diagnostics.st'), mt: t('diagnostics.mt'),

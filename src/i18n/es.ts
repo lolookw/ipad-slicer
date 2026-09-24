@@ -113,10 +113,13 @@ export const es = {
     arrangePending: 'Orientar y organizar estará disponible después de importar un modelo.', estimates: 'Tiempo, filamento y costo estimados', reset: 'Restablecer al preset',
     plateWide: 'Los ajustes de soporte y borde se aplican a toda la placa. Los controles por objeto no están disponibles.', notSmokeTested: 'Impresora del usuario — sin prueba de humo individual',
     slice: 'Laminar', cancel: 'Cancelar laminado', finishing: 'Finalizando el laminado anterior', sliceComplete: 'Laminado completo (capas)', incomplete: 'Seleccione una impresora, un filamento y una calidad compatibles antes de laminar.', settingsMode: 'Modo de ajustes', invalidSetting: 'Ajuste inválido', selectPrinterFirst: 'Seleccione una impresora antes de importar un preset.',
-    profileUnavailable: 'El perfil de la impresora no está disponible. Inténtelo nuevamente.', offlinePack: 'Esta impresora necesita conexión para descargarse. Inténtelo de nuevo cuando vuelva a estar en línea.', invalidCustom: 'La impresora personalizada no es válida y no se guardó.', invalidImport: 'No se pudo importar el preset; se conservaron los ajustes actuales.',
-    imported: 'Preset importado.', importedWithNotices: 'Preset importado. Se omitieron los ajustes no compatibles.', customSaved: 'Impresora personalizada guardada. Seleccione un filamento y una calidad compatibles para continuar.',
+    profileUnavailable: 'El perfil de la impresora no está disponible. Inténtelo nuevamente.', offlinePack: 'Esta impresora necesita conexión para descargarse. Inténtelo de nuevo cuando vuelva a estar en línea.', invalidCustom: 'La impresora personalizada no es válida y no se guardó.', invalidCustomFilament: 'El filamento personalizado no es válido y no se guardó.', invalidImport: 'No se pudo importar el preset; se conservaron los ajustes actuales.',
+    imported: 'Preset importado.', importedWithNotices: 'Preset importado. Se omitieron los ajustes no compatibles.', customSaved: 'Impresora personalizada guardada. Seleccione un filamento y una calidad compatibles para continuar.', customFilamentSaved: 'Filamento personalizado guardado y seleccionado.',
     categories: { quality: 'Calidad', strength: 'Resistencia', speed: 'Velocidad', support: 'Soporte', others: 'Otros' },
-    custom: { heading: 'Impresora personalizada', name: 'Nombre', width: 'Ancho de cama (mm)', depth: 'Profundidad de cama (mm)', height: 'Altura imprimible (mm)', nozzle: 'Diámetro de boquilla (mm)', flavor: 'Formato de G-code', start: 'G-code inicial', end: 'G-code final', heated: 'Cama caliente', save: 'Guardar impresora personalizada' },
+    custom: {
+      heading: 'Impresora personalizada', name: 'Nombre', width: 'Ancho de cama (mm)', depth: 'Profundidad de cama (mm)', height: 'Altura imprimible (mm)', nozzle: 'Diámetro de boquilla (mm)', flavor: 'Formato de G-code', start: 'G-code inicial', end: 'G-code final', heated: 'Cama caliente', save: 'Guardar impresora personalizada',
+      filament: { heading: 'Filamento personalizado', name: 'Nombre del filamento', base: 'Filamento base', save: 'Guardar filamento personalizado', disclaimer: 'Filamento del usuario — sin prueba de humo individual' },
+    },
     presets: { heading: 'Transferencia de presets', json: 'JSON del preset', import: 'Importar preset', export: 'Exportar preset actual' },
   },
   settings: {

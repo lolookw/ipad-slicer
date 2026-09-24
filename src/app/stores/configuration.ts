@@ -1,15 +1,17 @@
 import { createSignal } from 'solid-js';
 import { loadCatalogIndex } from '../../catalog/index-client';
 import { loadPrinterPack } from '../../catalog/pack-client';
-import type { CatalogIndex, CatalogModel, NativeSettings, PrinterPack } from '../../catalog/types';
+import type { CatalogIndex, CatalogModel, NativeSettings, PackFilament, PrinterPack } from '../../catalog/types';
 import { mergePackSelection } from '../../catalog/merge';
+import { injectCustomFilaments } from '../../catalog/custom-filament';
 import { availableQualityLadder, type Quality } from '../../settings/ladder';
 import { mergeResolvedSettings, resetOverride, type SettingsOverrides } from '../../settings/merge';
 import { validateSettings, type ValidationContext } from '../../settings/validate';
 import type { SettingKey, SettingValue } from '../../settings/schema';
+import { PresetRepository } from '../../storage/presets-repo';
 
 export type SettingsMode = 'simple' | 'advanced';
-export type ConfigurationError = 'profileUnavailable' | 'offlinePack' | 'invalidCustom' | 'invalidImport';
+export type ConfigurationError = 'profileUnavailable' | 'offlinePack' | 'invalidCustom' | 'invalidCustomFilament' | 'invalidImport';
 
 const signal = <T,>(initial: T) => {
   const [get, set] = createSignal(initial);
@@ -52,8 +54,22 @@ export const configuration = {
   errorKind: signal<ConfigurationError | undefined>(undefined),
   notice: signal<string | undefined>(undefined),
   customName: signal<string | undefined>(undefined),
+  /** User-defined filaments, persisted independently of any one printer. Injected into whichever
+   * pack is currently loaded (see injectCustomFilaments) so they show up in the normal filament list. */
+  customFilaments: signal<PackFilament[]>([]),
   async loadIndex(): Promise<void> {
     try { this.index.set(await loadCatalogIndex()); } catch (error) { this.error.set(error instanceof Error ? error.message : String(error)); this.errorKind.set('profileUnavailable'); }
+  },
+  async loadCustomFilaments(): Promise<void> {
+    try {
+      const repository = await PresetRepository.open();
+      let stored: PackFilament[];
+      try { stored = (await repository.listCustomFilaments()).map(item => ({ id: item.id, name: item.name, type: item.type, settings: item.settings })); }
+      finally { repository.close(); }
+      this.customFilaments.set(stored);
+      const pack = this.pack.get();
+      if (pack) this.pack.set(injectCustomFilaments(pack, stored));
+    } catch { /* IndexedDB unavailable (e.g. private browsing, jsdom tests): custom filaments just won't survive a reload */ }
   },
   async selectPrinter(id: string): Promise<void> {
     const generation = ++requestGeneration;
@@ -65,7 +81,7 @@ export const configuration = {
     if (!model) { this.loading.set(false); this.error.set('Printer is unavailable.'); this.errorKind.set('profileUnavailable'); return; }
     try {
       const pack = await loadPrinterPack({ url: `/catalog/${model.pack}`, bytes: model.bytes, sha256: model.sha256 });
-      if (generation === requestGeneration) this.pack.set(pack);
+      if (generation === requestGeneration) this.pack.set(injectCustomFilaments(pack, this.customFilaments.get()));
     } catch (error) {
       if (generation === requestGeneration) {
         this.error.set(error instanceof Error ? error.message : String(error));
@@ -89,8 +105,16 @@ export const configuration = {
   resetOverride(key: SettingKey): void { this.overrides.set(current => resetOverride(current, key)); },
   useCustomPrinter(id: string, name: string, pack: PrinterPack): void {
     ++requestGeneration;
-    this.pack.set(pack); this.printerId.set(id); this.filamentId.set(undefined); this.processId.set(undefined);
+    this.pack.set(injectCustomFilaments(pack, this.customFilaments.get())); this.printerId.set(id); this.filamentId.set(undefined); this.processId.set(undefined);
     this.customName.set(name); this.error.set(undefined); this.errorKind.set(undefined); this.loading.set(false);
+  },
+  /** Adds a user-defined filament to whichever pack is currently loaded (selectable at every quality
+   * level it offers, see injectCustomFilaments) and selects it immediately. */
+  useCustomFilament(filament: PackFilament): void {
+    this.customFilaments.set(current => [...current, filament]);
+    const pack = this.pack.get();
+    if (pack) this.pack.set(injectCustomFilaments(pack, [filament]));
+    this.filamentId.set(filament.id);
   },
 };
 
@@ -113,5 +137,5 @@ export function resetConfiguration(): void {
   configuration.mode.set('simple'); configuration.index.set(undefined); configuration.pack.set(undefined);
   configuration.printerId.set(undefined); configuration.filamentId.set(undefined); configuration.processId.set(undefined);
   configuration.overrides.set({}); configuration.loading.set(false); configuration.error.set(undefined); configuration.errorKind.set(undefined);
-  configuration.notice.set(undefined); configuration.customName.set(undefined);
+  configuration.notice.set(undefined); configuration.customName.set(undefined); configuration.customFilaments.set([]);
 }

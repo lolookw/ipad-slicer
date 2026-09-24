@@ -1,7 +1,7 @@
-import type { NativeSettings } from '../catalog/types';
+import type { NativeSettings, PackFilament } from '../catalog/types';
 
 export const DB_NAME = 'ipad-slicer';
-export const DB_VERSION = 1;
+export const DB_VERSION = 2;
 
 export interface StoredPreset {
   id: string;
@@ -16,6 +16,9 @@ export interface StoredPreset {
   updatedAt: number;
 }
 export interface StoredCustomPrinter { id: string; name: string; baseId: 'custom'; settings: NativeSettings; updatedAt: number }
+/** A user-defined filament, persisted independently of any one printer (like the generic catalog
+ * filaments it is cloned from, it is reusable across whichever pack is currently selected). */
+export interface StoredCustomFilament { id: string; name: string; type: PackFilament['type']; settings: NativeSettings; updatedAt: number }
 export interface UiRecord { key: string; value: unknown }
 
 export function openSettingsDatabase(factory: IDBFactory = globalThis.indexedDB): Promise<IDBDatabase> {
@@ -29,6 +32,8 @@ export function openSettingsDatabase(factory: IDBFactory = globalThis.indexedDB)
           db.createObjectStore('presets', { keyPath: 'id' });
           db.createObjectStore('printers', { keyPath: 'id' });
           db.createObjectStore('ui', { keyPath: 'key' });
+        case 1:
+          db.createObjectStore('filaments', { keyPath: 'id' });
       }
     };
     request.onsuccess = () => resolve(request.result);
