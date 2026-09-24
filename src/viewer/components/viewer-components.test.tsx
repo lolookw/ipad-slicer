@@ -18,7 +18,7 @@ function finMeshBuffers() {
 }
 
 const labels: TransformToolbarLabels = {
-  toolbar: 'Object tools', snap: 'Snap',
+  toolbar: 'Object tools', mode: 'Transform mode', select: 'Select', move: 'Move', rotate: 'Rotate', snap: 'Snap',
   deselect: 'Deselect', layFlat: 'Lay flat', autoOrient: 'Auto orient', rotateX: 'Rotate X', rotateY: 'Rotate Y',
   scale: 'Scale', duplicate: 'Duplicate', delete: 'Delete', reset: 'Reset', title: 'Object size', close: 'Close', size: 'Largest dimension',
   unit: 'Size unit', suspicious: 'Suspicious size', multiply25_4: '×25.4', multiply1000: '×1000', divide10: '÷10', keep: 'Keep as entered', resize: 'Resize',
@@ -89,17 +89,28 @@ it('offers a Snap toggle that is on by default and reports presses', () => {
   expect(onSnapToggle).toHaveBeenCalledOnce();
 });
 
-it('reflects a disabled snap state and no longer shows mode or axis-lock controls', () => {
+it('reflects a disabled snap state and no longer shows axis-lock controls', () => {
   plate.addObject(object('first'));
   render(() => <PlateObjectToolbar labels={labels} snapEnabled={false} />);
 
   expect(screen.getByRole('button', { name: 'Snap' }).getAttribute('aria-pressed')).toBe('false');
   expect(screen.queryByRole('group', { name: 'Axis lock' })).toBeNull();
-  expect(screen.queryByRole('button', { name: 'Move' })).toBeNull();
-  expect(screen.queryByRole('button', { name: 'Rotate' })).toBeNull();
-  for (const name of ['Lay flat', 'Auto orient', 'Rotate X', 'Rotate Y', 'Scale', 'Duplicate', 'Delete', 'Reset', 'Deselect']) {
+  for (const name of ['Select', 'Move', 'Rotate', 'Lay flat', 'Auto orient', 'Rotate X', 'Rotate Y', 'Scale', 'Duplicate', 'Delete', 'Reset', 'Deselect']) {
     expect(screen.getByRole('button', { name })).toBeTruthy();
   }
+});
+
+it('defaults the mode toolbar to Select and switches to Move/Rotate on click, one active at a time', () => {
+  plate.addObject(object('first'));
+  const onModeChange = vi.fn();
+  render(() => <PlateObjectToolbar labels={labels} mode="select" onModeChange={onModeChange} />);
+
+  expect(screen.getByRole('button', { name: 'Select' }).getAttribute('aria-pressed')).toBe('true');
+  expect(screen.getByRole('button', { name: 'Move' }).getAttribute('aria-pressed')).toBe('false');
+  expect(screen.getByRole('button', { name: 'Rotate' }).getAttribute('aria-pressed')).toBe('false');
+
+  fireEvent.click(screen.getByRole('button', { name: 'Move' }));
+  expect(onModeChange).toHaveBeenCalledWith('move');
 });
 
 it('auto-orients the selected object without touching an unselected one', () => {

@@ -20,6 +20,14 @@ const ARROW_BIAS_PX = 6;
 export interface GizmoHandle { kind: 'arrow' | 'ring'; axis: AxisName }
 export const sameHandle = (a: GizmoHandle | undefined, b: GizmoHandle | undefined) => a?.kind === b?.kind && a?.axis === b?.axis;
 
+/**
+ * Which handle kind is currently interactive, mirroring the mode toolbar (Select/Move/Rotate):
+ * 'select' shows/hits neither (direct body drag only, gestures.ts is unaffected), 'move' is arrows
+ * only, 'rotate' is rings only. 'both' is the pre-mode-toolbar behavior (every handle at once) and
+ * exists only as `hitTestLayout`'s default so its existing direct callers/tests stay unchanged.
+ */
+export type GizmoMode = 'select' | 'move' | 'rotate' | 'both';
+
 /** Basis of each ring's plane: the ring for axis A turns about A, so it lies in the other two axes. */
 const RING_BASIS: Record<AxisName, [AxisName, AxisName]> = { x: ['y', 'z'], y: ['z', 'x'], z: ['x', 'y'] };
 
@@ -40,6 +48,8 @@ export interface GizmoView {
   hitTest(xPx: number, yPx: number, camera: PerspectiveCamera, widthPx: number, heightPx: number): GizmoHandle | undefined;
   setHover(handle: GizmoHandle | undefined): boolean;
   setPressed(handle: GizmoHandle | undefined): boolean;
+  /** Switches which handle kind is drawn and hit-testable; returns whether it actually changed. */
+  setMode(mode: GizmoMode): boolean;
   dispose(): void;
 }
 
@@ -65,8 +75,14 @@ export function computeGizmoLayout(center: Vector3, camera: PerspectiveCamera, w
   return { center: project(center, camera, widthPx, heightPx), arrows, rings };
 }
 
-/** Nearest handle within the touch radius; arrows are favored where they overlap a ring. */
-export function hitTestLayout(layout: GizmoLayout, xPx: number, yPx: number, radiusPx = HIT_RADIUS_PX): GizmoHandle | undefined {
+/**
+ * Nearest handle within the touch radius; arrows are favored where they overlap a ring.
+ * `mode` restricts which handle kind is even considered (the mode toolbar's Select/Move/Rotate);
+ * it defaults to 'both' so every pre-existing direct caller (including this file's own tests) keeps
+ * matching arrows and rings exactly as before.
+ */
+export function hitTestLayout(layout: GizmoLayout, xPx: number, yPx: number, radiusPx = HIT_RADIUS_PX, mode: GizmoMode = 'both'): GizmoHandle | undefined {
+  if (mode === 'select') return undefined;
   let best: { handle: GizmoHandle; score: number } | undefined;
   const consider = (handle: GizmoHandle, distance: number) => {
     if (distance > radiusPx) return;
@@ -74,9 +90,11 @@ export function hitTestLayout(layout: GizmoLayout, xPx: number, yPx: number, rad
     if (!best || score < best.score) best = { handle, score };
   };
   for (const axis of AXIS_NAMES) {
-    const tip = layout.arrows[axis].tip;
-    consider({ kind: 'arrow', axis }, distanceToSegment2D(xPx, yPx, layout.center[0], layout.center[1], tip[0], tip[1]));
-    consider({ kind: 'ring', axis }, distanceToPolyline2D(xPx, yPx, layout.rings[axis], true));
+    if (mode === 'both' || mode === 'move') {
+      const tip = layout.arrows[axis].tip;
+      consider({ kind: 'arrow', axis }, distanceToSegment2D(xPx, yPx, layout.center[0], layout.center[1], tip[0], tip[1]));
+    }
+    if (mode === 'both' || mode === 'rotate') consider({ kind: 'ring', axis }, distanceToPolyline2D(xPx, yPx, layout.rings[axis], true));
   }
   return best?.handle;
 }
@@ -103,6 +121,7 @@ export function createGizmoView(): GizmoView {
   root.name = 'transform-gizmo';
   root.visible = false;
   const materials = new Map<string, { material: MeshBasicMaterial; base: Color }>();
+  const handleMeshes = new Map<string, Mesh[]>();
   const geometries: { dispose(): void }[] = [];
   const key = (handle: GizmoHandle) => `${handle.kind}:${handle.axis}`;
   const build = (handle: GizmoHandle): Mesh[] => {
@@ -131,6 +150,7 @@ export function createGizmoView(): GizmoView {
       mesh.renderOrder = handle.kind === 'ring' ? 20 : 21;
       root.add(mesh);
     }
+    handleMeshes.set(key(handle), meshes);
     return meshes;
   };
   for (const axis of AXIS_NAMES) { build({ kind: 'ring', axis }); build({ kind: 'arrow', axis }); }
@@ -138,6 +158,17 @@ export function createGizmoView(): GizmoView {
   let center: Vector3 | undefined;
   let hover: GizmoHandle | undefined;
   let pressed: GizmoHandle | undefined;
+  // Select shows neither handle kind by default (the mode toolbar's default mode): fewer handles
+  // drawn/hit-tested until Move or Rotate is chosen, matching the product ask that the gizmo stop
+  // crowding the (still small) viewport by default.
+  let mode: GizmoMode = 'select';
+  const applyModeVisibility = () => {
+    for (const axis of AXIS_NAMES) for (const kind of ['arrow', 'ring'] as const) {
+      const visible = mode === 'both' || (kind === 'arrow' ? mode === 'move' : mode === 'rotate');
+      for (const mesh of handleMeshes.get(key({ kind, axis }))!) mesh.visible = visible;
+    }
+  };
+  applyModeVisibility();
   const paint = () => {
     for (const axis of AXIS_NAMES) for (const kind of ['arrow', 'ring'] as const) {
       const handle = { kind, axis };
@@ -156,13 +187,16 @@ export function createGizmoView(): GizmoView {
       root.position.copy(center);
       root.scale.setScalar(worldPerPixel(camera, center, heightPx));
     },
+    // Unfiltered by mode on purpose: scene.ts publishes this raw layout on the canvas for tests/diagnostics
+    // regardless of which handles are currently interactive, so it always reflects real screen positions.
     layout(camera, widthPx, heightPx) { return center ? computeGizmoLayout(center, camera, widthPx, heightPx) : undefined; },
     hitTest(xPx, yPx, camera, widthPx, heightPx) {
       const layout = center ? computeGizmoLayout(center, camera, widthPx, heightPx) : undefined;
-      return layout ? hitTestLayout(layout, xPx, yPx) : undefined;
+      return layout ? hitTestLayout(layout, xPx, yPx, HIT_RADIUS_PX, mode) : undefined;
     },
     setHover(handle) { if (sameHandle(handle, hover)) return false; hover = handle; paint(); return true; },
     setPressed(handle) { if (sameHandle(handle, pressed)) return false; pressed = handle; paint(); return true; },
+    setMode(next) { if (next === mode) return false; mode = next; applyModeVisibility(); return true; },
     dispose() {
       for (const geometry of geometries) geometry.dispose();
       for (const { material } of materials.values()) material.dispose();

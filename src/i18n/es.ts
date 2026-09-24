@@ -78,8 +78,12 @@ export const es = {
   viewer: {
     workspace: 'Espacio de trabajo del modelo', importModel: 'Importar modelo', buildPlate: 'Placa de impresión 3D', plateObjects: 'Objetos de la placa', objectCount: '{count}/{limit} objetos',
     toolbar: 'Herramientas del objeto seleccionado',
+    mode: 'Modo de transformación', select: 'Seleccionar', move: 'Mover', rotate: 'Girar',
     snap: 'Ajuste',
     viewPresets: 'Vista de cámara', viewFit: 'Ajustar', viewTop: 'Superior', viewFront: 'Frontal', viewIso: 'Iso',
+    models: 'Modelos', modelsList: 'Modelos en la placa',
+    modelsHide: 'Ocultar {name}', modelsShow: 'Mostrar {name}', modelsMenu: 'Más acciones para {name}',
+    modelsDuplicate: 'Duplicar {name}', modelsDelete: 'Eliminar {name}', modelsRename: 'Renombrar {name}', modelsRenamePrompt: 'Nuevo nombre',
     deselect: 'Deseleccionar',
     layFlat: 'Apoyar en una cara',
     layFlatPending: 'Esta función se habilitará después de integrar el motor en la fase 7.',

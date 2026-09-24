@@ -28,6 +28,21 @@
 .viewer-transform-toolbar .ui-button:hover:not(:disabled) { background: var(--color-surface-sunken); }
 .viewer-transform-toolbar .ui-button[aria-pressed='true'], .viewer-transform-toolbar .ui-button[data-variant='primary'] { background: var(--color-primary-soft); color: var(--color-primary); box-shadow: none; }
 .viewer-transform-toolbar .ui-button[data-variant='danger'] { background: transparent; color: var(--color-danger); }
+/* Select / Move / Rotate: the primary mode group, pinned at the top of the rail with a clear text
+ * label per button (the ask this replaces: a single unlabeled "Ajuste" button nobody could read as
+ * either "move" or "rotate"). Radio-button semantics via aria-pressed, one active at a time. */
+.viewer-mode-group { display: flex; flex-direction: column; gap: 4px; }
+.viewer-mode-group .ui-button[aria-pressed='true'] { background: var(--color-primary); color: var(--color-on-accent); }
+/* Thin separators between the mode group, the frequent secondary actions and the less-frequent
+ * tertiary ones, so the rail reads as three short groups instead of one long undifferentiated list. */
+.viewer-toolbar-divider { flex: none; height: 1px; margin: 2px 6px; background: var(--color-border); }
+.viewer-secondary-actions { display: flex; flex-direction: column; gap: 4px; }
+/* Tertiary actions (Snap, Lay flat, Auto orient, Rotate 90 X/Y) are reached less often than
+ * Move/Rotate/Scale/Duplicate/Delete: shrinking them to the 44px minimum (down from the 56px the
+ * primary groups use) keeps the whole rail shorter without dropping any function or touch target. */
+.viewer-tertiary-actions { display: flex; flex-direction: column; gap: 4px; }
+.viewer-tertiary-actions .ui-button { min-height: 44px; }
+.viewer-tertiary-actions .ui-button svg { width: 18px; height: 18px; }
 .viewer-disabled-action { position: relative; }
 .viewer-disabled-action [role='tooltip'] {
   position: absolute;
@@ -68,4 +83,56 @@
 .viewer-toolbar-notice {
   position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 11; max-width: calc(100% - 24px);
   margin: 0; padding: .625rem .875rem; border-radius: var(--radius-sm); background: var(--color-danger-soft); color: var(--color-danger); font-size: .9375rem;
+}
+
+/* ---------- Models list ---------- */
+/* Each row keeps a plain name button (same role/aria-pressed/data-transform contract the old bare
+ * chip row used) plus a visibility eye-toggle and a "..." menu. Narrow layouts render this inline,
+ * exactly where the old chip strip sat; the wide layout below turns it into a toggleable drawer so a
+ * multi-object plate never has to permanently narrow the viewer to show its list (see workspace.css
+ * for why viewer size is the thing this whole layout protects on a wide screen). */
+.models-list ul { display: flex; gap: .5rem; overflow-x: auto; margin: 0; padding: 0; list-style: none; }
+.models-list:empty, .models-list ul:empty { display: none; }
+.models-item { display: flex; align-items: center; flex: 0 0 auto; gap: 2px; padding: 2px; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); }
+.models-item[data-selected='true'] { border-width: 2px; border-color: var(--color-primary); background: var(--color-primary-soft); }
+.models-item-icon { display: none; }
+.models-item-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.models-item-name { box-sizing: border-box; min-width: 44px; min-height: 44px; padding: .5rem .75rem; border: 0; border-radius: 999px; background: transparent; color: var(--color-text); font: 500 .9375rem var(--font-body); }
+.models-item[data-selected='true'] .models-item-name { color: var(--color-primary); font-weight: 600; }
+.models-item-eye, .models-item-menu summary { box-sizing: border-box; display: grid; place-items: center; min-width: 44px; min-height: 44px; border: 0; border-radius: 999px; background: transparent; color: var(--color-muted); cursor: pointer; list-style: none; }
+.models-item-eye svg, .models-item-menu summary svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.models-item-eye[aria-pressed='false'] { color: var(--color-danger); }
+.models-item-menu summary { font-size: 1.25rem; line-height: 1; }
+.models-item-menu summary::-webkit-details-marker, .models-item-menu summary::after { display: none; }
+.models-item-menu[open] summary { background: var(--color-surface-sunken); }
+.models-item-menu-actions { display: flex; flex-direction: column; gap: 2px; min-width: 10rem; padding: 4px; }
+.models-item-menu-actions button { box-sizing: border-box; min-height: 44px; padding: 0 .75rem; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--color-text); text-align: left; font: inherit; font-size: .875rem; }
+.models-item-menu-actions button:hover { background: var(--color-surface-sunken); }
+.models-item-menu-actions .models-item-danger { color: var(--color-danger); }
+.viewer-models-toggle { display: none; }
+
+@media (min-width: 1000px) {
+  /* Camera view presets move to the bottom-left of the viewport (mockup), a compact horizontal row
+   * that no longer competes with the top-right corner, which the models drawer toggle now uses. */
+  .viewer-view-presets { top: auto; right: auto; bottom: 12px; left: 12px; flex-direction: row; }
+  .viewer-view-presets .ui-button { min-width: 44px; padding: 4px 10px; }
+
+  /* A compact "Models" toggle at the top-right, freed up by the view presets' move to bottom-left. */
+  .viewer-models-toggle {
+    display: grid; grid-auto-flow: column; align-items: center; gap: 6px; position: absolute; top: 12px; right: 12px; z-index: 10;
+    box-sizing: border-box; min-width: 44px; min-height: 44px; padding: 0 .75rem; border: 0; border-radius: var(--radius-lg);
+    background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-card); font: 600 .875rem var(--font-body); cursor: pointer;
+  }
+  .viewer-models-toggle[aria-pressed='true'] { background: var(--color-primary-soft); color: var(--color-primary); }
+  .viewer-models-toggle svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* The drawer itself: a scrollable card under the toggle, only shown while open. It is an overlay
+   * (like the transform rail and the import pill), so it never shrinks the stage computed in
+   * workspace.css — opening it never fights the "bigger viewer" fix with a permanent sidebar. */
+  .models-list { position: absolute; top: 4.75rem; right: 12px; z-index: 10; width: 15rem; max-width: calc(100% - 24px); max-height: calc(100% - 4.75rem - 12px); overflow-y: auto; box-sizing: border-box; padding: 6px; border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); }
+  .models-list[data-open='false'] { display: none; }
+  .models-list ul { flex-direction: column; overflow: visible; }
+  .models-item { border-radius: var(--radius-sm); }
+  .models-item-icon { display: grid; place-items: center; padding-left: 6px; color: var(--color-muted); }
+  .models-item-name { flex: 1 1 auto; text-align: left; }
 }

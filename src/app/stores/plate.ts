@@ -15,6 +15,9 @@ export interface PlateObject {
   extruder?: number;
   /** Colors/materials declared by the source file. An object may carry several; nothing assumes a single material. */
   materials?: ObjectMaterial[];
+  /** Plate visibility (Models list eye toggle). Undefined means visible — every existing caller that
+   * builds a PlateObject literal without this field (tests, import) keeps working unchanged. */
+  visible?: boolean;
 }
 
 export interface PlateState { objects: PlateObject[]; selectedId: string | undefined }
@@ -53,6 +56,16 @@ export const plate = {
     setState('selectedId', newId);
   },
   select(id: string | undefined): void { setState('selectedId', id); },
+  setVisible(id: string, visible: boolean): void {
+    const index = state.objects.findIndex((object) => object.id === id);
+    if (index >= 0) setState('objects', index, 'visible', visible);
+  },
+  renameObject(id: string, name: string): void {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const index = state.objects.findIndex((object) => object.id === id);
+    if (index >= 0) setState('objects', index, 'name', trimmed);
+  },
   updateTransform(id: string, transform: ObjectTransform, options: { dropToBed?: boolean } = {}): void {
     const index = state.objects.findIndex((object) => object.id === id);
     if (index < 0) return;

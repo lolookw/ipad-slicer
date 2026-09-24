@@ -231,16 +231,22 @@ test('custom printer form rejects invalid dimensions and labels a valid printer 
   await expect(page.getByLabel('Printer', { exact: true })).toContainText('not individually smoke-tested');
 });
 
+// The Models list nav now also carries a visibility eye-toggle and a "..." menu per row (task 3), so
+// `getByRole('button')` inside it would match more than one element per object; these tests scope to
+// the name button specifically via its stable class, which keeps the exact same role/accessible-name/
+// aria-pressed/data-transform contract the old bare chip row used.
+const modelsItemNames = (page: import('@playwright/test').Page) => page.getByRole('navigation', { name: 'Plate objects' }).locator('.models-item-name');
+
 test('STL imports remain independently selectable and an invalid file preserves the plate', async ({ page }) => {
   await page.goto('/');
   await importStl(page, 'first.stl');
   await importStl(page, 'second.stl');
-  await expect(page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button')).toHaveCount(2);
+  await expect(modelsItemNames(page)).toHaveCount(2);
   await page.getByRole('button', { name: 'first.stl', exact: true }).click();
   await expect(page.getByRole('button', { name: 'first.stl', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.getByLabel('Import model').setInputFiles({ name: 'broken.stl', mimeType: 'model/stl', buffer: Buffer.from([1, 2, 3]) });
   await expect(page.getByRole('alert').filter({ hasText: /STL/i })).toBeVisible();
-  await expect(page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button')).toHaveCount(2);
+  await expect(modelsItemNames(page)).toHaveCount(2);
   await expect(page.getByRole('button', { name: 'first.stl', exact: true })).toHaveAttribute('aria-pressed', 'true');
 });
 
@@ -307,6 +313,9 @@ test('dragging an unselected object selects it and moves it on the plate in one 
 test('the X arrow moves only along world X, snapped to whole millimeters', async ({ page }) => {
   await page.goto('/');
   await importStl(page, 'arrow-x.stl', binaryBoxStl());
+  // Arrows only exist (are drawn/hit-testable) in Move mode: Select is the default now, per the
+  // Select/Move/Rotate mode toolbar (task 2) that replaced the old unlabeled "Ajuste" button.
+  await page.getByRole('button', { name: 'Move', exact: true }).click();
   const gizmo = await gizmoScreen(page);
   const before = await readTransform(page, 'arrow-x.stl');
   const grab = along(gizmo.center, gizmo.arrows.x, 0.45);
@@ -327,6 +336,7 @@ test('the X arrow moves only along world X, snapped to whole millimeters', async
 test('the Z arrow is the only way to lift and never sinks below the plate', async ({ page }) => {
   await page.goto('/');
   await importStl(page, 'arrow-z.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Move', exact: true }).click();
   const gizmo = await gizmoScreen(page);
   const before = await readTransform(page, 'arrow-z.stl');
   const grab = along(gizmo.center, gizmo.arrows.z, 0.45);
@@ -347,6 +357,8 @@ test('the Z arrow is the only way to lift and never sinks below the plate', asyn
 test('the Z ring rotates only about world Z in 15 degree steps', async ({ page }) => {
   await page.goto('/');
   await importStl(page, 'ring-z.stl', binaryBoxStl());
+  // Rings only exist (are drawn/hit-testable) in Rotate mode; see the Move-mode comment above.
+  await page.getByRole('button', { name: 'Rotate', exact: true }).click();
   const gizmo = await gizmoScreen(page);
   const before = await readTransform(page, 'ring-z.stl');
   const grab = gizmo.rings.z;
@@ -374,6 +386,7 @@ test('the Z ring rotates only about world Z in 15 degree steps', async ({ page }
 test('a continuous ring drag sweeping past 180 degrees keeps the live angle readout climbing, never flipping sign', async ({ page }) => {
   await page.goto('/');
   await importStl(page, 'ring-continuous.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Rotate', exact: true }).click();
   const gizmo = await gizmoScreen(page);
   const grab = gizmo.rings.z;
   const radial = { x: grab.x - gizmo.center.x, y: grab.y - gizmo.center.y };
@@ -407,6 +420,81 @@ test('a continuous ring drag sweeping past 180 degrees keeps the live angle read
   const direction = Math.sign(deltas[0]!);
   expect(direction).not.toBe(0);
   for (const delta of deltas) expect(Math.sign(delta)).toBe(direction);
+});
+
+test('Select is the default mode: an arrow drag does nothing until Move is chosen', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'select-default.stl', binaryBoxStl());
+  await expect(page.getByRole('button', { name: 'Select', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  const before = await readTransform(page, 'select-default.stl');
+  let gizmo = await gizmoScreen(page);
+  const grab1 = along(gizmo.center, gizmo.arrows.x, 0.45);
+
+  // Dragging exactly where the X arrow would be, in Select mode, is empty canvas (no handle exists
+  // yet): it must never move the object, whether the drag pans the camera or no-ops.
+  await dragTo(page, grab1, { x: grab1.x + 40, y: grab1.y + 20 });
+  expect((await readTransform(page, 'select-default.stl')).position).toEqual(before.position);
+
+  await page.getByRole('button', { name: 'Move', exact: true }).click();
+  gizmo = await gizmoScreen(page); // re-read: the Select-mode drag above may have orbited the camera
+  const grab2 = along(gizmo.center, gizmo.arrows.x, 0.45);
+  await dragTo(page, grab2, { x: grab2.x + 40, y: grab2.y + 20 });
+  await expect.poll(async () => (await readTransform(page, 'select-default.stl')).position).not.toEqual(before.position);
+});
+
+test('the Models list eye toggle hides an object from both the viewport and picking, and shows it again', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'hideable.stl', binaryBoxStl());
+  const { center } = await gizmoScreen(page);
+  await page.getByRole('button', { name: 'Deselect', exact: true }).click();
+
+  const hide = page.getByRole('button', { name: 'Hide hideable.stl', exact: true });
+  await expect(hide).toHaveAttribute('aria-pressed', 'true');
+  await hide.click();
+  await expect(hide).toHaveCount(0);
+  const show = page.getByRole('button', { name: 'Show hideable.stl', exact: true });
+  await expect(show).toHaveAttribute('aria-pressed', 'false');
+
+  // Clicking where the (now hidden) object sits must not pick/select it.
+  await page.mouse.click(center.x, center.y);
+  await expect(page.getByRole('button', { name: 'hideable.stl', exact: true })).toHaveAttribute('aria-pressed', 'false');
+
+  await show.click();
+  await page.mouse.click(center.x, center.y);
+  await expect(page.getByRole('button', { name: 'hideable.stl', exact: true })).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('the Models list "..." menu duplicates, renames and deletes an object', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'menu-target.stl', binaryBoxStl());
+  // The "..." trigger is a native <summary> (a details/summary disclosure, the same pattern the
+  // Preferences popover already uses elsewhere in this app, see openPreferences() above): it
+  // opens/closes without needing a role, so this locates and opens it the same defensive way
+  // openPreferences() does, rather than betting on a browser's implicit ARIA role for <summary>.
+  const openMenu = async (name: string) => {
+    const details = page.locator('.models-item-menu').filter({ has: page.locator(`summary[aria-label="More actions for ${name}"]`) });
+    if (!(await details.evaluate(element => (element as HTMLDetailsElement).open))) await details.locator('summary').click();
+  };
+
+  await openMenu('menu-target.stl');
+  await page.getByRole('button', { name: 'Duplicate menu-target.stl', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'menu-target.stl copy', exact: true })).toBeVisible();
+
+  page.once('dialog', dialog => void dialog.accept('Renamed model'));
+  await openMenu('menu-target.stl');
+  await page.getByRole('button', { name: 'Rename menu-target.stl', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Renamed model', exact: true })).toBeVisible();
+
+  await openMenu('menu-target.stl copy');
+  await page.getByRole('button', { name: 'Delete menu-target.stl copy', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'menu-target.stl copy', exact: true })).toHaveCount(0);
+});
+
+test('the Models list shows every object with five or more on the plate', async ({ page }) => {
+  await page.goto('/');
+  for (let i = 1; i <= 5; i += 1) await importStl(page, `bulk-${i}.stl`, binaryBoxStl());
+  await expect(modelsItemNames(page)).toHaveCount(5);
+  for (let i = 1; i <= 5; i += 1) await expect(page.getByRole('button', { name: `bulk-${i}.stl`, exact: true })).toBeVisible();
 });
 
 test('a two-finger touch gesture goes to the camera, cancels a one-finger move and never edits the object', async ({ page }) => {
@@ -497,7 +585,7 @@ test('two imported objects round-trip through real engine orient and arrange', a
   await page.goto('/'); await configureEngine(page);
   await importStl(page, 'prepare-a.stl', binaryBoxStl());
   await importStl(page, 'prepare-b.stl', binaryBoxStl());
-  const objects = page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button');
+  const objects = modelsItemNames(page);
   const before = await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')));
   await page.getByRole('button', { name: 'Orient and arrange' }).click();
   await expect(page.locator('.configuration-ui p[role="status"]')).toHaveText('Plate orientation and arrangement updated.', { timeout: 45_000 });
@@ -520,7 +608,7 @@ test.describe('engine failure simulation (service worker disabled)', () => {
     await page.goto('/'); await configureEngine(page);
     await importStl(page, 'failure-a.stl', binaryBoxStl());
     await importStl(page, 'failure-b.stl', binaryBoxStl());
-    const objects = page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button');
+    const objects = modelsItemNames(page);
     const before = await objects.evaluateAll(items => items.map(item => item.getAttribute('data-transform')));
     await page.getByRole('button', { name: 'Orient and arrange' }).click();
     await expect(page.locator('.configuration-ui p[role="status"]')).toContainText(/failed|error|fetch|engine/i, { timeout: 20_000 });
@@ -685,7 +773,7 @@ test('the Import step reads a 3MF into one plate object per build item', async (
   await openImportStep(page);
   await page.getByTestId('import-file-input').setInputFiles({ name: 'pair.3mf', mimeType: 'model/3mf', buffer: threeMfWithTwoObjects() });
   await expect(page.getByText('2 models added to the plate.')).toBeVisible();
-  const objects = page.getByRole('navigation', { name: 'Plate objects' }).getByRole('button');
+  const objects = modelsItemNames(page);
   await expect(objects).toHaveCount(2);
   await expect(page.getByRole('button', { name: 'Left wedge', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Right wedge', exact: true })).toBeVisible();

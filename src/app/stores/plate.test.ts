@@ -77,3 +77,31 @@ describe('plate store keeps objects seated on the plate (world Z = 0)', () => {
     expect(worldMinZ(BOUNDS, copy.transform)).toBeCloseTo(0, 4);
   });
 });
+
+describe('plate store Models list actions', () => {
+  beforeEach(() => plate.clear());
+
+  it('is visible by default and setVisible toggles it without touching other objects', () => {
+    plate.addObject({ id: 'a', name: 'a', bounds: BOUNDS, triangleCount: 12, transform: IDENTITY_TRANSFORM });
+    plate.addObject({ id: 'b', name: 'b', bounds: BOUNDS, triangleCount: 12, transform: IDENTITY_TRANSFORM });
+    expect(plate.state.objects[0]!.visible).not.toBe(false);
+
+    plate.setVisible('a', false);
+
+    expect(plate.state.objects.find(object => object.id === 'a')!.visible).toBe(false);
+    expect(plate.state.objects.find(object => object.id === 'b')!.visible).not.toBe(false);
+
+    plate.setVisible('a', true);
+    expect(plate.state.objects.find(object => object.id === 'a')!.visible).toBe(true);
+  });
+
+  it('renameObject trims the new name and ignores an empty one', () => {
+    plate.addObject({ id: 'a', name: 'original.stl', bounds: BOUNDS, triangleCount: 12, transform: IDENTITY_TRANSFORM });
+
+    plate.renameObject('a', '  Renamed.stl  ');
+    expect(plate.state.objects[0]!.name).toBe('Renamed.stl');
+
+    plate.renameObject('a', '   ');
+    expect(plate.state.objects[0]!.name).toBe('Renamed.stl');
+  });
+});
