@@ -136,6 +136,36 @@ export const en = {
     ironingType: { label: 'Ironing' }, seamPosition: { label: 'Seam position' }, fuzzySkin: { label: 'Fuzzy skin' },
     gcodeFlavor: { label: 'G-code flavor' }, beforeLayerGcode: { label: 'Before-layer G-code' }, layerChangeGcode: { label: 'Layer-change G-code' },
     startGcode: { label: 'Start G-code' }, endGcode: { label: 'End G-code' }, filamentCost: { label: 'Filament cost' }, filamentDensity: { label: 'Filament density' },
+    options: {
+      supportType: {
+        'normal(auto)': 'Normal (automatic)', 'tree(auto)': 'Tree (automatic)',
+        'normal(manual)': 'Normal (manual)', 'tree(manual)': 'Tree (manual)',
+      },
+      brimType: {
+        auto_brim: 'Auto', brim_ears: 'Corners only', painted: 'Painted (manual)', outer_only: 'Outer edge only',
+        inner_only: 'Inner edge only', outer_and_inner: 'Outer and inner edges', no_brim: 'None',
+      },
+      infillPattern: {
+        rectilinear: 'Straight lines', alignedrectilinear: 'Aligned straight lines', zigzag: 'Zigzag', 'zig-zag': 'Zigzag', crosszag: 'Cross zigzag',
+        lockedzag: 'Locked zigzag', line: 'Lines', grid: 'Grid', triangles: 'Triangles', 'tri-hexagon': 'Tri-hexagon',
+        cubic: 'Cubic', adaptivecubic: 'Adaptive cubic', quartercubic: 'Quarter cubic', supportcubic: 'Support cubic',
+        lightning: 'Lightning (fast, light)', honeycomb: 'Honeycomb', '3dhoneycomb': '3D honeycomb',
+        'lateral-honeycomb': 'Lateral honeycomb', 'lateral-lattice': 'Lateral lattice', crosshatch: 'Crosshatch',
+        tpmsd: 'TPMS-D', tpmsfk: 'TPMS-FK', gyroid: 'Gyroid', concentric: 'Concentric circles',
+        hilbertcurve: 'Hilbert curve', archimedeanchords: 'Archimedean chords', octagramspiral: 'Octagram spiral',
+      },
+      bedType: {
+        'Cool Plate': 'Cool plate', 'Engineering Plate': 'Engineering plate', 'High Temp Plate': 'High-temp plate',
+        'Textured PEI Plate': 'Textured PEI plate', 'Textured Cool Plate': 'Textured cool plate', 'Supertack Plate': 'Supertack plate',
+      },
+      gcodeFlavor: { marlin: 'Marlin', klipper: 'Klipper', reprapfirmware: 'RepRapFirmware', repetier: 'Repetier', marlin2: 'Marlin 2' },
+      ironingType: { 'no ironing': 'None', top: 'Top surface', topmost: 'Topmost layer only', solid: 'All solid surfaces' },
+      seamPosition: { nearest: 'Nearest point', aligned: 'Aligned', aligned_back: 'Aligned to the back', back: 'Back', random: 'Random' },
+      fuzzySkin: {
+        none: 'Off', external: 'Outer walls', hole: 'Holes only', all: 'All walls',
+        allwalls: 'All walls (top and bottom too)', disabled_fuzzy: 'Disabled',
+      },
+    },
   },
   errors: {
     'viewer-start-failed': 'The 3D viewer could not start.',

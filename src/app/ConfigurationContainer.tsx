@@ -8,6 +8,7 @@ import { PresetTransfer } from '../settings/components/PresetTransfer';
 import { decodeNative, encodeNative } from '../settings/codec';
 import { mergeResolvedSettings } from '../settings/merge';
 import { SETTINGS, GCODE_FLAVORS, type SettingKey } from '../settings/schema';
+import { optionLabel } from '../settings/optionLabels';
 import { hasBlockingIssues, validateSettings } from '../settings/validate';
 import { exportPresetBundle, importPresetBundle } from '../storage/import-export';
 import { PresetRepository } from '../storage/presets-repo';
@@ -61,6 +62,7 @@ export function ConfigurationContainer() {
     estimates: t('configuration.estimates'), unavailable: t('configuration.unavailable'), reset: t('configuration.reset'), plateWide: t('configuration.plateWide'),
     categories: { quality: t('configuration.categories.quality'), strength: t('configuration.categories.strength'), speed: t('configuration.categories.speed'), support: t('configuration.categories.support'), others: t('configuration.categories.others') },
     setting: (key: SettingKey) => t(SETTINGS[key].labelKey as TranslationKey),
+    optionLabel: (key: SettingKey, value: string) => optionLabel(t, key, value),
   });
   const makeCustom = async (values: CustomPrinterValues) => {
     try {

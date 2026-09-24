@@ -18,6 +18,7 @@ const labels: SettingsLabels = {
   mode: 'Settings mode',
   modeSimple: 'Simple', modeAdvanced: 'Advanced', infill: 'Infill', supports: 'Supports', supportType: 'Support type', brimType: 'Brim type', brimWidth: 'Brim width', arrange: 'Arrange', estimates: 'Estimates', unavailable: 'Unavailable', reset: 'Reset', plateWide: 'Plate-wide',
   categories: { quality: 'Quality', strength: 'Strength', speed: 'Speed', support: 'Support', others: 'Others' }, setting: key => key,
+  optionLabel: (_key, value) => value,
 };
 
 let host: HTMLDivElement; let dispose: (() => void) | undefined;

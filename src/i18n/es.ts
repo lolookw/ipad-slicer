@@ -129,6 +129,36 @@ export const es = {
     ironingType: { label: 'Planchado' }, seamPosition: { label: 'Posición de costura' }, fuzzySkin: { label: 'Textura rugosa' },
     gcodeFlavor: { label: 'Formato de G-code' }, beforeLayerGcode: { label: 'G-code previo a la capa' }, layerChangeGcode: { label: 'G-code de cambio de capa' },
     startGcode: { label: 'G-code inicial' }, endGcode: { label: 'G-code final' }, filamentCost: { label: 'Costo del filamento' }, filamentDensity: { label: 'Densidad del filamento' },
+    options: {
+      supportType: {
+        'normal(auto)': 'Normal (automático)', 'tree(auto)': 'Árbol (automático)',
+        'normal(manual)': 'Normal (manual)', 'tree(manual)': 'Árbol (manual)',
+      },
+      brimType: {
+        auto_brim: 'Automático', brim_ears: 'Solo en las esquinas', painted: 'Pintado (manual)', outer_only: 'Solo borde exterior',
+        inner_only: 'Solo borde interior', outer_and_inner: 'Bordes exterior e interior', no_brim: 'Ninguno',
+      },
+      infillPattern: {
+        rectilinear: 'Líneas rectas', alignedrectilinear: 'Líneas rectas alineadas', zigzag: 'Zigzag', 'zig-zag': 'Zigzag', crosszag: 'Zigzag cruzado',
+        lockedzag: 'Zigzag bloqueado', line: 'Líneas', grid: 'Cuadrícula', triangles: 'Triángulos', 'tri-hexagon': 'Tri-hexágono',
+        cubic: 'Cúbico', adaptivecubic: 'Cúbico adaptativo', quartercubic: 'Cúbico a un cuarto', supportcubic: 'Cúbico de soporte',
+        lightning: 'Rayo (rápido y liviano)', honeycomb: 'Panal de abeja', '3dhoneycomb': 'Panal 3D',
+        'lateral-honeycomb': 'Panal lateral', 'lateral-lattice': 'Retícula lateral', crosshatch: 'Entramado cruzado',
+        tpmsd: 'TPMS-D', tpmsfk: 'TPMS-FK', gyroid: 'Giroide', concentric: 'Círculos concéntricos',
+        hilbertcurve: 'Curva de Hilbert', archimedeanchords: 'Cuerdas de Arquímedes', octagramspiral: 'Espiral octagonal',
+      },
+      bedType: {
+        'Cool Plate': 'Placa fría', 'Engineering Plate': 'Placa de ingeniería', 'High Temp Plate': 'Placa de alta temperatura',
+        'Textured PEI Plate': 'Placa PEI texturizada', 'Textured Cool Plate': 'Placa fría texturizada', 'Supertack Plate': 'Placa Supertack',
+      },
+      gcodeFlavor: { marlin: 'Marlin', klipper: 'Klipper', reprapfirmware: 'RepRapFirmware', repetier: 'Repetier', marlin2: 'Marlin 2' },
+      ironingType: { 'no ironing': 'Ninguno', top: 'Superficie superior', topmost: 'Solo la última capa', solid: 'Todas las superficies sólidas' },
+      seamPosition: { nearest: 'Punto más cercano', aligned: 'Alineada', aligned_back: 'Alineada atrás', back: 'Atrás', random: 'Aleatoria' },
+      fuzzySkin: {
+        none: 'Desactivado', external: 'Paredes exteriores', hole: 'Solo agujeros', all: 'Todas las paredes',
+        allwalls: 'Todas las paredes (con superior e inferior)', disabled_fuzzy: 'Deshabilitado',
+      },
+    },
   },
   errors: {
     'viewer-start-failed': 'No se pudo iniciar el visor 3D.',

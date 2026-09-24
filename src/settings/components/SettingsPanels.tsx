@@ -10,6 +10,7 @@ export interface SettingsLabels {
   brimType: string; brimWidth: string; arrange: string; estimates: string; unavailable: string;
   reset: string; plateWide: string; categories: Record<AdvancedCategory, string>;
   setting: (key: SettingKey) => string;
+  optionLabel: (key: SettingKey, value: string) => string;
 }
 export interface SettingsPanelProps {
   mode: 'simple' | 'advanced'; values?: NativeSettings; overrides: Partial<Record<SettingKey, SettingValue>>;
@@ -58,8 +59,8 @@ export function SettingsPanels(props: SettingsPanelProps) {
     <Show when={props.mode === 'simple'}>
       <label class="control-entry" data-simple-entry>{props.labels.infill}<input class="ui-target" type="number" min="0" max="100" value={String(scalar(read('sparse_infill_density')))} onChange={event => change('sparse_infill_density', event.currentTarget)} /></label>
       <label class="control-entry" data-simple-entry><input class="ui-target" type="checkbox" checked={Boolean(scalar(read('enable_support')))} onChange={event => change('enable_support', event.currentTarget)} />{props.labels.supports}</label>
-      <Show when={Boolean(scalar(read('enable_support')))}><label class="control-entry" data-simple-entry>{props.labels.supportType}<select class="ui-target" value={String(scalar(read('support_type')))} onChange={event => change('support_type', event.currentTarget)}>{SUPPORT_TYPES.map(value => <option value={value}>{value}</option>)}</select></label></Show>
-      <label class="control-entry" data-simple-entry>{props.labels.brimType}<select class="ui-target" value={String(scalar(read('brim_type')))} onChange={event => change('brim_type', event.currentTarget)}>{BRIM_TYPES.map(value => <option value={value}>{value}</option>)}</select></label>
+      <Show when={Boolean(scalar(read('enable_support')))}><label class="control-entry" data-simple-entry>{props.labels.supportType}<select class="ui-target" value={String(scalar(read('support_type')))} onChange={event => change('support_type', event.currentTarget)}>{SUPPORT_TYPES.map(value => <option value={value}>{props.labels.optionLabel('support_type', value)}</option>)}</select></label></Show>
+      <label class="control-entry" data-simple-entry>{props.labels.brimType}<select class="ui-target" value={String(scalar(read('brim_type')))} onChange={event => change('brim_type', event.currentTarget)}>{BRIM_TYPES.map(value => <option value={value}>{props.labels.optionLabel('brim_type', value)}</option>)}</select></label>
       <label class="control-entry" data-simple-entry>{props.labels.brimWidth}<input class="ui-target" type="number" min="0" max="100" value={String(scalar(read('brim_width')))} onChange={event => change('brim_width', event.currentTarget)} /></label>
       <button class="ui-target control-entry" data-simple-entry type="button" onClick={props.onArrange}>{props.labels.arrange}</button>
       <output class="estimate-readout">{props.labels.estimates}: {props.labels.unavailable}</output>
@@ -68,14 +69,14 @@ export function SettingsPanels(props: SettingsPanelProps) {
     <Show when={props.mode === 'advanced'}><For each={Object.entries(CATEGORIES) as [AdvancedCategory, readonly SettingKey[]][]}>{([category, keys]) =>
       <details open><summary>{props.labels.categories[category]}</summary><div class="advanced-grid"><For each={category === 'others' && selectedBedTemperatureKey(props.values ?? {}) ? [...keys, selectedBedTemperatureKey(props.values ?? {})!, `${selectedBedTemperatureKey(props.values ?? {})!}_initial_layer`] as SettingKey[] : keys}>{key =>
         <Show when={read(key) !== undefined}><SettingField settingKey={key} value={scalar(read(key))} label={props.labels.setting(key)} overridden={props.overrides[key] !== undefined}
-          resetLabel={props.labels.reset} onChange={target => change(key, target)} onReset={() => props.onReset(key)} /></Show>
+          resetLabel={props.labels.reset} optionLabel={props.labels.optionLabel} onChange={target => change(key, target)} onReset={() => props.onReset(key)} /></Show>
       }</For></div></details>}</For><p class="plate-wide-note">{props.labels.plateWide}</p></Show>
   </section>;
 }
 
-function SettingField(props: { settingKey: SettingKey; value: string | number | boolean; label: string; overridden: boolean; resetLabel: string; onChange: (target: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement) => void; onReset: () => void }) {
+function SettingField(props: { settingKey: SettingKey; value: string | number | boolean; label: string; overridden: boolean; resetLabel: string; optionLabel: (key: SettingKey, value: string) => string; onChange: (target: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement) => void; onReset: () => void }) {
   const definition = SETTINGS[props.settingKey];
   return <div class="setting-row"><label>{props.label}<Show when={definition.enum} fallback={<Show when={definition.type === 'bool'} fallback={<Show when={definition.type === 'gcode'} fallback={<input class="ui-target" type="number" min={definition.min} max={definition.max} value={String(props.value)} onChange={event => props.onChange(event.currentTarget)} />}><textarea class="ui-target" value={String(props.value)} onChange={event => props.onChange(event.currentTarget)} /></Show>}><input class="ui-target" type="checkbox" checked={Boolean(props.value)} onChange={event => props.onChange(event.currentTarget)} /></Show>}>
-    <select class="ui-target" value={String(props.value)} onChange={event => props.onChange(event.currentTarget)}>{definition.enum?.map(value => <option value={value}>{value}</option>)}</select></Show> <span>{unit(props.settingKey)}</span></label>
+    <select class="ui-target" value={String(props.value)} onChange={event => props.onChange(event.currentTarget)}>{definition.enum?.map(value => <option value={value}>{props.optionLabel(props.settingKey, value)}</option>)}</select></Show> <span>{unit(props.settingKey)}</span></label>
     <button class="ui-target" type="button" disabled={!props.overridden} onClick={props.onReset}>{props.resetLabel}</button></div>;
 }

@@ -4,7 +4,11 @@ export const OBSOLETE_SETTINGS = new Set(['adaptive_layer_height']);
 export const SUPPORT_TYPES = ['normal(auto)', 'tree(auto)', 'normal(manual)', 'tree(manual)'] as const;
 export const BRIM_TYPES = ['auto_brim', 'brim_ears', 'painted', 'outer_only', 'inner_only', 'outer_and_inner', 'no_brim'] as const;
 export const INFILL_PATTERNS = [
-  'rectilinear', 'alignedrectilinear', 'zigzag', 'crosszag', 'lockedzag', 'line', 'grid', 'triangles',
+  // 'zig-zag' is a real, engine-accepted spelling some catalog profiles (e.g. Elegoo Centauri) use
+  // alongside 'zigzag' (their smoke-tested combos already prove the real WASM engine accepts it) —
+  // both are kept as separate, independently valid values so neither one renders as an invalid,
+  // blank selection.
+  'rectilinear', 'alignedrectilinear', 'zigzag', 'zig-zag', 'crosszag', 'lockedzag', 'line', 'grid', 'triangles',
   'tri-hexagon', 'cubic', 'adaptivecubic', 'quartercubic', 'supportcubic', 'lightning', 'honeycomb',
   '3dhoneycomb', 'lateral-honeycomb', 'lateral-lattice', 'crosshatch', 'tpmsd', 'tpmsfk', 'gyroid',
   'concentric', 'hilbertcurve', 'archimedeanchords', 'octagramspiral',
