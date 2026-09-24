@@ -1,13 +1,15 @@
-import { For, Show, createEffect, createSignal, on, onCleanup, onMount, type Accessor, type JSX } from 'solid-js';
+import { Show, createEffect, createSignal, on, onCleanup, onMount, type Accessor, type JSX } from 'solid-js';
 import type { TierDecision } from '../app/tier/decide';
 import { binaries, flow } from '../app/stores';
 import { plate } from '../app/stores/plate';
 import { Vector3 } from 'three';
 import { attachCameraControls, type ViewerCameraControls } from './camera';
+import { ModelsList, type ModelsListLabels } from './components/ModelsList';
 import { ViewPresets, type ViewCommand } from './components/ViewPresets';
 import { ViewerToolbarContainer } from './components/ViewerToolbarContainer';
 import { releaseMesh } from './geometry-cache';
 import { createGizmo } from './gizmo';
+import type { GizmoMode } from './gizmo-handles';
 import { objectCenter, orbitPivot } from './drag-math';
 import { createViewerGestures, type ViewerGestures } from './gestures';
 import { importSession } from './import-session';
@@ -30,6 +32,17 @@ export function ViewerWorkspace(props: {
   let gestures: ViewerGestures | undefined;
   const [readout, setReadout] = createSignal<string>();
   const [snapEnabled, setSnapEnabled] = createSignal(true);
+  /** Select/Move/Rotate mode toolbar: which gizmo handle kind (if any) is drawn and hit-testable. */
+  const [mode, setMode] = createSignal<GizmoMode>('select');
+  /**
+   * Wide/desktop only (narrow always shows the models strip inline, see viewer-components.css):
+   * whether the Models drawer is open. Defaults open: the drawer is an absolute overlay (it never
+   * changes the stage's own computed size — see workspace.css), so opening it by default costs
+   * nothing toward the "bigger viewer" fix, while defaulting it CLOSED would hide the object's own
+   * name button (the plate's primary select/rename/duplicate/delete surface) behind an extra tap on
+   * every wide layout, which is a functional regression, not just a cosmetic default.
+   */
+  const [modelsOpen, setModelsOpen] = createSignal(true);
   const gizmo = createGizmo(setReadout);
   const [startError, setStartError] = createSignal<string>();
   const [viewerReady, setViewerReady] = createSignal(false);
@@ -84,6 +97,7 @@ export function ViewerWorkspace(props: {
         onVisualChange: () => activeViewer.requestRender(),
         onTransformEnd: applyPivot,
       });
+      activeViewer.gizmo.setMode(mode());
       applyPivot();
       sync(); viewer.start(); setViewerReady(true);
     } catch (reason) {
@@ -93,6 +107,11 @@ export function ViewerWorkspace(props: {
 
   // The pivot follows selection changes; drags and fits re-apply it when they finish.
   createEffect(on(() => plate.state.selectedId, () => applyPivot(), { defer: true }));
+
+  // The mode toolbar (Select/Move/Rotate) only changes which handles gizmo-handles.ts draws and
+  // hit-tests; it never touches gestures.ts's own priority (handle > body > camera), so direct body
+  // drag-to-move and click-to-select keep working in every mode, exactly as before this toolbar existed.
+  createEffect(on(mode, (next) => { viewer?.gizmo.setMode(next); viewer?.requestRender(); }, { defer: true }));
 
   // Opening the preview frees the plate meshes' GPU buffers (CPU arrays stay cached); returning re-uploads them.
   createEffect(on([viewerReady, () => props.previewOpen?.() ?? false], ([ready, open], previous) => {
@@ -111,6 +130,16 @@ export function ViewerWorkspace(props: {
   const objectCount = () => app.t('viewer.objectCount').replace('{count}', String(plate.state.objects.length))
     .replace('{limit}', String(props.tierDecision().limits.objects));
 
+  const modelsListLabels = (): ModelsListLabels => ({
+    hide: name => app.t('viewer.modelsHide').replace('{name}', name),
+    show: name => app.t('viewer.modelsShow').replace('{name}', name),
+    menu: name => app.t('viewer.modelsMenu').replace('{name}', name),
+    duplicate: name => app.t('viewer.modelsDuplicate').replace('{name}', name),
+    delete: name => app.t('viewer.modelsDelete').replace('{name}', name),
+    rename: name => app.t('viewer.modelsRename').replace('{name}', name),
+    renamePrompt: app.t('viewer.modelsRenamePrompt'),
+  });
+
   return <section class="viewer-workspace" aria-label={app.t('viewer.workspace')}>
     <header class="viewer-import">
       <label class="viewer-import-button"><span>{app.t('viewer.importModel')}</span>
@@ -123,19 +152,32 @@ export function ViewerWorkspace(props: {
     <div class="viewer-stage" style={{ position: 'relative' }}>
       <canvas ref={canvas} data-testid="viewer-canvas" aria-label={app.t('viewer.buildPlate')} />
       <Show when={plate.state.objects.length && !props.previewOpen?.()}>
-        <ViewerToolbarContainer readout={readout()} snapEnabled={snapEnabled()} onSnapToggle={() => setSnapEnabled(value => !value)} />
+        <ViewerToolbarContainer readout={readout()} snapEnabled={snapEnabled()} onSnapToggle={() => setSnapEnabled(value => !value)}
+          mode={mode()} onModeChange={setMode} />
         <ViewPresets labels={{ group: app.t('viewer.viewPresets'), fit: app.t('viewer.viewFit'), top: app.t('viewer.viewTop'), front: app.t('viewer.viewFront'), iso: app.t('viewer.viewIso') }}
           onView={command => void runView(command)} />
+        {/* Wide layout only (viewer-components.css hides this under 1000px, where the list below is
+         * always shown inline instead): toggles the Models drawer without permanently narrowing the
+         * viewer's own sizing (see workspace.css). */}
+        <button type="button" class="viewer-models-toggle" aria-pressed={modelsOpen()} aria-expanded={modelsOpen()}
+          onClick={() => setModelsOpen(value => !value)}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z" /></svg>
+          <span>{app.t('viewer.models')}</span>
+        </button>
       </Show>
       {props.preview}
     </div>
     <Show when={plate.state.objects.length}>
-      <nav class="viewer-objects" aria-label={app.t('viewer.plateObjects')}>
-        <For each={plate.state.objects}>{object =>
-          <button type="button" aria-pressed={plate.state.selectedId === object.id}
-            data-transform={JSON.stringify(object.transform)} onClick={() => plate.select(object.id)}>{object.name}</button>}
-        </For>
-      </nav>
+      <ModelsList objects={plate.state.objects} selectedId={plate.state.selectedId} label={app.t('viewer.plateObjects')}
+        labels={modelsListLabels()} open={modelsOpen()}
+        onSelect={id => plate.select(id)}
+        onToggleVisible={id => {
+          const current = plate.state.objects.find(object => object.id === id);
+          if (current) plate.setVisible(id, current.visible === false);
+        }}
+        onDuplicate={id => plate.duplicateObject(id, globalThis.crypto.randomUUID())}
+        onDelete={id => plate.removeObject(id)}
+        onRename={(id, name) => plate.renameObject(id, name)} />
     </Show>
   </section>;
 }

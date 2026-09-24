@@ -6,24 +6,29 @@
 .viewer-import-button input { box-sizing: border-box; width: 8.5rem; min-width: 44px; min-height: 44px; padding: 0; border: 0; background: transparent; color: transparent; font-size: 0; cursor: pointer; }
 .viewer-import-button input::file-selector-button { box-sizing: border-box; min-height: 44px; margin: 0; padding: 0 1rem; border: 0; border-radius: var(--radius-sm); background: var(--color-primary); color: var(--color-on-accent); font: 600 .9375rem var(--font-body); cursor: pointer; }
 .viewer-import-button input:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; border-radius: var(--radius-sm); }
-.viewer-objects button { box-sizing: border-box; min-width: 44px; min-height: 44px; padding: .5rem 1rem; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); color: var(--color-text); font: 500 .9375rem var(--font-body); }
-/* Square stage: side is capped by the viewport height so the plate is never cropped. */
+/* Square stage: side is capped by the viewport height so the plate is never cropped. Wide/desktop
+ * layouts override this below to a full-bleed rectangle instead (see the width/height comments there
+ * for why a forced square wastes the exact space a wide monitor has the most of). */
 .viewer-stage { --stage-size: min(100%, 64dvh); flex: 0 0 auto; position: relative; width: var(--stage-size); aspect-ratio: 1 / 1; margin-inline: auto; overflow: hidden; border-radius: var(--radius-md); }
 .viewer-stage canvas { width: 100%; height: 100%; display: block; touch-action: none; border-radius: var(--radius-md); }
-.viewer-objects { display: flex; gap: .5rem; overflow-x: auto; }
-.viewer-objects:empty { display: none; }
-.viewer-objects button { flex: 0 0 auto; }
-.viewer-objects button[aria-pressed='true'] { border-width: 2px; border-color: var(--color-primary); background: var(--color-primary-soft); color: var(--color-primary); font-weight: 600; }
 .viewer-error { margin: 0; padding: .625rem .875rem; border-radius: var(--radius-sm); background: var(--color-danger-soft); color: var(--color-danger); font-size: .9375rem; }
 @media (min-width: 1000px) {
-  /* Wide layout: import controls and object chips float over the stage so the square can use the full height. */
-  .viewer-workspace { position: relative; gap: 0; padding: .5rem; align-self: start; }
-  .viewer-stage { --stage-size: min(calc(100dvh - var(--topbar-h, 64px) - 5.5rem), 64vw); margin-inline: 0; }
+  /* Wide layout: import controls, the models drawer and camera presets float over the stage so it
+   * can use the workspace's full box instead of sharing flow space with them. */
+  .viewer-workspace { position: relative; gap: 0; padding: .5rem; display: flex; flex-direction: column; min-height: 0; }
+  /* The stage is the only in-flow child left (import/error/models/presets are all absolute overlays
+   * below), so flex-grow alone gives it the workspace's entire box — no more guessing a vw share for
+   * width and a dvh share for height independently. This is also why the settings pane gets a
+   * max-width cap in app.css: on a genuinely wide monitor the pane used to claim the 1fr leftover
+   * column and the stage's old `min(dvh-term, 64vw)` formula was bounded by the (already near-maximal)
+   * height term regardless, so a bigger vw cap alone never actually grew it — capping the pane and
+   * dropping the forced 1:1 aspect for a full-bleed rectangle is what makes the viewport visibly
+   * bigger on 1920x1080 / 2560x1440, not a larger vw number. */
+  .viewer-stage { flex: 1 1 auto; width: 100%; min-height: 0; min-width: 0; aspect-ratio: auto; margin-inline: 0; }
   .viewer-import { position: absolute; top: 1rem; left: 1rem; z-index: 3; gap: .75rem; padding: 4px 4px 4px 12px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--color-surface) 88%, transparent); backdrop-filter: blur(6px); }
   .viewer-error { position: absolute; top: 4.5rem; left: 1rem; right: 1rem; z-index: 3; }
-  .viewer-objects { position: absolute; left: 1rem; right: 1rem; bottom: 1rem; z-index: 3; }
-  /* The transform rail shares the left edge with the floating import pill above it and the object
-   * chips below it; leave room on both ends so a longer tool list never overlaps either one. */
+  /* The transform rail shares the left edge with the floating import pill above it; leave room below
+   * it so a longer tool list never overlaps the (now bottom-left) camera view presets. */
   .viewer-transform-toolbar { top: 4.75rem; max-height: calc(100% - 4.75rem - 12px - 4rem); }
 }
 @media (max-width: 699px) { .viewer-workspace { padding: .5rem; } }

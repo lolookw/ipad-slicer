@@ -54,6 +54,32 @@ describe('gizmo layout', () => {
       Math.hypot(best[0] - layout.arrows.x.tip[0] * 0.8 - layout.center[0] * 0.2, best[1] - layout.arrows.x.tip[1] * 0.8 - layout.center[1] * 0.2) ? point : best);
     expect(hitTestLayout(layout, onZRing[0], onZRing[1])?.kind).toBe('arrow');
   });
+
+  it('restricts hits to one handle kind per mode toolbar mode, and to none in select mode', () => {
+    const layout = computeGizmoLayout(center, camera(400), SIZE, SIZE);
+    const tip = layout.arrows.x.tip;
+    const arrowPoint: [number, number] = [tip[0] + 20, tip[1]]; // same point the "44 px touch target" test above confirms hits only the arrow
+    const ringPoint = ringGrabPoint(layout, 'z'); // "clear of every other handle" by construction
+    // The exact point the "favors an arrow over a ring" test above proves is within radius of BOTH
+    // the X arrow and the Z ring at once (arrow wins there when both are candidates): the strongest
+    // proof a mode filter actually suppresses a handle, rather than merely finding nothing nearby.
+    const crossing = layout.rings.z.reduce((best, point) => Math.hypot(point[0] - tip[0] * 0.8 - layout.center[0] * 0.2, point[1] - tip[1] * 0.8 - layout.center[1] * 0.2) <
+      Math.hypot(best[0] - tip[0] * 0.8 - layout.center[0] * 0.2, best[1] - tip[1] * 0.8 - layout.center[1] * 0.2) ? point : best);
+
+    expect(hitTestLayout(layout, arrowPoint[0], arrowPoint[1], HIT_RADIUS_PX, 'move')).toEqual({ kind: 'arrow', axis: 'x' });
+    expect(hitTestLayout(layout, ringPoint[0], ringPoint[1], HIT_RADIUS_PX, 'move')).toBeUndefined();
+    expect(hitTestLayout(layout, crossing[0], crossing[1], HIT_RADIUS_PX, 'move')).toEqual({ kind: 'arrow', axis: 'x' });
+
+    expect(hitTestLayout(layout, ringPoint[0], ringPoint[1], HIT_RADIUS_PX, 'rotate')).toEqual({ kind: 'ring', axis: 'z' });
+    // Same pixel as the 'move' assertion above, which resolved to the arrow: with the arrow excluded,
+    // a ring now wins instead (which axis is incidental here — the crossing point sits near more than
+    // one ring at this camera angle — what matters is that it flips from 'arrow' to 'ring').
+    expect(hitTestLayout(layout, crossing[0], crossing[1], HIT_RADIUS_PX, 'rotate')?.kind).toBe('ring');
+
+    expect(hitTestLayout(layout, crossing[0], crossing[1], HIT_RADIUS_PX, 'select')).toBeUndefined();
+    expect(hitTestLayout(layout, arrowPoint[0], arrowPoint[1], HIT_RADIUS_PX, 'select')).toBeUndefined();
+    expect(hitTestLayout(layout, ringPoint[0], ringPoint[1], HIT_RADIUS_PX, 'select')).toBeUndefined();
+  });
 });
 
 describe('gizmo view', () => {
@@ -87,6 +113,32 @@ describe('gizmo view', () => {
     view.setHover(undefined);
     view.setPressed(undefined);
     for (const axis of AXIS_NAMES) expect([...materials].some(material => material.color.getHex() === AXIS_COLORS[axis])).toBe(true);
+    view.dispose();
+  });
+
+  it('defaults to select mode (no handle drawn or hit-testable) and setMode switches both drawing and hit-testing together', () => {
+    const view = createGizmoView();
+    view.setCenter(center);
+    const arrows = () => view.root.children.filter(child => (child as Mesh).geometry.type !== 'TorusGeometry');
+    const rings = () => view.root.children.filter(child => (child as Mesh).geometry.type === 'TorusGeometry');
+    expect(arrows().every(mesh => (mesh as Mesh).visible === false)).toBe(true);
+    expect(rings().every(mesh => (mesh as Mesh).visible === false)).toBe(true);
+    expect(view.hitTest(0, 0, camera(400), SIZE, SIZE)).toBeUndefined();
+
+    expect(view.setMode('move')).toBe(true);
+    expect(view.setMode('move')).toBe(false); // no-op, already that mode
+    expect(arrows().every(mesh => (mesh as Mesh).visible === true)).toBe(true);
+    expect(rings().every(mesh => (mesh as Mesh).visible === false)).toBe(true);
+    const layout = view.layout(camera(400), SIZE, SIZE)!;
+    const tip = layout.arrows.x.tip;
+    const arrowPoint: [number, number] = [tip[0] + 20, tip[1]];
+    const ringPoint = ringGrabPoint(layout, 'z'); // clear of every other handle by construction
+    expect(view.hitTest(arrowPoint[0], arrowPoint[1], camera(400), SIZE, SIZE)).toEqual({ kind: 'arrow', axis: 'x' });
+
+    view.setMode('rotate');
+    expect(arrows().every(mesh => (mesh as Mesh).visible === false)).toBe(true);
+    expect(rings().every(mesh => (mesh as Mesh).visible === true)).toBe(true);
+    expect(view.hitTest(ringPoint[0], ringPoint[1], camera(400), SIZE, SIZE)).toEqual({ kind: 'ring', axis: 'z' });
     view.dispose();
   });
 });

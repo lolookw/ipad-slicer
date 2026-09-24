@@ -118,7 +118,10 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
     requestRender() { dirty = true; },
     pickAt(ndcX, ndcY, radiusPx) {
       const width = Math.max(canvas.clientWidth, 1); const height = Math.max(canvas.clientHeight, 1);
-      const targets = [...meshes.values()];
+      // A hidden plate object (Models list eye toggle) is excluded here even though three's own
+      // Raycaster does not itself skip invisible objects: mesh.visible is the single source of truth
+      // syncObjects below keeps in sync with PlateObject.visible, so filtering on it here is enough.
+      const targets = [...meshes.values()].filter(mesh => mesh.visible);
       for (const [dx, dy] of pickOffsets(radiusPx)) {
         raycaster.setFromCamera(new Vector2(ndcX + dx / width * 2, ndcY - dy / height * 2), camera);
         const hit = raycaster.intersectObjects(targets, false)[0];
@@ -149,6 +152,7 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
           meshes.set(object.id, mesh);
         }
         applyTransform(mesh, object.transform);
+        mesh.visible = object.visible !== false;
         (mesh.material as MeshStandardMaterial).color.set(object.id === selectedId ? SELECTED_COLOR : DEFAULT_COLOR);
       }
       for (const [id, mesh] of meshes) if (!seen.has(id)) {
@@ -156,8 +160,10 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
         (mesh.material as MeshStandardMaterial).dispose();
         meshes.delete(id);
       }
+      // A hidden selected object hides the gizmo too (mirrors pickAt above): there is nothing visible
+      // to grab a handle on, and no other way to reach the gizmo center for it.
       const selected = selectedId ? next.find(object => object.id === selectedId) : undefined;
-      gizmo.setCenter(selected && meshes.has(selected.id) ? objectCenter(selected.bounds, selected.transform) : undefined);
+      gizmo.setCenter(selected && meshes.has(selected.id) && selected.visible !== false ? objectCenter(selected.bounds, selected.transform) : undefined);
       dirty = true;
     },
     start,

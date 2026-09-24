@@ -2,6 +2,7 @@ import { createSignal, Show } from 'solid-js';
 import { useApp } from '../../app/AppProvider';
 import { plate, selectedObject } from '../../app/stores/plate';
 import { resolvedSettings } from '../../app/stores/configuration';
+import type { GizmoMode } from '../gizmo-handles';
 import { TransformToolbar, type TransformToolbarLabels } from './TransformToolbar';
 import { prepareCurrentPlate } from '../gizmo';
 import { findBestOrientation, resolveAutoOrientPlacement } from '../auto-orient';
@@ -26,6 +27,8 @@ export function PlateObjectToolbar(props: {
   readout?: string;
   snapEnabled?: boolean;
   onSnapToggle?: () => void;
+  mode?: GizmoMode;
+  onModeChange?: (mode: 'select' | 'move' | 'rotate') => void;
 }) {
   const [scaleOpen, setScaleOpen] = createSignal(false);
   const object = () => selectedObject();
@@ -36,6 +39,7 @@ export function PlateObjectToolbar(props: {
   };
   return <TransformToolbar object={object()} scaleOpen={scaleOpen()} labels={props.labels}
     readout={props.readout} snapEnabled={props.snapEnabled ?? true} onSnapToggle={props.onSnapToggle ?? (() => undefined)}
+    mode={props.mode ?? 'select'} onModeChange={props.onModeChange ?? (() => undefined)}
     onScaleOpen={() => setScaleOpen(true)} onScaleClose={() => setScaleOpen(false)}
     onRotate={axis => { const selected = object(); if (selected) plate.rotate90(selected.id, axis); }}
     onDuplicate={() => { const selected = object(); if (selected) plate.duplicateObject(selected.id, globalThis.crypto.randomUUID()); }}
@@ -58,7 +62,10 @@ export function PlateObjectToolbar(props: {
     }} />;
 }
 
-export function ViewerToolbarContainer(props: { readout?: string; snapEnabled: boolean; onSnapToggle: () => void }) {
+export function ViewerToolbarContainer(props: {
+  readout?: string; snapEnabled: boolean; onSnapToggle: () => void;
+  mode: GizmoMode; onModeChange: (mode: 'select' | 'move' | 'rotate') => void;
+}) {
   const app = useApp();
   const { t } = app;
   // configuration.notice only renders inside ConfigurationContainer, which is unmounted while this
@@ -67,7 +74,8 @@ export function ViewerToolbarContainer(props: { readout?: string; snapEnabled: b
   // spot" placement warning is always shown wherever the user actually triggered it.
   const [notice, setNotice] = createSignal<string>();
   const labels = (): TransformToolbarLabels => ({
-    toolbar: t('viewer.toolbar'), snap: t('viewer.snap'),
+    toolbar: t('viewer.toolbar'), mode: t('viewer.mode'), select: t('viewer.select'), move: t('viewer.move'), rotate: t('viewer.rotate'),
+    snap: t('viewer.snap'),
     deselect: t('viewer.deselect'), layFlat: t('viewer.layFlat'), autoOrient: t('viewer.autoOrient'),
     rotateX: t('viewer.rotateX'), rotateY: t('viewer.rotateY'), scale: t('viewer.scale'), duplicate: t('viewer.duplicate'),
     delete: t('viewer.delete'), reset: t('viewer.reset'), title: t('viewer.scaleTitle'), close: t('viewer.close'), size: t('viewer.size'),
@@ -77,6 +85,7 @@ export function ViewerToolbarContainer(props: { readout?: string; snapEnabled: b
   return <>
     <Show when={notice()}>{message => <p class="viewer-toolbar-notice" role="alert">{message()}</p>}</Show>
     <PlateObjectToolbar labels={labels()} readout={props.readout} snapEnabled={props.snapEnabled} onSnapToggle={props.onSnapToggle}
+      mode={props.mode} onModeChange={props.onModeChange}
       translateError={app.translateError} onPrepareError={message => setNotice(message)}
       onAutoOrientNoFreeSpot={() => setNotice(t('viewer.autoOrientNoFreeSpot'))} />
   </>;

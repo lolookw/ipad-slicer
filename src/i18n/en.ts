@@ -86,8 +86,12 @@ export const en = {
   viewer: {
     workspace: 'Model workspace', importModel: 'Import model', buildPlate: '3D build plate', plateObjects: 'Plate objects', objectCount: '{count}/{limit} objects',
     toolbar: 'Selected object tools',
+    mode: 'Transform mode', select: 'Select', move: 'Move', rotate: 'Rotate',
     snap: 'Snap',
     viewPresets: 'Camera view', viewFit: 'Fit', viewTop: 'Top', viewFront: 'Front', viewIso: 'Iso',
+    models: 'Models', modelsList: 'Models on the plate',
+    modelsHide: 'Hide {name}', modelsShow: 'Show {name}', modelsMenu: 'More actions for {name}',
+    modelsDuplicate: 'Duplicate {name}', modelsDelete: 'Delete {name}', modelsRename: 'Rename {name}', modelsRenamePrompt: 'New name',
     deselect: 'Deselect',
     layFlat: 'Lay flat',
     layFlatPending: 'Lay flat unlocks after engine integration in phase 7.',
