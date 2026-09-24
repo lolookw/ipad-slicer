@@ -105,6 +105,7 @@ function createAppValue() {
   onMount(() => {
     void openSettingsDatabase().then(database => database.close()).catch(() => undefined);
     void configuration.loadIndex();
+    void configuration.loadCustomFilaments();
     onCleanup(bindConnectivityEvents());
     void registerServiceWorker({
       isBusy: () => result.state.status === 'slicing' || result.state.finishingPreviousSlice,
