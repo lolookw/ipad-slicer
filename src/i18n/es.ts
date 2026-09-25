@@ -94,6 +94,7 @@ export const es = {
   viewer: {
     workspace: 'Espacio de trabajo del modelo', importModel: 'Importar modelo', buildPlate: 'Placa de impresión 3D', plateObjects: 'Objetos de la placa', objectCount: '{count}/{limit} objetos',
     toolbar: 'Herramientas del objeto seleccionado',
+    history: 'Historial de deshacer',
     mode: 'Modo de transformación', select: 'Seleccionar', move: 'Mover', rotate: 'Girar',
     snap: 'Ajuste',
     viewPresets: 'Vista de cámara', viewFit: 'Ajustar', viewTop: 'Superior', viewFront: 'Frontal', viewIso: 'Iso',
@@ -111,6 +112,8 @@ export const es = {
     duplicate: 'Duplicar',
     delete: 'Eliminar',
     reset: 'Restablecer',
+    undo: 'Deshacer',
+    redo: 'Rehacer',
     scaleTitle: 'Tamaño del objeto',
     close: 'Cerrar',
     size: 'Dimensión mayor',

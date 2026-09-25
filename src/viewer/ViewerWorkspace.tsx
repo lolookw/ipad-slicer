@@ -2,6 +2,7 @@ import { Show, createEffect, createSignal, on, onCleanup, onMount, type Accessor
 import type { TierDecision } from '../app/tier/decide';
 import { binaries, flow } from '../app/stores';
 import { plate } from '../app/stores/plate';
+import { canRedo, canUndo, record, recordAsync } from '../app/stores/history';
 import { Vector3 } from 'three';
 import { attachCameraControls, type ViewerCameraControls } from './camera';
 import { ModelsList, type ModelsListLabels } from './components/ModelsList';
@@ -123,7 +124,8 @@ export function ViewerWorkspace(props: {
   onCleanup(() => { gestures?.dispose(); controls?.dispose(); viewer?.dispose(); });
 
   const importFiles = async (files: FileList | null) => {
-    await importSession.importFiles(files ? Array.from(files) : [], props.tierDecision().limits);
+    // One "Import model" file-picker action counts as one history entry, however many files/objects it adds.
+    await recordAsync(() => importSession.importFiles(files ? Array.from(files) : [], props.tierDecision().limits));
     sync();
   };
 
@@ -151,9 +153,16 @@ export function ViewerWorkspace(props: {
     <Show when={error()}>{failure => <p class="viewer-error" role="alert">{app.translateError(failure())}</p>}</Show>
     <div class="viewer-stage" style={{ position: 'relative' }}>
       <canvas ref={canvas} data-testid="viewer-canvas" aria-label={app.t('viewer.buildPlate')} />
-      <Show when={plate.state.objects.length && !props.previewOpen?.()}>
+      {/* Undo can be the only way back after deleting the plate's last object, and Redo must stay
+       * reachable even after undoing every last one of those objects away, so this stays mounted
+       * whenever there is either a live object OR history in EITHER direction to act on — not gated
+       * on object count alone like the camera-view/Models-drawer controls just below, which have
+       * nothing meaningful to do on a truly empty plate. */}
+      <Show when={(plate.state.objects.length || canUndo() || canRedo()) && !props.previewOpen?.()}>
         <ViewerToolbarContainer readout={readout()} snapEnabled={snapEnabled()} onSnapToggle={() => setSnapEnabled(value => !value)}
           mode={mode()} onModeChange={setMode} />
+      </Show>
+      <Show when={plate.state.objects.length && !props.previewOpen?.()}>
         <ViewPresets labels={{ group: app.t('viewer.viewPresets'), fit: app.t('viewer.viewFit'), top: app.t('viewer.viewTop'), front: app.t('viewer.viewFront'), iso: app.t('viewer.viewIso') }}
           onView={command => void runView(command)} />
         {/* Wide layout only (viewer-components.css hides this under 1000px, where the list below is
@@ -173,15 +182,17 @@ export function ViewerWorkspace(props: {
         onSelect={id => plate.select(id)}
         onToggleVisible={id => {
           const current = plate.state.objects.find(object => object.id === id);
-          if (current) plate.setVisible(id, current.visible === false);
+          if (current) record(() => plate.setVisible(id, current.visible === false));
         }}
         onDuplicate={id => {
           const newId = globalThis.crypto.randomUUID();
-          duplicateMeshBuffers(id, newId); // mesh data must exist before the store's syncObjects effect looks for it
-          plate.duplicateObject(id, newId);
+          record(() => {
+            duplicateMeshBuffers(id, newId); // mesh data must exist before the store's syncObjects effect looks for it
+            plate.duplicateObject(id, newId);
+          });
         }}
-        onDelete={id => plate.removeObject(id)}
-        onRename={(id, name) => plate.renameObject(id, name)} />
+        onDelete={id => record(() => plate.removeObject(id))}
+        onRename={(id, name) => record(() => plate.renameObject(id, name))} />
     </Show>
   </section>;
 }

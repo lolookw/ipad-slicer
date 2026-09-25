@@ -539,6 +539,138 @@ test('a duplicated object is a real, pickable mesh at its own position, not just
   await expect(copy).toHaveAttribute('aria-pressed', 'true');
 });
 
+test('undo after a move restores the exact prior position', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'undo-move.stl', binaryBoxStl());
+  const before = await readTransform(page, 'undo-move.stl');
+  const { center } = await gizmoScreen(page);
+
+  await dragTo(page, center, { x: center.x + 60, y: center.y + 20 });
+  await expect.poll(async () => (await readTransform(page, 'undo-move.stl')).position).not.toEqual(before.position);
+
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+
+  expect(await readTransform(page, 'undo-move.stl')).toEqual(before);
+});
+
+test('undo after a rotate restores the exact prior rotation', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'undo-rotate.stl', binaryBoxStl());
+  const before = await readTransform(page, 'undo-rotate.stl');
+
+  await page.getByRole('button', { name: 'Rotate 90° X', exact: true }).click();
+  await expect.poll(async () => (await readTransform(page, 'undo-rotate.stl')).rotation).not.toEqual(before.rotation);
+
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+
+  expect(await readTransform(page, 'undo-rotate.stl')).toEqual(before);
+});
+
+test('undo after deleting an object brings back a real, pickable mesh, not just a list row', async ({ page }) => {
+  // THE critical hazard this covers: PlateObject records (plate.ts) and their renderable mesh data
+  // (geometry-cache.ts) live in two separate, unsynchronized places. ViewerWorkspace.tsx's reactive
+  // sync() effect releases a deleted object's mesh the instant its id leaves the store; if undo just
+  // reinserted the old record without first re-registering that mesh, it would come back as an
+  // invisible, unpickable ghost — exactly the bug duplicateMeshBuffers was added to fix for Duplicate.
+  await page.goto('/');
+  await importStl(page, 'keep.stl', binaryBoxStl());
+  await importStl(page, 'delete-me.stl', binaryBoxStl());
+  const deleteMe = page.getByRole('button', { name: 'delete-me.stl', exact: true });
+  await deleteMe.click(); // selects it via its own list row, not a canvas pick
+  // Both boxes import at the same default plate position: move this one clear of keep.stl first via
+  // the numeric Position field (selection here is by DOM element, not raycasting) so the on-canvas
+  // click at the end is unambiguous — a canvas drag at this point could grab whichever of the two
+  // fully-coincident meshes the raycaster happens to hit first, not necessarily this one.
+  await page.getByRole('button', { name: 'Edit values', exact: true }).click();
+  const positionX = page.getByRole('spinbutton', { name: 'Position X', exact: true });
+  await positionX.fill('40');
+  await positionX.blur();
+  await expect.poll(async () => (await readTransform(page, 'delete-me.stl')).position[0]).toBeCloseTo(40, 1);
+  await page.getByRole('button', { name: 'Close', exact: true }).click(); // close the fields sheet before it can occlude the canvas
+  const { center } = await gizmoScreen(page); // delete-me.stl's own on-canvas position, now clear of keep.stl
+  const before = await readTransform(page, 'delete-me.stl');
+
+  await page.getByRole('button', { name: 'Delete', exact: true }).click();
+  await expect(deleteMe).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+
+  await expect(deleteMe).toBeVisible();
+  expect(await readTransform(page, 'delete-me.stl')).toEqual(before);
+
+  // Deselect, then click precisely where the restored object's own mesh should render: a real pick
+  // against a real BufferGeometry, not just a Models list row reappearing (same technique the
+  // duplicate regression test above uses).
+  await page.getByRole('button', { name: 'Deselect', exact: true }).click();
+  await expect(deleteMe).toHaveAttribute('aria-pressed', 'false');
+  await page.mouse.click(center.x, center.y);
+  await expect(deleteMe).toHaveAttribute('aria-pressed', 'true');
+});
+
+test('redo re-applies an undone change', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'redo-target.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Rotate 90° X', exact: true }).click();
+  const rotated = await readTransform(page, 'redo-target.stl');
+
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+  const reverted = await readTransform(page, 'redo-target.stl');
+  expect(reverted.rotation).not.toEqual(rotated.rotation);
+
+  await page.getByRole('button', { name: 'Redo', exact: true }).click();
+
+  expect(await readTransform(page, 'redo-target.stl')).toEqual(rotated);
+});
+
+test('undo after duplicate removes exactly the duplicate, not the original', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'dup-undo.stl', binaryBoxStl());
+  const before = await readTransform(page, 'dup-undo.stl');
+
+  await page.getByRole('button', { name: 'Duplicate', exact: true }).click();
+  const copy = page.getByRole('button', { name: 'dup-undo.stl copy', exact: true });
+  await expect(copy).toBeVisible();
+
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+
+  await expect(copy).toHaveCount(0);
+  const original = page.getByRole('button', { name: 'dup-undo.stl', exact: true });
+  await expect(original).toBeVisible();
+  expect(await readTransform(page, 'dup-undo.stl')).toEqual(before);
+});
+
+test('Undo and Redo are correctly disabled at each end of the history stack', async ({ page }) => {
+  await page.goto('/');
+  const undoButton = page.getByRole('button', { name: 'Undo', exact: true });
+  const redoButton = page.getByRole('button', { name: 'Redo', exact: true });
+
+  // Two separate imports = two undoable entries; nothing has been undone yet, so Redo starts disabled.
+  await importStl(page, 'first.stl', binaryBoxStl());
+  await importStl(page, 'second.stl', binaryBoxStl());
+  await expect(undoButton).toBeEnabled();
+  await expect(redoButton).toBeDisabled();
+
+  await page.getByRole('button', { name: 'Rotate 90° X', exact: true }).click();
+  await expect(undoButton).toBeEnabled();
+  await expect(redoButton).toBeDisabled();
+
+  await undoButton.click(); // undoes the rotate
+  await expect(undoButton).toBeEnabled(); // the two imports are still on the stack
+  await expect(redoButton).toBeEnabled();
+
+  await undoButton.click(); // undoes the second import
+  await undoButton.click(); // undoes the first import -> the plate (and its undo stack) is now empty
+  await expect(page.getByRole('button', { name: 'first.stl', exact: true })).toHaveCount(0);
+  await expect(undoButton).toBeDisabled();
+  await expect(redoButton).toBeEnabled();
+
+  await redoButton.click();
+  await redoButton.click();
+  await redoButton.click();
+  await expect(redoButton).toBeDisabled();
+  await expect(undoButton).toBeEnabled();
+});
+
 test('the Models list shows every object with five or more on the plate', async ({ page }) => {
   await page.goto('/');
   for (let i = 1; i <= 5; i += 1) await importStl(page, `bulk-${i}.stl`, binaryBoxStl());

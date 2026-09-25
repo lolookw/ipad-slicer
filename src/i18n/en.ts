@@ -102,6 +102,7 @@ export const en = {
   viewer: {
     workspace: 'Model workspace', importModel: 'Import model', buildPlate: '3D build plate', plateObjects: 'Plate objects', objectCount: '{count}/{limit} objects',
     toolbar: 'Selected object tools',
+    history: 'Undo history',
     mode: 'Transform mode', select: 'Select', move: 'Move', rotate: 'Rotate',
     snap: 'Snap',
     viewPresets: 'Camera view', viewFit: 'Fit', viewTop: 'Top', viewFront: 'Front', viewIso: 'Iso',
@@ -119,6 +120,8 @@ export const en = {
     duplicate: 'Duplicate',
     delete: 'Delete',
     reset: 'Reset',
+    undo: 'Undo',
+    redo: 'Redo',
     scaleTitle: 'Object size',
     close: 'Close',
     size: 'Largest dimension',

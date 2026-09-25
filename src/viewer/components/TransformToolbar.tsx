@@ -9,6 +9,8 @@ import './viewer-components.css';
 
 export interface TransformToolbarLabels extends ScaleSheetLabels, TransformFieldsLabels {
   toolbar: string;
+  /** Accessible name for the standalone Undo/Redo rail shown when nothing is selected (see TransformToolbar's comment). */
+  history: string;
   mode: string;
   select: string;
   move: string;
@@ -23,6 +25,8 @@ export interface TransformToolbarLabels extends ScaleSheetLabels, TransformField
   duplicate: string;
   delete: string;
   reset: string;
+  undo: string;
+  redo: string;
 }
 
 export interface TransformToolbarProps {
@@ -44,6 +48,10 @@ export interface TransformToolbarProps {
   onDuplicate: () => void;
   onDelete: () => void;
   onReset: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
   onTransform: (transform: ObjectTransform) => void;
   onTransformNoReseat: (transform: ObjectTransform) => void;
   onDeselect: () => void;
@@ -67,10 +75,32 @@ const ICONS = {
   delete: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
   reset: 'M4 12a8 8 0 1 0 2.5-5.8M4 4v5h5',
   close: 'M6 6l12 12M18 6L6 18',
+  undo: 'M9 7L4 12l5 5M4 12h11a5 5 0 0 0 0-10',
+  redo: 'M15 7l5 5-5 5M20 12H9a5 5 0 0 1 0-10',
 };
 
+/**
+ * Undo/Redo stay reachable even with nothing selected: deleting the plate's last remaining object is
+ * exactly when a user most wants Undo, and removeObject() clears selectedId once nothing is left, so
+ * gating these two buttons behind `props.object` (like every other control here) would hide the one
+ * button able to bring it back. `Show`'s `fallback` keeps this an either/or with the full "Object
+ * tools" toolbar below, so there is still only ever one floating rail on screen: with an object
+ * selected, Undo/Redo sit inline next to Reset in that toolbar (a11y name "Object tools", unchanged
+ * from before); with nothing selected, a second, differently-labeled ("Undo history") rail takes its
+ * place holding only Undo/Redo — a distinct role/name pair so this never overlaps the selected-object
+ * toolbar's own automated (accessible-name-scoped) checks.
+ */
 export function TransformToolbar(props: TransformToolbarProps) {
-  return <Show when={props.object}>{object => <>
+  return <Show when={props.object} fallback={
+    <Show when={props.canUndo || props.canRedo}>
+      <div class="viewer-transform-toolbar" role="toolbar" aria-label={props.labels.history}>
+        <div class="viewer-secondary-actions">
+          <Button variant="secondary" icon={<Svg d={ICONS.undo} />} disabled={!props.canUndo} onClick={props.onUndo}>{props.labels.undo}</Button>
+          <Button variant="secondary" icon={<Svg d={ICONS.redo} />} disabled={!props.canRedo} onClick={props.onRedo}>{props.labels.redo}</Button>
+        </div>
+      </div>
+    </Show>
+  }>{object => <>
     <div class="viewer-transform-toolbar" role="toolbar" aria-label={props.labels.toolbar}>
       {/* Primary mode group: Select (direct manipulation only) / Move (arrows only) / Rotate (rings
        * only) — radio-button semantics via aria-pressed, one active at a time. This is the toolbar
@@ -93,6 +123,8 @@ export function TransformToolbar(props: TransformToolbarProps) {
         <Button variant="secondary" icon={<Svg d={ICONS.duplicate} />} onClick={props.onDuplicate}>{props.labels.duplicate}</Button>
         <Button variant="danger" icon={<Svg d={ICONS.delete} />} onClick={props.onDelete}>{props.labels.delete}</Button>
         <Button variant="secondary" icon={<Svg d={ICONS.reset} />} onClick={props.onReset}>{props.labels.reset}</Button>
+        <Button variant="secondary" icon={<Svg d={ICONS.undo} />} disabled={!props.canUndo} onClick={props.onUndo}>{props.labels.undo}</Button>
+        <Button variant="secondary" icon={<Svg d={ICONS.redo} />} disabled={!props.canRedo} onClick={props.onRedo}>{props.labels.redo}</Button>
       </div>
       <div class="viewer-toolbar-divider" aria-hidden="true" />
       {/* Less frequent actions, kept out of the primary rail so they don't compete with Move/Rotate for space. */}
