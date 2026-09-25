@@ -18,9 +18,9 @@ function finMeshBuffers() {
 }
 
 const labels: TransformToolbarLabels = {
-  toolbar: 'Object tools', mode: 'Transform mode', select: 'Select', move: 'Move', rotate: 'Rotate', snap: 'Snap',
+  toolbar: 'Object tools', history: 'Undo history', mode: 'Transform mode', select: 'Select', move: 'Move', rotate: 'Rotate', snap: 'Snap',
   deselect: 'Deselect', layFlat: 'Lay flat', autoOrient: 'Auto orient', rotateX: 'Rotate X', rotateY: 'Rotate Y',
-  scale: 'Scale', duplicate: 'Duplicate', delete: 'Delete', reset: 'Reset', title: 'Object size', close: 'Close', size: 'Largest dimension',
+  scale: 'Scale', duplicate: 'Duplicate', delete: 'Delete', reset: 'Reset', undo: 'Undo', redo: 'Redo', title: 'Object size', close: 'Close', size: 'Largest dimension',
   unit: 'Size unit', suspicious: 'Suspicious size', multiply25_4: '×25.4', multiply1000: '×1000', divide10: '÷10', keep: 'Keep as entered', resize: 'Resize',
   editValues: 'Edit values', transformTitle: 'Object transform',
   positionHeading: 'Position (mm)', positionX: 'Position X', positionY: 'Position Y', positionZ: 'Position Z',

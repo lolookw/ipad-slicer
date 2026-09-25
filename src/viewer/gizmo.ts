@@ -6,6 +6,7 @@ import {
 } from './drag-math';
 import { plate, type PlateObject } from '../app/stores/plate';
 import { resolvedSettings } from '../app/stores/configuration';
+import { beginTransaction, record, type HistoryTransaction } from '../app/stores/history';
 import { engineClient } from '../engine/client';
 import { encodeEngineTransforms, fromEngineTransform, toEngineTransform, type ObjectTransform } from './transforms';
 
@@ -60,7 +61,8 @@ export async function prepareCurrentPlate(operation: 1 | 2 | 3): Promise<void> {
     transform: encodeEngineTransforms([toEngineTransform(object.transform, operation === 2)]), extruderId: 1 }));
   const prepared = await engineClient.prepare(JSON.stringify(settings), messages, operation);
   const next = new Map(snapshot.map((object, index) => [object.id, fromEngineTransform(prepared[index]!, object.transform)]));
-  plate.applyPreparedTransforms(next);
+  // One history entry per prepare result (Lay flat or Orient-and-arrange), however many objects it touches.
+  record(() => plate.applyPreparedTransforms(next));
 }
 
 const copy = (transform: ObjectTransform): ObjectTransform => ({
@@ -74,6 +76,11 @@ const copy = (transform: ObjectTransform): ObjectTransform => ({
  */
 export function createGizmo(onReadout?: (value: string | undefined) => void): Gizmo {
   let session: Session | undefined;
+  // Brackets the whole drag (begin..end/cancel) into ONE history entry, never one per pointer-move
+  // frame: commit() below fires on every update() call, but the transaction only captures "before" at
+  // begin() and "after" once, at end() — cancel() discards without recording (the transform is already
+  // back to its pre-drag value by then, via commit(session.startTransform), so there is nothing to undo).
+  let historyTx: HistoryTransaction | undefined;
 
   const commit = (transform: ObjectTransform) => {
     if (session) plate.updateTransform(session.objectId, transform, { dropToBed: false });
@@ -83,6 +90,7 @@ export function createGizmo(onReadout?: (value: string | undefined) => void): Gi
     get active() { return session !== undefined; },
     get lockedObjectId() { return session?.objectId; },
     begin(object, target, ray) {
+      historyTx = beginTransaction();
       const startTransform = copy(object.transform);
       const center = objectCenter(object.bounds, startTransform);
       session = { objectId: object.id, target, bounds: object.bounds, startTransform, center, wasOnPlate: restsOnPlate(object.bounds, startTransform) };
@@ -135,8 +143,15 @@ export function createGizmo(onReadout?: (value: string | undefined) => void): Gi
     cancel() {
       if (session) commit(session.startTransform);
       session = undefined;
+      historyTx?.discard();
+      historyTx = undefined;
       onReadout?.(undefined);
     },
-    end() { session = undefined; onReadout?.(undefined); },
+    end() {
+      session = undefined;
+      historyTx?.commit();
+      historyTx = undefined;
+      onReadout?.(undefined);
+    },
   };
 }

@@ -2,6 +2,7 @@ import { createSignal, Show } from 'solid-js';
 import { useApp } from '../../app/AppProvider';
 import { plate, selectedObject } from '../../app/stores/plate';
 import { resolvedSettings } from '../../app/stores/configuration';
+import { canRedo, canUndo, record, redo, undo } from '../../app/stores/history';
 import type { GizmoMode } from '../gizmo-handles';
 import { TransformToolbar, type TransformToolbarLabels } from './TransformToolbar';
 import { prepareCurrentPlate } from '../gizmo';
@@ -41,20 +42,23 @@ export function PlateObjectToolbar(props: {
   return <TransformToolbar object={object()} scaleOpen={scaleOpen()} transformFieldsOpen={transformFieldsOpen()} labels={props.labels}
     readout={props.readout} snapEnabled={props.snapEnabled ?? true} onSnapToggle={props.onSnapToggle ?? (() => undefined)}
     mode={props.mode ?? 'select'} onModeChange={props.onModeChange ?? (() => undefined)}
+    canUndo={canUndo()} canRedo={canRedo()} onUndo={() => undo()} onRedo={() => redo()}
     onScaleOpen={() => setScaleOpen(true)} onScaleClose={() => setScaleOpen(false)}
     onTransformFieldsOpen={() => setTransformFieldsOpen(true)} onTransformFieldsClose={() => setTransformFieldsOpen(false)}
-    onRotate={axis => { const selected = object(); if (selected) plate.rotate90(selected.id, axis); }}
+    onRotate={axis => { const selected = object(); if (selected) record(() => plate.rotate90(selected.id, axis)); }}
     onDuplicate={() => {
       const selected = object();
       if (!selected) return;
       const newId = globalThis.crypto.randomUUID();
-      duplicateMeshBuffers(selected.id, newId); // mesh data must exist before the store's syncObjects effect looks for it
-      plate.duplicateObject(selected.id, newId);
+      record(() => {
+        duplicateMeshBuffers(selected.id, newId); // mesh data must exist before the store's syncObjects effect looks for it
+        plate.duplicateObject(selected.id, newId);
+      });
     }}
-    onDelete={() => { const selected = object(); if (selected) { plate.removeObject(selected.id); setScaleOpen(false); setTransformFieldsOpen(false); } }}
-    onReset={() => { const selected = object(); if (selected) plate.resetTransform(selected.id); }}
-    onTransform={transform => { const selected = object(); if (selected) plate.updateTransform(selected.id, transform); }}
-    onTransformNoReseat={transform => { const selected = object(); if (selected) plate.updateTransform(selected.id, transform, { dropToBed: false }); }}
+    onDelete={() => { const selected = object(); if (selected) { record(() => plate.removeObject(selected.id)); setScaleOpen(false); setTransformFieldsOpen(false); } }}
+    onReset={() => { const selected = object(); if (selected) record(() => plate.resetTransform(selected.id)); }}
+    onTransform={transform => { const selected = object(); if (selected) record(() => plate.updateTransform(selected.id, transform)); }}
+    onTransformNoReseat={transform => { const selected = object(); if (selected) record(() => plate.updateTransform(selected.id, transform, { dropToBed: false })); }}
     onDeselect={() => plate.select(undefined)}
     onLayFlat={() => void prepareCurrentPlate(1).catch(error => props.onPrepareError?.(translate(error)))}
     onAutoOrient={() => {
@@ -66,7 +70,7 @@ export function PlateObjectToolbar(props: {
       const others = plate.state.objects.filter(candidate => candidate.id !== selected.id);
       const bed = (() => { const settings = resolvedSettings(); return settings ? bedSizeFromSettings(settings) : DEFAULT_BED_FOOTPRINT; })();
       const placed = resolveAutoOrientPlacement({ bounds: selected.bounds, transform: oriented.transform }, others, bed);
-      plate.updateTransform(selected.id, placed.transform, { dropToBed: false });
+      record(() => plate.updateTransform(selected.id, placed.transform, { dropToBed: false }));
       if (!placed.freeSpotFound) props.onAutoOrientNoFreeSpot?.();
     }} />;
 }
@@ -83,11 +87,12 @@ export function ViewerToolbarContainer(props: {
   // spot" placement warning is always shown wherever the user actually triggered it.
   const [notice, setNotice] = createSignal<string>();
   const labels = (): TransformToolbarLabels => ({
-    toolbar: t('viewer.toolbar'), mode: t('viewer.mode'), select: t('viewer.select'), move: t('viewer.move'), rotate: t('viewer.rotate'),
+    toolbar: t('viewer.toolbar'), history: t('viewer.history'), mode: t('viewer.mode'), select: t('viewer.select'), move: t('viewer.move'), rotate: t('viewer.rotate'),
     snap: t('viewer.snap'),
     deselect: t('viewer.deselect'), layFlat: t('viewer.layFlat'), autoOrient: t('viewer.autoOrient'),
     rotateX: t('viewer.rotateX'), rotateY: t('viewer.rotateY'), scale: t('viewer.scale'), duplicate: t('viewer.duplicate'),
-    delete: t('viewer.delete'), reset: t('viewer.reset'), title: t('viewer.scaleTitle'), close: t('viewer.close'), size: t('viewer.size'),
+    delete: t('viewer.delete'), reset: t('viewer.reset'), undo: t('viewer.undo'), redo: t('viewer.redo'),
+    title: t('viewer.scaleTitle'), close: t('viewer.close'), size: t('viewer.size'),
     unit: t('viewer.unit'), suspicious: t('viewer.suspiciousSize'), multiply25_4: t('viewer.multiply25_4'),
     multiply1000: t('viewer.multiply1000'), divide10: t('viewer.divide10'), keep: t('viewer.keepEntered'), resize: t('viewer.resizeSheet'),
     editValues: t('viewer.editValues'), transformTitle: t('viewer.transformTitle'),

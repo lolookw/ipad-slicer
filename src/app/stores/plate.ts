@@ -22,6 +22,9 @@ export interface PlateObject {
 
 export interface PlateState { objects: PlateObject[]; selectedId: string | undefined }
 
+/** A point-in-time copy of the plate, as history.ts's undo/redo stack stores it. Plain data, no store proxies. */
+export interface PlateSnapshot { objects: PlateObject[]; selectedId: string | undefined }
+
 const [state, setState] = createStore<PlateState>({ objects: [], selectedId: undefined });
 
 /**
@@ -87,6 +90,18 @@ export const plate = {
     }));
   },
   clear(): void { setState({ objects: [], selectedId: undefined }); },
+  /**
+   * Replaces the whole plate with a previously captured snapshot (history.ts's undo/redo). The
+   * snapshot is cloned again on the way in so the live store never shares object references with a
+   * history entry — a later live edit must never be able to mutate a stack entry in place.
+   * IMPORTANT: the caller is responsible for re-registering geometry-cache/binaries data for any
+   * restored object BEFORE calling this (see history.ts's restoreMeshes) — ViewerWorkspace.tsx's
+   * sync() effect reacts to this exact change and expects every object it now sees to already have
+   * a mesh behind it, or it renders as an invisible, unpickable ghost.
+   */
+  restoreSnapshot(snapshot: PlateSnapshot): void {
+    setState({ objects: structuredClone(snapshot.objects), selectedId: snapshot.selectedId });
+  },
 };
 
 export function selectedObject(): PlateObject | undefined {
