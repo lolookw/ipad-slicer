@@ -10,7 +10,7 @@ export type LayerRange = [number, number] | null;
 export type PreviewElement = HTMLElement & Pick<GcodePreviewElement,
   'source' | 'quality' | 'layerRange' | 'adjacentLayers' | 'progressivePreview'
   | 'colorMode' | 'hiddenFeatureRoles' | 'showTravel' | 'showWipe' | 'showRetractions'
-  | 'view' | 'cameraMode' | 'cameraState' | 'state' | 'controls' | 'capture' | 'onEvent'>;
+  | 'view' | 'cameraMode' | 'cameraState' | 'buildVolume' | 'state' | 'controls' | 'capture' | 'onEvent'>;
 
 /** The capability-honest list a file can ever offer (`state.availableColorModes` filters it further). */
 export type ColorModeName = GcodePreviewState['availableColorModes'][number];
@@ -21,11 +21,22 @@ export type CaptureOptions = NonNullable<Parameters<GcodePreviewControls['captur
 export type PreviewState = GcodePreviewState;
 export type { FeatureRoleValue, PreviewEvent };
 type ColorModeArg = Parameters<GcodePreviewControls['setColorMode']>[0];
+/**
+ * The element's `buildVolume` setter also accepts a discovered `MachineGeometry` (an OrcaSlicer
+ * `; printable_area` comment auto-detected from the file text); narrowed structurally to the plain
+ * `BuildVolumeDef` shape this app always supplies explicitly (DD-030: `x`/`y`/`z` in millimeters,
+ * corner-origin — `min` defaults to `{x:0,y:0}` — the SAME absolute coordinate space OrcaSlicer's
+ * G-code itself uses, never this app's own centered display convention).
+ */
+export type PreviewBuildVolume = Extract<PreviewElement['buildVolume'], { x: number }>;
 type RGB = [number, number, number];
 
 export interface PreviewOptions {
   source: GcodePreviewSource;
   layerRange?: LayerRange;
+  /** The machine's real bed/build volume (see {@link PreviewBuildVolume}). Unset draws no plate at
+   *  all, and the toolpath still renders at its true G-code coordinates with nothing to frame it. */
+  buildVolume?: PreviewBuildVolume;
   /** Initial shading; forwarded as a fully-built library `ColorMode` (see {@link buildColorMode}). */
   colorMode?: ColorModeName;
   /** Feature roles hidden from the very first frame (declutter, e.g. Skirt/Brim/Support). */
@@ -139,6 +150,7 @@ function applyInitialOptions(element: PreviewElement, options: PreviewOptions): 
   element.adjacentLayers = 0;
   element.progressivePreview = 'off';
   element.layerRange = options.layerRange ? [...options.layerRange] : null;
+  if (options.buildVolume) element.buildVolume = options.buildVolume;
   if (options.colorMode) element.colorMode = buildColorMode(options.colorMode);
   if (options.hiddenFeatureRoles?.length) element.hiddenFeatureRoles = [...options.hiddenFeatureRoles];
   if (options.showTravel !== undefined) element.showTravel = options.showTravel;
@@ -182,6 +194,10 @@ export async function createPreviewAdapter(
     /** Only ever call with a name from `getState().availableColorModes` (capability-honest gate). */
     setColorMode(name: ColorModeName) {
       if (!disposed) element.colorMode = buildColorMode(name);
+    },
+    /** Re-applies the configured machine bed (e.g. after the printer profile changes). */
+    setBuildVolume(volume: PreviewBuildVolume) {
+      if (!disposed) element.buildVolume = volume;
     },
     /** Declarative diff against the element's own `hiddenFeatureRoles` (DD-031 G3): pass the full
      *  set of roles that should be hidden right now. */

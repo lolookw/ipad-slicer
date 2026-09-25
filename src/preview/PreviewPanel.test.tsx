@@ -29,6 +29,7 @@ function setup(overrides: Partial<Parameters<typeof PreviewPanel>[0]> = {}) {
   const adapter = {
     setSource: vi.fn(), setLayerRange: vi.fn(), dispose: vi.fn(),
     setColorMode: vi.fn(), setHiddenFeatureRoles: vi.fn(), setShowTravel: vi.fn(), setShowWipe: vi.fn(), setShowRetractions: vi.fn(),
+    setBuildVolume: vi.fn(),
     setView: vi.fn(), setCameraMode: vi.fn(), frame: vi.fn(), getCameraState: vi.fn(() => null), setCameraState: vi.fn(),
     capture: vi.fn(async () => new Blob()), getState: vi.fn(() => ({}) as never), onEvent: vi.fn(() => vi.fn()),
   };
@@ -55,6 +56,14 @@ it('starts on the top layer with the whole G-code, and the slider only moves the
   expect(adapter.setSource).not.toHaveBeenCalled();
   expect(screen.getByTestId('layer-label').textContent).toBe('Layer 10 / 50');
   expect(screen.getByTestId('layer-height').textContent).toBe('Height 2 mm');
+});
+
+it('forwards the configured machine bed to the preview element as its build volume', async () => {
+  const buildVolume = { x: 220, y: 220, z: 250 };
+  const { create } = setup({ buildVolume });
+  await waitFor(() => expect(create).toHaveBeenCalledOnce());
+  const forwarded = (create.mock.calls[0] as unknown as [unknown, { buildVolume?: { x: number; y: number; z: number } }])[1].buildVolume;
+  expect(forwarded).toEqual(buildVolume);
 });
 
 it('gives the element its own bytes: the source is the G-code view, never re-encoded, and the input buffer is untouched', async () => {

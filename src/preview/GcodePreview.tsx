@@ -1,12 +1,12 @@
 import { createEffect, on, onCleanup, onMount, type JSX } from 'solid-js';
 import { createPreviewAdapter } from './adapter';
-import type { ColorModeName, FeatureRoleValue } from './adapter';
+import type { ColorModeName, FeatureRoleValue, PreviewBuildVolume } from './adapter';
 import type { PreviewSource } from './layer-filter';
 import './preview.css';
 
 export type Adapter = Pick<Awaited<ReturnType<typeof createPreviewAdapter>>,
   'setSource' | 'setLayerRange' | 'dispose'
-  | 'setColorMode' | 'setHiddenFeatureRoles' | 'setShowTravel' | 'setShowWipe' | 'setShowRetractions'
+  | 'setColorMode' | 'setHiddenFeatureRoles' | 'setShowTravel' | 'setShowWipe' | 'setShowRetractions' | 'setBuildVolume'
   | 'setView' | 'setCameraMode' | 'frame' | 'getCameraState' | 'setCameraState' | 'capture' | 'getState' | 'onEvent'>;
 export type CreateAdapter = (host: HTMLElement, options: Parameters<typeof createPreviewAdapter>[1]) => Promise<Adapter>;
 
@@ -15,6 +15,9 @@ export interface GcodePreviewProps {
   source: PreviewSource | null;
   /** Bump to force the source to be pushed again (e.g. after a WebGL context restore). */
   reloadKey?: number;
+  /** The configured machine's real bed, corner-origin millimeters (see `adapter.ts`'s
+   *  `PreviewBuildVolume`) — without it no plate is drawn and the toolpath has nothing to frame it. */
+  buildVolume?: PreviewBuildVolume;
   /** Persistent shading/visibility settings (survive a context-lost re-creation, unlike camera pose). */
   colorMode?: ColorModeName;
   hiddenFeatureRoles?: readonly FeatureRoleValue[];
@@ -58,6 +61,7 @@ export function GcodePreview(props: GcodePreviewProps): JSX.Element {
     create(host, {
       source: initial?.bytes ?? null,
       layerRange: initial?.layerRange ?? null,
+      buildVolume: props.buildVolume,
       colorMode: props.colorMode,
       hiddenFeatureRoles: props.hiddenFeatureRoles,
       showTravel: props.showTravel,
@@ -77,6 +81,7 @@ export function GcodePreview(props: GcodePreviewProps): JSX.Element {
 
   createEffect(on(() => props.source, next => push(next, false), { defer: true }));
   createEffect(on(() => props.reloadKey, () => push(props.source, true), { defer: true }));
+  createEffect(on(() => props.buildVolume, volume => { if (volume) adapter?.setBuildVolume(volume); }, { defer: true }));
   createEffect(on(() => props.colorMode, mode => { if (mode !== undefined) adapter?.setColorMode(mode); }, { defer: true }));
   createEffect(on(() => props.hiddenFeatureRoles, roles => adapter?.setHiddenFeatureRoles(roles ?? []), { defer: true }));
   createEffect(on(() => props.showTravel, visible => { if (visible !== undefined) adapter?.setShowTravel(visible); }, { defer: true }));

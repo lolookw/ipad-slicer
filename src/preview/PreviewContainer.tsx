@@ -1,10 +1,31 @@
 import { createSignal, onCleanup, type JSX } from 'solid-js';
 import { useApp } from '../app/AppProvider';
 import { plate } from '../app/stores/plate';
+import { resolvedSettings } from '../app/stores/configuration';
+import { bedSizeFromSettings } from '../viewer/bed';
 import { diagnosticsLog } from '../instrumentation/log';
 import { PreviewPanel, type PreviewLabels } from './PreviewPanel';
-import type { ColorModeName } from './adapter';
+import type { ColorModeName, PreviewBuildVolume } from './adapter';
 import type { PreviewOptionsLabels } from './PreviewOptionsPanel';
+
+/**
+ * Bug fix (real iPad report): the G-code preview never told the pinned library about the machine's
+ * real bed, so it drew NO plate at all and framed only the raw toolpath — which sits at its true
+ * OrcaSlicer G-code coordinates (corner-origin, e.g. 0..width), not this app's own centered display
+ * convention. A model that looked centered in the regular 3D viewer (which draws its bed centered on
+ * the origin) could then look displaced or "outside the plate" in the preview, which drew no bed
+ * reference at all to judge that against.
+ *
+ * Falls back to the same default bed footprint `ViewerWorkspace.tsx`/`ViewerToolbarContainer.tsx`
+ * already use when no printer profile is configured yet.
+ */
+const DEFAULT_BED_FOOTPRINT = { widthMm: 220, depthMm: 220, heightMm: 250 };
+
+function previewBuildVolume(): PreviewBuildVolume {
+  const settings = resolvedSettings();
+  const bed = settings ? bedSizeFromSettings(settings) : DEFAULT_BED_FOOTPRINT;
+  return { x: bed.widthMm, y: bed.depthMm, z: bed.heightMm };
+}
 
 function createOrientationSignal() {
   const query = globalThis.matchMedia?.('(orientation: landscape)');
@@ -53,6 +74,7 @@ export function PreviewContainer(props: { gcode: ArrayBuffer }): JSX.Element {
     options: optionsLabels(),
   });
   return <PreviewPanel gcode={props.gcode} tier={app.tierDecision().tier} orientation={orientation()} labels={labels()}
+    buildVolume={previewBuildVolume()}
     modelName={plate.state.objects[0]?.name}
     onLog={(type, data) => diagnosticsLog.append(type, data)} />;
 }

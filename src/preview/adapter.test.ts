@@ -19,7 +19,7 @@ function fixture() {
   const element: PreviewElement = Object.assign(document.createElement('div'), {
     source: null, quality: null, layerRange: null, adjacentLayers: null, progressivePreview: null,
     colorMode: undefined, hiddenFeatureRoles: [], showTravel: true, showWipe: true, showRetractions: false,
-    view: null, cameraMode: null, cameraState: null,
+    view: null, cameraMode: null, cameraState: null, buildVolume: undefined,
     state,
     controls: controls as unknown as PreviewElement['controls'],
     capture: vi.fn(async () => new Blob()),
@@ -156,6 +156,29 @@ describe('preview adapter', () => {
     adapter.dispose();
   });
 
+  it('wires the configured build volume before mounting, and leaves it unset without one', async () => {
+    const { host, element, factory } = fixture();
+    const withVolume = fixture();
+    const adapter = await createPreviewAdapter(host, { source: null }, factory);
+    expect(element.buildVolume).toBeUndefined(); // the original bug: no plate reference at all
+    adapter.dispose();
+    const volume = { x: 220, y: 220, z: 250 };
+    const other = await createPreviewAdapter(withVolume.host, { source: null, buildVolume: volume }, withVolume.factory);
+    expect(withVolume.element.buildVolume).toEqual(volume);
+    other.dispose();
+  });
+
+  it('updates the build volume on demand via setBuildVolume', async () => {
+    const { host, element, factory } = fixture();
+    const adapter = await createPreviewAdapter(host, { source: null }, factory);
+    const volume = { x: 235, y: 235, z: 270 };
+    adapter.setBuildVolume(volume);
+    expect(element.buildVolume).toEqual(volume);
+    adapter.dispose();
+    adapter.setBuildVolume({ x: 1, y: 1, z: 1 }); // no-op after dispose
+    expect(element.buildVolume).toEqual(volume);
+  });
+
   it('forwards view/camera commands and capture, and reads state', async () => {
     const { host, element, controls, factory } = fixture();
     const adapter = await createPreviewAdapter(host, { source: null }, factory);
@@ -181,6 +204,63 @@ describe('preview adapter', () => {
     expect(unsubscribe).toHaveBeenCalledOnce();
     adapter.dispose();
     expect(adapter.getCameraState()).toBeNull();
+  });
+});
+
+describe('build volume coordinate convention (regression: DD-030 corner-origin, not this app\'s centered display)', () => {
+  // A real slice near a bed edge for a 220x220 printer (the same default footprint ViewerWorkspace.tsx
+  // and ViewerToolbarContainer.tsx already fall back to). OrcaSlicer's own G-code coordinates are
+  // absolute/corner-origin (0..220 on each axis) — never centered on the origin, unlike this app's own
+  // 3D viewer display convention (`src/viewer/bed.ts`/`scene.ts` span -110..110).
+  const gcodeNearEdge = [
+    '; printable_area = 0x0,220x0,220x220,0x220',
+    '; printable_height = 250',
+    'G90', 'M83',
+    ';LAYER_CHANGE', ';Z:0.2',
+    'G1 Z0.2',
+    'G1 X200 Y200 E.1',
+    'G1 X218 Y218 E.1',
+    '; EXECUTABLE_BLOCK_END',
+    '',
+  ].join('\n');
+
+  /** Same extraction technique as scripts/engine-contract-check.mjs: positive-E moves are extrusion. */
+  function extrusionPoints(gcode: string): Array<[number, number]> {
+    const points: Array<[number, number]> = [];
+    let x = 0; let y = 0;
+    for (const line of gcode.split('\n')) {
+      if (!/^G1\b/.test(line)) continue;
+      const nextX = Number(/\bX(-?\d*\.?\d+)/.exec(line)?.[1] ?? x);
+      const nextY = Number(/\bY(-?\d*\.?\d+)/.exec(line)?.[1] ?? y);
+      const e = /\bE(-?\d*\.?\d+)/.exec(line);
+      if (e && Number(e[1]) > 0) points.push([nextX, nextY]);
+      x = nextX; y = nextY;
+    }
+    return points;
+  }
+  const inside = (points: Array<[number, number]>, min: { x: number; y: number }, size: { x: number; y: number }) =>
+    points.every(([x, y]) => x >= min.x && x <= min.x + size.x && y >= min.y && y <= min.y + size.y);
+
+  it('the sliced object sits inside the configured bed only under the corner-origin convention', () => {
+    const points = extrusionPoints(gcodeNearEdge);
+    expect(points.length).toBeGreaterThan(0);
+    // Correct (the fix): PreviewBuildVolume with no `min` — the library defaults to corner-origin
+    // {x:0,y:0}, matching both the `; printable_area` comment above and the real 220x220 bed.
+    expect(inside(points, { x: 0, y: 0 }, { x: 220, y: 220 })).toBe(true);
+    // Wrong: naively copying this app's OWN 3D viewer centered convention (bed spanning -110..110)
+    // onto the library's buildVolume reports these same, correctly-placed coordinates as outside the
+    // plate — this is exactly the user-reported symptom ("part of the piece appeared outside").
+    expect(inside(points, { x: -110, y: -110 }, { x: 220, y: 220 })).toBe(false);
+  });
+
+  it('wires a corner-origin build volume that actually contains the sliced object, end to end', async () => {
+    const { host, element, factory } = fixture();
+    const points = extrusionPoints(gcodeNearEdge);
+    const buildVolume = { x: 220, y: 220, z: 250 }; // no `min`: the library defaults to {x:0,y:0}
+    const adapter = await createPreviewAdapter(host, { source: new TextEncoder().encode(gcodeNearEdge), buildVolume }, factory);
+    expect(element.buildVolume).toEqual(buildVolume);
+    expect(inside(points, { x: 0, y: 0 }, { x: buildVolume.x, y: buildVolume.y })).toBe(true);
+    adapter.dispose();
   });
 });
 
