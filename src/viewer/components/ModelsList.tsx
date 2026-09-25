@@ -1,4 +1,4 @@
-import { For } from 'solid-js';
+import { For, Show } from 'solid-js';
 import type { PlateObject } from '../../app/stores/plate';
 import './viewer-components.css';
 
@@ -19,6 +19,12 @@ export interface ModelsListProps {
   labels: ModelsListLabels;
   /** Wide layout only: whether the Models drawer is open (viewer-components.css ignores this under 1000px, where the list is always shown inline). */
   open?: boolean;
+  /** "Select multiple" mode (group-selection.ts): while true, each row shows a group-membership
+   * indicator and a tap toggles membership instead of replacing the selection. Undefined/false keeps
+   * every row exactly as before this feature. */
+  groupSelectMode?: boolean;
+  /** The current group selection (a superset of `selectedId`) — only read while groupSelectMode is true. */
+  groupSelectedIds?: ReadonlySet<string>;
   onSelect: (id: string) => void;
   onToggleVisible: (id: string) => void;
   onDuplicate: (id: string) => void;
@@ -49,7 +55,14 @@ export function ModelsList(props: ModelsListProps): import('solid-js').JSX.Eleme
       <For each={props.objects}>{object => {
         const visible = () => object.visible !== false;
         const selected = () => props.selectedId === object.id;
-        return <li class="models-item" data-selected={selected()}>
+        const groupSelected = () => props.groupSelectMode === true && (props.groupSelectedIds?.has(object.id) ?? false);
+        return <li class="models-item" data-selected={selected()} data-group-selected={groupSelected()}>
+          {/* Decorative only: tapping the name button below (the existing, already-44px select
+           * target) is what actually toggles membership in group-select mode — this never becomes a
+           * second, differently-behaved tap target for the same action. */}
+          <Show when={props.groupSelectMode}>
+            <span class="models-item-checkbox" aria-hidden="true" data-checked={groupSelected()} />
+          </Show>
           <span class="models-item-icon" aria-hidden="true"><Svg d={CUBE_ICON} /></span>
           <button type="button" class="models-item-name" aria-pressed={selected()}
             data-transform={JSON.stringify(object.transform)} onClick={() => props.onSelect(object.id)}>{object.name}</button>

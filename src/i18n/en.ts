@@ -109,6 +109,7 @@ export const en = {
     models: 'Models', modelsList: 'Models on the plate',
     modelsHide: 'Hide {name}', modelsShow: 'Show {name}', modelsMenu: 'More actions for {name}',
     modelsDuplicate: 'Duplicate {name}', modelsDelete: 'Delete {name}', modelsRename: 'Rename {name}', modelsRenamePrompt: 'New name',
+    selectMultiple: 'Select multiple', selectedCount: '{count} selected', groupDuplicate: 'Duplicate selected', groupDelete: 'Delete selected',
     deselect: 'Deselect',
     layFlat: 'Lay flat',
     layFlatPending: 'Lay flat unlocks after engine integration in phase 7.',

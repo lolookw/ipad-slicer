@@ -19,8 +19,13 @@ export interface Viewer {
   onFrame(callback: FrameCallback): () => void;
   /** Marks the next frame dirty even if no onFrame callback reported a change (e.g. after a gizmo edit). */
   requestRender(): void;
-  /** Rebuilds the visible mesh list from the plate store + geometry cache. Cheap: reuses cached geometry. */
-  syncObjects(objects: readonly PlateObject[], selectedId: string | undefined): void;
+  /**
+   * Rebuilds the visible mesh list from the plate store + geometry cache. Cheap: reuses cached
+   * geometry. `groupSelectedIds`, when given, is a superset of `selectedId` (group/multi-select):
+   * every id in it is drawn as selected, not just the primary — see the SELECTED_COLOR/GROUP_COLOR
+   * split below for how the primary still reads as visually distinct from the rest of the group.
+   */
+  syncObjects(objects: readonly PlateObject[], selectedId: string | undefined, groupSelectedIds?: ReadonlySet<string>): void;
   /** Tolerant pick: tries the exact point, then rays offset by up to `radiusPx` CSS pixels. Returns the mesh and the world hit point. */
   pickAt(ndcX: number, ndcY: number, radiusPx: number): { mesh: Mesh; point: Vector3 } | undefined;
   /** World box of one object, else of every object, else of the empty plate. */
@@ -36,6 +41,9 @@ export interface Viewer {
 }
 
 const SELECTED_COLOR = 0x60a5fa;
+/** A group-selected object that is NOT the primary — lighter than SELECTED_COLOR so the primary
+ * (the one the gizmo actually targets) still reads as visually distinct from the rest of the group. */
+const GROUP_COLOR = 0x93c5fd;
 const DEFAULT_COLOR = 0x9ca3af;
 
 /**
@@ -137,7 +145,7 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
       return bedBox.clone();
     },
     gizmo,
-    syncObjects(next, selectedId) {
+    syncObjects(next, selectedId, groupSelectedIds) {
       const seen = new Set<string>();
       for (const object of next) {
         seen.add(object.id);
@@ -153,7 +161,8 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
         }
         applyTransform(mesh, object.transform);
         mesh.visible = object.visible !== false;
-        (mesh.material as MeshStandardMaterial).color.set(object.id === selectedId ? SELECTED_COLOR : DEFAULT_COLOR);
+        const color = object.id === selectedId ? SELECTED_COLOR : groupSelectedIds?.has(object.id) ? GROUP_COLOR : DEFAULT_COLOR;
+        (mesh.material as MeshStandardMaterial).color.set(color);
       }
       for (const [id, mesh] of meshes) if (!seen.has(id)) {
         mesh.removeFromParent();

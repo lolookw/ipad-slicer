@@ -102,6 +102,13 @@
   margin: 0; padding: .625rem .875rem; border-radius: var(--radius-sm); background: var(--color-danger-soft); color: var(--color-danger); font-size: .9375rem;
 }
 
+/* ---------- Group selection bar (Select multiple mode) ---------- */
+/* Sits directly above the Models list, in both the narrow inline layout and the wide drawer (its own
+ * media query below only repositions the drawer, not this bar, which stays wherever ModelsList itself
+ * is laid out by its caller in ViewerWorkspace.tsx). */
+.viewer-group-select-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); margin-block-end: var(--space-1); }
+.viewer-group-select-count { font-size: .875rem; font-weight: 600; color: var(--color-text); }
+
 /* ---------- Models list ---------- */
 /* Each row keeps a plain name button (same role/aria-pressed/data-transform contract the old bare
  * chip row used) plus a visibility eye-toggle and a "..." menu. Narrow layouts render this inline,
@@ -112,6 +119,15 @@
 .models-list:empty, .models-list ul:empty { display: none; }
 .models-item { display: flex; align-items: center; flex: 0 0 auto; gap: 2px; padding: 2px; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); }
 .models-item[data-selected='true'] { border-width: 2px; border-color: var(--color-primary); background: var(--color-primary-soft); }
+/* Group-selected but not primary (Select multiple mode): a lighter tint than the primary's own
+ * highlight above, so the two read as related but distinct, matching the 3D viewport's own
+ * SELECTED_COLOR/GROUP_COLOR split in scene.ts. */
+.models-item[data-group-selected='true']:not([data-selected='true']) { border-color: var(--color-primary); background: var(--color-surface-sunken); }
+.models-item-checkbox {
+  box-sizing: border-box; flex: none; width: 20px; height: 20px; margin-left: 6px; border: 2px solid var(--color-border); border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+.models-item-checkbox[data-checked='true'] { border-color: var(--color-primary); background: var(--color-primary); }
 .models-item-icon { display: none; }
 .models-item-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; }
 .models-item-name { box-sizing: border-box; min-width: 44px; min-height: 44px; padding: .5rem .75rem; border: 0; border-radius: 999px; background: transparent; color: var(--color-text); font: 500 .9375rem var(--font-body); }

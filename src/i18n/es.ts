@@ -101,6 +101,7 @@ export const es = {
     models: 'Modelos', modelsList: 'Modelos en la placa',
     modelsHide: 'Ocultar {name}', modelsShow: 'Mostrar {name}', modelsMenu: 'Más acciones para {name}',
     modelsDuplicate: 'Duplicar {name}', modelsDelete: 'Eliminar {name}', modelsRename: 'Renombrar {name}', modelsRenamePrompt: 'Nuevo nombre',
+    selectMultiple: 'Selección múltiple', selectedCount: '{count} seleccionados', groupDuplicate: 'Duplicar selección', groupDelete: 'Eliminar selección',
     deselect: 'Deseleccionar',
     layFlat: 'Apoyar en una cara',
     layFlatPending: 'Esta función se habilitará después de integrar el motor en la fase 7.',

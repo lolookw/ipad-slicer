@@ -3,6 +3,9 @@ import type { TierDecision } from '../app/tier/decide';
 import { binaries, flow } from '../app/stores';
 import { plate } from '../app/stores/plate';
 import { canRedo, canUndo, record, recordAsync } from '../app/stores/history';
+import {
+  clearGroupSelection, groupSelectedIds, groupSelectMode, setGroupSelectMode, setGroupSelection, toggleGroupSelection,
+} from '../app/stores/group-selection';
 import { Vector3 } from 'three';
 import { attachCameraControls, type ViewerCameraControls } from './camera';
 import { ModelsList, type ModelsListLabels } from './components/ModelsList';
@@ -17,6 +20,7 @@ import { importSession } from './import-session';
 import { createViewer, type Viewer } from './scene';
 import { engineClient } from '../engine/client';
 import { useApp } from '../app/AppProvider';
+import { Button } from '../ui/Button';
 import './workspace.css';
 
 export function ViewerWorkspace(props: {
@@ -44,7 +48,22 @@ export function ViewerWorkspace(props: {
    * every wide layout, which is a functional regression, not just a cosmetic default.
    */
   const [modelsOpen, setModelsOpen] = createSignal(true);
-  const gizmo = createGizmo(setReadout);
+  const gizmo = createGizmo(setReadout, groupSelectedIds);
+  /** Single seam both the canvas (via gestures' onSelect) and ModelsList route selection through:
+   * group-select mode turns a tap into an additive toggle, otherwise it is the exact prior
+   * replace-selection behavior. See group-selection.ts for why selectedId itself stays untouched.
+   *
+   * Re-pressing the CURRENT primary is deliberately a no-op in group mode, never a toggle-off:
+   * gestures.ts's down() calls onSelect on every body-drag pointerdown, even when the pressed object
+   * was already selected (this is what lets grabbing an already-selected object's gizmo body start a
+   * drag immediately) — harmless for the plain plate.select() path below since selecting the same id
+   * twice is idempotent, but toggleGroupSelection is NOT idempotent, so without this guard the very
+   * first frame of a group-move drag on the primary would immediately remove it from the group. Only
+   * tapping a DIFFERENT object toggles membership. */
+  const handleSelect = (id: string | undefined) => {
+    if (groupSelectMode()) { if (id && id !== plate.state.selectedId) toggleGroupSelection(id); return; }
+    plate.select(id);
+  };
   const [startError, setStartError] = createSignal<string>();
   const [viewerReady, setViewerReady] = createSignal(false);
   const error = () => startError() ?? (flow.step.get() !== 'import' ? importSession.error() : undefined);
@@ -72,7 +91,7 @@ export function ViewerWorkspace(props: {
       releaseMesh(id); binaries.release(id); void engineClient.releaseMesh(id); knownIds.delete(id);
     }
     for (const id of currentIds) knownIds.add(id);
-    viewer?.syncObjects(plate.state.objects, plate.state.selectedId);
+    viewer?.syncObjects(plate.state.objects, plate.state.selectedId, groupSelectMode() ? groupSelectedIds() : undefined);
     flow.hasModel.set(plate.state.objects.length > 0);
   };
 
@@ -93,7 +112,7 @@ export function ViewerWorkspace(props: {
         objectById: id => plate.state.objects.find(object => object.id === id),
         pickAt: (x, y, radius) => activeViewer.pickAt(x, y, radius),
         snapEnabled,
-        onSelect: id => plate.select(id),
+        onSelect: handleSelect,
         onFit: () => { if (plate.state.objects.length) void runView('fit'); },
         onVisualChange: () => activeViewer.requestRender(),
         onTransformEnd: applyPivot,
@@ -142,6 +161,34 @@ export function ViewerWorkspace(props: {
     renamePrompt: app.t('viewer.modelsRenamePrompt'),
   });
 
+  /** Duplicates every object in the current group selection as ONE history entry — same per-object
+   * duplicateMeshBuffers/plate.duplicateObject pattern the single-object Duplicate button uses,
+   * just looped inside one record() instead of one call per object. */
+  const groupDuplicate = () => {
+    const ids = [...groupSelectedIds()];
+    if (ids.length < 2) return;
+    const newIds: string[] = [];
+    record(() => {
+      for (const id of ids) {
+        const newId = globalThis.crypto.randomUUID();
+        duplicateMeshBuffers(id, newId); // mesh data must exist before the store's syncObjects effect looks for it
+        plate.duplicateObject(id, newId); // also sets selectedId to newId (last call wins), same as the single-object button
+        newIds.push(newId);
+      }
+    });
+    setGroupSelection(newIds); // the freshly duplicated objects become the new group
+  };
+
+  /** Removes every object in the current group selection as ONE history entry, through the exact same
+   * plate.removeObject path (and its history.ts geometry-cache hazard handling) the single-object
+   * Delete button already uses per object — just batched here instead of a new deletion mechanism. */
+  const groupDelete = () => {
+    const ids = [...groupSelectedIds()];
+    if (ids.length < 2) return;
+    record(() => { for (const id of ids) plate.removeObject(id); });
+    clearGroupSelection(); // those ids are gone; collapse back to whatever primary survived
+  };
+
   return <section class="viewer-workspace" aria-label={app.t('viewer.workspace')}>
     <header class="viewer-import">
       <label class="viewer-import-button"><span>{app.t('viewer.importModel')}</span>
@@ -177,9 +224,20 @@ export function ViewerWorkspace(props: {
       {props.preview}
     </div>
     <Show when={plate.state.objects.length}>
+      <div class="viewer-group-select-bar">
+        <Button variant="secondary" aria-pressed={groupSelectMode()} onClick={() => setGroupSelectMode(!groupSelectMode())}>
+          {app.t('viewer.selectMultiple')}
+        </Button>
+        <Show when={groupSelectMode()}>
+          <span class="viewer-group-select-count" role="status">{app.t('viewer.selectedCount').replace('{count}', String(groupSelectedIds().size))}</span>
+          <Button variant="secondary" disabled={groupSelectedIds().size < 2} onClick={groupDuplicate}>{app.t('viewer.groupDuplicate')}</Button>
+          <Button variant="danger" disabled={groupSelectedIds().size < 2} onClick={groupDelete}>{app.t('viewer.groupDelete')}</Button>
+        </Show>
+      </div>
       <ModelsList objects={plate.state.objects} selectedId={plate.state.selectedId} label={app.t('viewer.plateObjects')}
         labels={modelsListLabels()} open={modelsOpen()}
-        onSelect={id => plate.select(id)}
+        groupSelectMode={groupSelectMode()} groupSelectedIds={groupSelectedIds()}
+        onSelect={handleSelect}
         onToggleVisible={id => {
           const current = plate.state.objects.find(object => object.id === id);
           if (current) record(() => plate.setVisible(id, current.visible === false));
