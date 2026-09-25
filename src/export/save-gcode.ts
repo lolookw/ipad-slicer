@@ -58,3 +58,16 @@ export function gcodeFileName(stlName: string): string {
   const name = stlName.split(/[/\\]/).pop()!.replace(/[<>:"|?*\x00-\x1f]/g, '').replace(/\.stl$/i, '');
   return `${name || 'model'}.gcode`;
 }
+
+const IMAGE_EXTENSIONS: Record<string, string> = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' };
+
+export function previewImageFileName(stlName: string, mimeType = 'image/png'): string {
+  const name = stlName.split(/[/\\]/).pop()!.replace(/[<>:"|?*\x00-\x1f]/g, '').replace(/\.stl$/i, '');
+  return `${name || 'model'}-preview.${IMAGE_EXTENSIONS[mimeType] ?? 'png'}`;
+}
+
+/** Same save/share path as the G-code (`saveFile`), for the preview's "Save image" capture. */
+export async function savePreviewImage(image: Blob, fileName: string, deps?: SaveDeps): Promise<SaveResult> {
+  const bytes = await image.arrayBuffer();
+  return saveFile(bytes, fileName, [image.type || 'image/png'], deps);
+}
