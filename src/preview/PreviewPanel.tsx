@@ -1,7 +1,7 @@
 import { createEffect, createMemo, createSignal, lazy, on, Show, Suspense, type JSX } from 'solid-js';
 import type { TierDecision } from '../app/tier/decide';
 import { planPreview, nextPreviewStage, type PreviewStage } from './budget';
-import type { CameraView, ColorModeName, FeatureRoleValue, PreviewState } from './adapter';
+import type { CameraView, ColorModeName, FeatureRoleValue, PreviewBuildVolume, PreviewState } from './adapter';
 import type { Adapter, CreateAdapter } from './GcodePreview';
 import { webglAvailable } from './webgl';
 import { indexGcodeLayers, previewSourceFor } from './layer-filter';
@@ -26,6 +26,9 @@ export interface PreviewPanelProps {
   gcode: ArrayBuffer;
   tier: TierDecision['tier'];
   orientation: 'horizontal' | 'vertical';
+  /** The configured machine's real bed (corner-origin mm, same convention as the G-code itself).
+   *  Undefined draws no plate at all — see `adapter.ts`'s `PreviewBuildVolume`. */
+  buildVolume?: PreviewBuildVolume;
   labels: PreviewLabels;
   /** Base name for the "Save preview image" file (same convention as the G-code's own file name). */
   modelName?: string;
@@ -120,7 +123,7 @@ export function PreviewPanel(props: PreviewPanelProps): JSX.Element {
     <div class="gcode-preview" data-orientation={props.orientation} role="region" aria-label={props.labels.canvas}>
       <Show when={showPreview()}>
         <Suspense fallback={<p class="gcode-preview__notice" role="status">{props.labels.loading}</p>}>
-          <GcodePreview source={source()} reloadKey={reloadKey()} createAdapter={props.createAdapter}
+          <GcodePreview source={source()} reloadKey={reloadKey()} createAdapter={props.createAdapter} buildVolume={props.buildVolume}
             colorMode={colorMode()} hiddenFeatureRoles={[...hiddenRoles()]} showTravel={showTravel()} showWipe={showWipe()} showRetractions={showRetractions()}
             onContextLost={lost} onContextRestored={() => setReloadKey(key => key + 1)}
             onStateChange={setPreviewState} onReady={setAdapterHandle}

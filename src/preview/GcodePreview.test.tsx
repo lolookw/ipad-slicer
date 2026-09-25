@@ -13,6 +13,7 @@ function fakeAdapter() {
   const adapter = {
     setSource: vi.fn(), setLayerRange: vi.fn(), dispose: vi.fn(),
     setColorMode: vi.fn(), setHiddenFeatureRoles: vi.fn(), setShowTravel: vi.fn(), setShowWipe: vi.fn(), setShowRetractions: vi.fn(),
+    setBuildVolume: vi.fn(),
     setView: vi.fn(), setCameraMode: vi.fn(), frame: vi.fn(), getCameraState: vi.fn(() => null), setCameraState: vi.fn(),
     capture: vi.fn(async () => new Blob()), getState: vi.fn(() => ({}) as never), onEvent: vi.fn(() => vi.fn()),
   };
@@ -54,6 +55,7 @@ it('disposes an adapter that resolves after the component was unmounted', async 
   const late = {
     setSource: vi.fn(), setLayerRange: vi.fn(), dispose: vi.fn(),
     setColorMode: vi.fn(), setHiddenFeatureRoles: vi.fn(), setShowTravel: vi.fn(), setShowWipe: vi.fn(), setShowRetractions: vi.fn(),
+    setBuildVolume: vi.fn(),
     setView: vi.fn(), setCameraMode: vi.fn(), frame: vi.fn(), getCameraState: vi.fn(() => null), setCameraState: vi.fn(),
     capture: vi.fn(async () => new Blob()), getState: vi.fn(() => ({}) as never), onEvent: vi.fn(() => vi.fn()),
   };
@@ -108,6 +110,18 @@ it('reactively re-applies color mode / declutter / toggle prop changes after mou
   expect(adapter.setColorMode).toHaveBeenCalledWith('feature');
   setRoles([5, 6]);
   expect(adapter.setHiddenFeatureRoles).toHaveBeenCalledWith([5, 6]);
+});
+
+it('forwards the initial build volume at creation, and re-applies it reactively via setBuildVolume', async () => {
+  const { adapter, create } = fakeAdapter();
+  const [buildVolume, setBuildVolume] = createSignal({ x: 220, y: 220, z: 250 });
+  render(() => <GcodePreview source={null} buildVolume={buildVolume()} createAdapter={create} />);
+  await waitFor(() => expect(create).toHaveBeenCalledOnce());
+  const options = (create.mock.calls[0] as unknown as [unknown, { buildVolume: { x: number; y: number; z: number } }])[1];
+  expect(options.buildVolume).toEqual({ x: 220, y: 220, z: 250 });
+  await Promise.resolve();
+  setBuildVolume({ x: 235, y: 235, z: 270 });
+  expect(adapter.setBuildVolume).toHaveBeenCalledWith({ x: 235, y: 235, z: 270 });
 });
 
 it('hands an imperative adapter handle to onReady, and clears it on cleanup', async () => {
