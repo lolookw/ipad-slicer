@@ -1,7 +1,10 @@
 import { createSignal, onCleanup, type JSX } from 'solid-js';
 import { useApp } from '../app/AppProvider';
+import { plate } from '../app/stores/plate';
 import { diagnosticsLog } from '../instrumentation/log';
 import { PreviewPanel, type PreviewLabels } from './PreviewPanel';
+import type { ColorModeName } from './adapter';
+import type { PreviewOptionsLabels } from './PreviewOptionsPanel';
 
 function createOrientationSignal() {
   const query = globalThis.matchMedia?.('(orientation: landscape)');
@@ -19,12 +22,37 @@ function createOrientationSignal() {
 export function PreviewContainer(props: { gcode: ArrayBuffer }): JSX.Element {
   const app = useApp();
   const orientation = createOrientationSignal();
+  const optionsLabels = (): PreviewOptionsLabels => ({
+    toggle: app.t('preview.optionsToggle'),
+    colorMode: app.t('preview.colorMode'),
+    colorModeNames: {
+      single: app.t('preview.colorModeSingle'), feature: app.t('preview.colorModeFeature'), feedrate: app.t('preview.colorModeFeedrate'),
+      layerHeight: app.t('preview.colorModeLayerHeight'), object: app.t('preview.colorModeObject'), tool: app.t('preview.colorModeTool'),
+      filament: app.t('preview.colorModeFilament'), colorChange: app.t('preview.colorModeColorChange'), moveKind: app.t('preview.colorModeMoveKind'),
+      power: app.t('preview.colorModePower'),
+    } satisfies Record<ColorModeName, string>,
+    featureLegend: app.t('preview.featureLegend'),
+    featureRoleNames: {
+      perimeter: app.t('preview.featurePerimeter'), externalPerimeter: app.t('preview.featureExternalPerimeter'),
+      infill: app.t('preview.featureInfill'), solidInfill: app.t('preview.featureSolidInfill'), support: app.t('preview.featureSupport'),
+      skirt: app.t('preview.featureSkirt'), brim: app.t('preview.featureBrim'), bridge: app.t('preview.featureBridge'),
+      travel: app.t('preview.featureTravel'), primeTower: app.t('preview.featurePrimeTower'), wipeTower: app.t('preview.featureWipeTower'),
+      raft: app.t('preview.featureRaft'), purge: app.t('preview.featurePurge'),
+    },
+    declutter: app.t('preview.declutter'),
+    travel: app.t('preview.showTravel'), wipe: app.t('preview.showWipe'), retractions: app.t('preview.showRetractions'),
+    viewPresets: app.t('preview.viewPresets'), fit: app.t('preview.viewFit'), top: app.t('preview.viewTop'), front: app.t('preview.viewFront'), iso: app.t('preview.viewIso'),
+    saveImage: app.t('preview.saveImage'), saveImageBusy: app.t('preview.saveImageBusy'),
+    estimatedTime: app.t('preview.estimatedTime'), kinematicNote: app.t('preview.kinematicNote'),
+  });
   const labels = (): PreviewLabels => ({
     canvas: app.t('preview.canvas'), layer: app.t('preview.layer'), height: app.t('preview.height'),
     previousLayer: app.t('preview.previousLayer'), nextLayer: app.t('preview.nextLayer'), layerSlider: app.t('preview.layerSlider'),
     loading: app.t('preview.loading'), tooLarge: app.t('preview.tooLarge'), webglUnavailable: app.t('preview.webglUnavailable'),
     loadFailed: app.t('preview.loadFailed'), reduced: app.t('preview.reduced'),
+    options: optionsLabels(),
   });
   return <PreviewPanel gcode={props.gcode} tier={app.tierDecision().tier} orientation={orientation()} labels={labels()}
+    modelName={plate.state.objects[0]?.name}
     onLog={(type, data) => diagnosticsLog.append(type, data)} />;
 }

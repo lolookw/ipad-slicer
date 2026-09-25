@@ -1,5 +1,5 @@
 import { expect, it, vi } from 'vitest';
-import { gcodeFileName, saveFile, saveGcode, type SaveDeps } from './save-gcode';
+import { gcodeFileName, previewImageFileName, saveFile, saveGcode, savePreviewImage, type SaveDeps } from './save-gcode';
 
 function fakes() {
   const anchor = { download: '', href: '', rel: '', click: vi.fn(), remove: vi.fn() };
@@ -82,3 +82,18 @@ it.each([
   ['cube.stl', 'cube.gcode'], ['part', 'part.gcode'], ['C:\\fakepath\\Cube.STL', 'Cube.gcode'],
   ['../parts/cube.stl', 'cube.gcode'], ['bad:na?me*.stl', 'badname.gcode'], ['', 'model.gcode'],
 ])('names %s safely', (input, expected) => expect(gcodeFileName(input)).toBe(expected));
+
+it.each([
+  ['cube.stl', 'image/png', 'cube-preview.png'], ['cube.stl', 'image/jpeg', 'cube-preview.jpg'],
+  ['cube.stl', 'image/webp', 'cube-preview.webp'], ['', 'image/png', 'model-preview.png'],
+])('names a preview image %s/%s safely', (input, mime, expected) => expect(previewImageFileName(input, mime)).toBe(expected));
+
+it('saves a captured preview image blob through the same save/share path as the G-code', async () => {
+  const { deps } = fakes();
+  const blob = new Blob(['fake-png-bytes'], { type: 'image/png' });
+  expect(await savePreviewImage(blob, 'cube-preview.png', deps)).toEqual({ method: 'share', mimeType: 'image/png', bytes: 14 });
+  const file = vi.mocked(deps.navigator!.share!).mock.calls[0]![0]!.files![0]!;
+  expect(file.name).toBe('cube-preview.png');
+  expect(file.type).toBe('image/png');
+  expect(await file.text()).toBe('fake-png-bytes');
+});

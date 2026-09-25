@@ -703,6 +703,38 @@ test('the Preview step shows the toolpath canvas and the slider changes the visi
   expect((await download).suggestedFilename()).toBe('preview-flow.gcode');
 });
 
+test('the preview options panel offers feature-type color mode with a legend, declutters without erroring, and Save image downloads a file', async ({ page }) => {
+  test.setTimeout(90_000);
+  const pageErrors: Error[] = [];
+  page.on('pageerror', error => pageErrors.push(error));
+  await page.goto('/'); await configureEngine(page); await importStl(page, 'preview-options.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Slice', exact: true }).click();
+  await expect(page.getByTestId('slice-result')).toContainText('Print time', { timeout: 45_000 });
+  await expect(page.locator('gcode-preview canvas')).toBeAttached({ timeout: 30_000 });
+
+  await page.getByRole('button', { name: 'Preview options', exact: true }).click();
+  await expect(page.getByRole('radio', { name: 'Feature type' })).toBeVisible();
+  await page.getByRole('radio', { name: 'Feature type' }).click();
+  await expect(page.getByText('Feature legend')).toBeVisible();
+  await expect(page.getByText('Perimeter', { exact: true })).toBeVisible();
+
+  // Declutter (Skirt/Brim/Support) is only offered when the real sliced G-code's feature roles are
+  // capability-known; toggling it must never error either way this real engine output resolves.
+  const skirt = page.getByRole('checkbox', { name: 'Skirt' });
+  if (await skirt.count()) {
+    await skirt.uncheck();
+    await expect(skirt).not.toBeChecked();
+  }
+  await expect(page.locator('gcode-preview canvas')).toBeAttached();
+  await expect(page.locator('.slice-error, .viewer-error')).toHaveCount(0);
+
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Save preview image', exact: true }).click();
+  const file = await download;
+  expect(file.suggestedFilename()).toMatch(/^preview-options-preview\.(png|jpe?g|webp)$/);
+  expect(pageErrors).toEqual([]);
+});
+
 test('canceling an active slice never unlocks a stale result', async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto('/'); await configureEngine(page); await importStl(page, 'cancel-slice.stl', binaryBoxStl());

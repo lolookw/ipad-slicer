@@ -3,8 +3,20 @@ import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@solidjs/testing-library';
 import { PreviewPanel, type PreviewLabels } from './PreviewPanel';
 
+const optionsLabels: PreviewLabels['options'] = {
+  toggle: 'Preview options', colorMode: 'Color by',
+  colorModeNames: { single: 'Single', feature: 'Feature', feedrate: 'Speed', layerHeight: 'Height', object: 'Object', tool: 'Tool',
+    filament: 'Filament', colorChange: 'Color change', moveKind: 'Move kind', power: 'Power' },
+  featureLegend: 'Legend',
+  featureRoleNames: { perimeter: 'Perimeter', externalPerimeter: 'Outer perimeter', infill: 'Infill', solidInfill: 'Solid infill',
+    support: 'Support', skirt: 'Skirt', brim: 'Brim', bridge: 'Bridge', travel: 'Travel', primeTower: 'Prime tower',
+    wipeTower: 'Wipe tower', raft: 'Raft', purge: 'Purge' },
+  declutter: 'Hide from view', travel: 'Travel moves', wipe: 'Wipe moves', retractions: 'Retractions',
+  viewPresets: 'Camera views', fit: 'Fit', top: 'Top', front: 'Front', iso: 'Iso',
+  saveImage: 'Save image', saveImageBusy: 'Saving…', estimatedTime: 'Estimated time', kinematicNote: 'approximate',
+};
 const labels: PreviewLabels = { canvas: 'Preview', layer: 'Layer', height: 'Height', previousLayer: 'Prev', nextLayer: 'Next', layerSlider: 'Layer slider',
-  loading: 'Loading', tooLarge: 'Too large', webglUnavailable: 'No WebGL', loadFailed: 'Failed', reduced: 'Reduced' };
+  loading: 'Loading', tooLarge: 'Too large', webglUnavailable: 'No WebGL', loadFailed: 'Failed', reduced: 'Reduced', options: optionsLabels };
 let frames: FrameRequestCallback[] = [];
 const flush = () => { const queued = frames; frames = []; queued.forEach(callback => callback(0)); };
 beforeEach(() => { frames = []; vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => frames.push(callback)); vi.stubGlobal('cancelAnimationFrame', () => undefined); });
@@ -14,7 +26,12 @@ const gcode = (layers: number) => new TextEncoder().encode('G90\nM83\n' + Array.
   `;LAYER_CHANGE\n;Z:${((n + 1) * 0.2).toFixed(1)}\nG1 Z${((n + 1) * 0.2).toFixed(1)}\nG1 X${n} Y${n} E.5\n`).join('') + '; EXECUTABLE_BLOCK_END\n').buffer as ArrayBuffer;
 
 function setup(overrides: Partial<Parameters<typeof PreviewPanel>[0]> = {}) {
-  const adapter = { setSource: vi.fn(), setLayerRange: vi.fn(), dispose: vi.fn() };
+  const adapter = {
+    setSource: vi.fn(), setLayerRange: vi.fn(), dispose: vi.fn(),
+    setColorMode: vi.fn(), setHiddenFeatureRoles: vi.fn(), setShowTravel: vi.fn(), setShowWipe: vi.fn(), setShowRetractions: vi.fn(),
+    setView: vi.fn(), setCameraMode: vi.fn(), frame: vi.fn(), getCameraState: vi.fn(() => null), setCameraState: vi.fn(),
+    capture: vi.fn(async () => new Blob()), getState: vi.fn(() => ({}) as never), onEvent: vi.fn(() => vi.fn()),
+  };
   const create = vi.fn(async () => adapter);
   const onLog = vi.fn();
   const view = render(() => <PreviewPanel gcode={gcode(50)} tier="full" orientation="horizontal" labels={labels} onLog={onLog}
