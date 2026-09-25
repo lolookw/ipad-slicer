@@ -3,7 +3,7 @@ import type { SettingKey } from './schema';
 
 export type Translate = (key: TranslationKey) => string;
 
-type OptionGroupKey = 'supportType' | 'brimType' | 'infillPattern' | 'bedType' | 'gcodeFlavor' | 'ironingType' | 'seamPosition' | 'fuzzySkin';
+type OptionGroupKey = 'supportType' | 'brimType' | 'infillPattern' | 'bedType' | 'gcodeFlavor' | 'ironingType' | 'seamPosition' | 'fuzzySkin' | 'zHopType';
 
 // Maps each enum SettingKey to the settings.options.<group> table in en.ts/es.ts that holds
 // its display labels. A setting not listed here (a non-enum field, or a future enum field
@@ -17,6 +17,7 @@ const OPTION_GROUP_BY_SETTING: Partial<Record<SettingKey, OptionGroupKey>> = {
   ironing_type: 'ironingType',
   seam_position: 'seamPosition',
   fuzzy_skin: 'fuzzySkin',
+  z_hop_types: 'zHopType',
 };
 
 /**

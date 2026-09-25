@@ -18,6 +18,7 @@ export const GCODE_FLAVORS = ['marlin', 'klipper', 'reprapfirmware', 'repetier',
 export const IRONING_TYPES = ['no ironing', 'top', 'topmost', 'solid'] as const;
 export const SEAM_POSITIONS = ['nearest', 'aligned', 'aligned_back', 'back', 'random'] as const;
 export const FUZZY_SKINS = ['none', 'external', 'hole', 'all', 'allwalls', 'disabled_fuzzy'] as const;
+export const Z_HOP_TYPES = ['Auto Lift', 'Normal Lift', 'Slope Lift', 'Spiral Lift'] as const;
 
 export type SettingType = 'float' | 'int' | 'percent' | 'bool' | 'enum' | 'string' | 'gcode';
 export type SettingValue = number | boolean | string | (number | boolean | string)[];
@@ -82,6 +83,8 @@ export const SETTINGS = define({
   ironing_type: advanced('enum', 'quality', { enum: IRONING_TYPES, labelKey: 'ironingType' }),
   seam_position: advanced('enum', 'quality', { enum: SEAM_POSITIONS, labelKey: 'seamPosition' }),
   fuzzy_skin: advanced('enum', 'others', { enum: FUZZY_SKINS, labelKey: 'fuzzySkin' }),
+  z_hop: advanced('float', 'others', { vector: 'extruder', min: 0, max: 10, labelKey: 'zHop' }),
+  z_hop_types: advanced('enum', 'others', { vector: 'extruder', enum: Z_HOP_TYPES, labelKey: 'zHopType' }),
   use_relative_e_distances: advanced('bool', 'machine', { labelKey: 'relativeExtrusion' }),
   gcode_flavor: advanced('enum', 'machine', { enum: GCODE_FLAVORS, labelKey: 'gcodeFlavor' }),
   before_layer_change_gcode: advanced('gcode', 'machine', { labelKey: 'beforeLayerGcode' }),

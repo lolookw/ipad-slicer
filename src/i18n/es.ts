@@ -162,6 +162,7 @@ export const es = {
     outerWallSpeed: { label: 'Velocidad de pared exterior' }, innerWallSpeed: { label: 'Velocidad de pared interior' }, infillSpeed: { label: 'Velocidad de relleno' },
     travelSpeed: { label: 'Velocidad de desplazamiento' }, initialLayerSpeed: { label: 'Velocidad de capa inicial' }, relativeExtrusion: { label: 'Extrusión relativa' },
     ironingType: { label: 'Planchado' }, seamPosition: { label: 'Posición de costura' }, fuzzySkin: { label: 'Textura rugosa' },
+    zHop: { label: 'Altura de elevación Z' }, zHopType: { label: 'Tipo de elevación Z' },
     gcodeFlavor: { label: 'Formato de G-code' }, beforeLayerGcode: { label: 'G-code previo a la capa' }, layerChangeGcode: { label: 'G-code de cambio de capa' },
     startGcode: { label: 'G-code inicial' }, endGcode: { label: 'G-code final' }, filamentCost: { label: 'Costo del filamento' }, filamentDensity: { label: 'Densidad del filamento' },
     options: {
@@ -192,6 +193,9 @@ export const es = {
       fuzzySkin: {
         none: 'Desactivado', external: 'Paredes exteriores', hole: 'Solo agujeros', all: 'Todas las paredes',
         allwalls: 'Todas las paredes (con superior e inferior)', disabled_fuzzy: 'Deshabilitado',
+      },
+      zHopType: {
+        'Auto Lift': 'Automático', 'Normal Lift': 'Normal (recto)', 'Slope Lift': 'Rampa', 'Spiral Lift': 'Espiral',
       },
     },
   },

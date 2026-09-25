@@ -5,7 +5,7 @@ import type { PrinterPack } from '../catalog/types';
 import { decodeNative, encodeNative } from './codec';
 import { availableQualityLadder, selectQuality } from './ladder';
 import { mergeResolvedSettings, resetOverride } from './merge';
-import { BRIM_TYPES, FUZZY_SKINS, GCODE_FLAVORS, IRONING_TYPES, SEAM_POSITIONS, SETTINGS, SUPPORT_TYPES } from './schema';
+import { BRIM_TYPES, FUZZY_SKINS, GCODE_FLAVORS, IRONING_TYPES, SEAM_POSITIONS, SETTINGS, SUPPORT_TYPES, Z_HOP_TYPES } from './schema';
 import { validateSettings } from './validate';
 import { setAdhesion, setBedTemperature } from './virtual';
 
@@ -19,6 +19,7 @@ describe('pinned settings schema', () => {
     expect(IRONING_TYPES).toEqual(['no ironing', 'top', 'topmost', 'solid']);
     expect(SEAM_POSITIONS).toEqual(['nearest', 'aligned', 'aligned_back', 'back', 'random']);
     expect(FUZZY_SKINS).toEqual(['none', 'external', 'hole', 'all', 'allwalls', 'disabled_fuzzy']);
+    expect(Z_HOP_TYPES).toEqual(['Auto Lift', 'Normal Lift', 'Slope Lift', 'Spiral Lift']);
     for (const definition of Object.values(SETTINGS)) {
       const label = definition.labelKey.split('.')[1]! as keyof typeof en.settings;
       expect(en.settings[label]).toBeTruthy();
@@ -31,6 +32,10 @@ describe('pinned settings schema', () => {
     expect(encodeNative(SETTINGS.enable_support, true)).toBe('1');
     expect(encodeNative(SETTINGS.nozzle_temperature, 210)).toEqual(['210']);
     expect(decodeNative(SETTINGS.nozzle_temperature, ['210'])).toEqual([210]);
+    expect(encodeNative(SETTINGS.z_hop, 0.4)).toEqual(['0.4']);
+    expect(decodeNative(SETTINGS.z_hop, ['0.4'])).toEqual([0.4]);
+    expect(encodeNative(SETTINGS.z_hop_types, 'Spiral Lift')).toEqual(['Spiral Lift']);
+    expect(decodeNative(SETTINGS.z_hop_types, ['Spiral Lift'])).toEqual(['Spiral Lift']);
   });
 });
 
@@ -54,13 +59,18 @@ describe('settings assembly and validation', () => {
       layer_height: '0.5', initial_layer_print_height: '0.5', nozzle_temperature: ['270'],
       curr_bed_type: 'Textured PEI Plate', textured_plate_temp: ['120'], travel_speed: '301',
       use_relative_e_distances: '0', before_layer_change_gcode: 'G92 E0',
+      z_hop: ['11'], z_hop_types: ['Banana Lift'],
     };
     const keys = validateSettings(invalid, context).filter(issue => issue.severity === 'error').map(issue => issue.key);
-    expect(keys).toEqual(expect.arrayContaining(['sparse_infill_pattern', 'support_type', 'brim_width', 'layer_height', 'initial_layer_print_height', 'nozzle_temperature', 'textured_plate_temp', 'travel_speed', 'before_layer_change_gcode']));
+    expect(keys).toEqual(expect.arrayContaining(['sparse_infill_pattern', 'support_type', 'brim_width', 'layer_height', 'initial_layer_print_height', 'nozzle_temperature', 'textured_plate_temp', 'travel_speed', 'before_layer_change_gcode', 'z_hop', 'z_hop_types']));
   });
 
   it('accepts inclusive infill and brim boundaries', () => {
     expect(validateSettings({ sparse_infill_density: '0%', brim_width: '100' }, context)).toEqual([]);
+  });
+
+  it('accepts a real catalog z-hop height and type', () => {
+    expect(validateSettings({ z_hop: ['0.4'], z_hop_types: ['Auto Lift'] }, context)).toEqual([]);
   });
 });
 

@@ -23,7 +23,7 @@ const CATEGORIES = {
   strength: ['wall_loops', 'top_shell_layers', 'bottom_shell_layers', 'sparse_infill_pattern'],
   speed: ['outer_wall_speed', 'inner_wall_speed', 'sparse_infill_speed', 'travel_speed', 'initial_layer_speed'],
   support: ['enable_support', 'support_type', 'support_threshold_angle', 'support_on_build_plate_only', 'brim_type', 'brim_width'],
-  others: ['curr_bed_type', 'nozzle_temperature', 'nozzle_temperature_initial_layer', 'fuzzy_skin', 'use_relative_e_distances', 'gcode_flavor', 'machine_start_gcode', 'machine_end_gcode', 'filament_cost', 'filament_density'],
+  others: ['curr_bed_type', 'nozzle_temperature', 'nozzle_temperature_initial_layer', 'fuzzy_skin', 'z_hop', 'z_hop_types', 'use_relative_e_distances', 'gcode_flavor', 'machine_start_gcode', 'machine_end_gcode', 'filament_cost', 'filament_density'],
 } as const satisfies Record<string, readonly SettingKey[]>;
 type AdvancedCategory = keyof typeof CATEGORIES;
 
