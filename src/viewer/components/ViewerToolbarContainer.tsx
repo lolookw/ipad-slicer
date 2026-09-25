@@ -31,16 +31,18 @@ export function PlateObjectToolbar(props: {
   onModeChange?: (mode: 'select' | 'move' | 'rotate') => void;
 }) {
   const [scaleOpen, setScaleOpen] = createSignal(false);
+  const [transformFieldsOpen, setTransformFieldsOpen] = createSignal(false);
   const object = () => selectedObject();
   const translate = (error: unknown): string => {
     const coded = error instanceof EngineClientError ? { code: error.code, values: error.values }
       : error instanceof Error ? error.message : String(error);
     return props.translateError ? props.translateError(coded) : typeof coded === 'string' ? coded : coded.code;
   };
-  return <TransformToolbar object={object()} scaleOpen={scaleOpen()} labels={props.labels}
+  return <TransformToolbar object={object()} scaleOpen={scaleOpen()} transformFieldsOpen={transformFieldsOpen()} labels={props.labels}
     readout={props.readout} snapEnabled={props.snapEnabled ?? true} onSnapToggle={props.onSnapToggle ?? (() => undefined)}
     mode={props.mode ?? 'select'} onModeChange={props.onModeChange ?? (() => undefined)}
     onScaleOpen={() => setScaleOpen(true)} onScaleClose={() => setScaleOpen(false)}
+    onTransformFieldsOpen={() => setTransformFieldsOpen(true)} onTransformFieldsClose={() => setTransformFieldsOpen(false)}
     onRotate={axis => { const selected = object(); if (selected) plate.rotate90(selected.id, axis); }}
     onDuplicate={() => {
       const selected = object();
@@ -49,9 +51,10 @@ export function PlateObjectToolbar(props: {
       duplicateMeshBuffers(selected.id, newId); // mesh data must exist before the store's syncObjects effect looks for it
       plate.duplicateObject(selected.id, newId);
     }}
-    onDelete={() => { const selected = object(); if (selected) { plate.removeObject(selected.id); setScaleOpen(false); } }}
+    onDelete={() => { const selected = object(); if (selected) { plate.removeObject(selected.id); setScaleOpen(false); setTransformFieldsOpen(false); } }}
     onReset={() => { const selected = object(); if (selected) plate.resetTransform(selected.id); }}
     onTransform={transform => { const selected = object(); if (selected) plate.updateTransform(selected.id, transform); }}
+    onTransformNoReseat={transform => { const selected = object(); if (selected) plate.updateTransform(selected.id, transform, { dropToBed: false }); }}
     onDeselect={() => plate.select(undefined)}
     onLayFlat={() => void prepareCurrentPlate(1).catch(error => props.onPrepareError?.(translate(error)))}
     onAutoOrient={() => {
@@ -87,6 +90,12 @@ export function ViewerToolbarContainer(props: {
     delete: t('viewer.delete'), reset: t('viewer.reset'), title: t('viewer.scaleTitle'), close: t('viewer.close'), size: t('viewer.size'),
     unit: t('viewer.unit'), suspicious: t('viewer.suspiciousSize'), multiply25_4: t('viewer.multiply25_4'),
     multiply1000: t('viewer.multiply1000'), divide10: t('viewer.divide10'), keep: t('viewer.keepEntered'), resize: t('viewer.resizeSheet'),
+    editValues: t('viewer.editValues'), transformTitle: t('viewer.transformTitle'),
+    positionHeading: t('viewer.positionHeading'), positionX: t('viewer.positionX'), positionY: t('viewer.positionY'), positionZ: t('viewer.positionZ'),
+    rotationHeading: t('viewer.rotationHeading'), rotationX: t('viewer.rotationX'), rotationY: t('viewer.rotationY'), rotationZ: t('viewer.rotationZ'),
+    scaleHeading: t('viewer.scaleHeading'), scaleX: t('viewer.scaleX'), scaleY: t('viewer.scaleY'), scaleZ: t('viewer.scaleZ'), scaleLink: t('viewer.scaleLink'),
+    dimensionsHeading: t('viewer.dimensionsHeading'), dimensionX: t('viewer.dimensionX'), dimensionY: t('viewer.dimensionY'), dimensionZ: t('viewer.dimensionZ'),
+    resizeTransformSheet: t('viewer.resizeTransformSheet'),
   });
   return <>
     <Show when={notice()}>{message => <p class="viewer-toolbar-notice" role="alert">{message()}</p>}</Show>

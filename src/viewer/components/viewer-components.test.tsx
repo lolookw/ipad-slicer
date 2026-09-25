@@ -22,6 +22,12 @@ const labels: TransformToolbarLabels = {
   deselect: 'Deselect', layFlat: 'Lay flat', autoOrient: 'Auto orient', rotateX: 'Rotate X', rotateY: 'Rotate Y',
   scale: 'Scale', duplicate: 'Duplicate', delete: 'Delete', reset: 'Reset', title: 'Object size', close: 'Close', size: 'Largest dimension',
   unit: 'Size unit', suspicious: 'Suspicious size', multiply25_4: '×25.4', multiply1000: '×1000', divide10: '÷10', keep: 'Keep as entered', resize: 'Resize',
+  editValues: 'Edit values', transformTitle: 'Object transform',
+  positionHeading: 'Position (mm)', positionX: 'Position X', positionY: 'Position Y', positionZ: 'Position Z',
+  rotationHeading: 'Rotation (°)', rotationX: 'Rotation X', rotationY: 'Rotation Y', rotationZ: 'Rotation Z',
+  scaleHeading: 'Scale (%)', scaleX: 'Scale X', scaleY: 'Scale Y', scaleZ: 'Scale Z', scaleLink: 'Keep scale proportional',
+  dimensionsHeading: 'Dimensions (mm)', dimensionX: 'Width (X)', dimensionY: 'Depth (Y)', dimensionZ: 'Height (Z)',
+  resizeTransformSheet: 'Resize transform sheet',
 };
 
 const object = (id: string, side = 10): PlateObject => ({
@@ -95,7 +101,7 @@ it('reflects a disabled snap state and no longer shows axis-lock controls', () =
 
   expect(screen.getByRole('button', { name: 'Snap' }).getAttribute('aria-pressed')).toBe('false');
   expect(screen.queryByRole('group', { name: 'Axis lock' })).toBeNull();
-  for (const name of ['Select', 'Move', 'Rotate', 'Lay flat', 'Auto orient', 'Rotate X', 'Rotate Y', 'Scale', 'Duplicate', 'Delete', 'Reset', 'Deselect']) {
+  for (const name of ['Select', 'Move', 'Rotate', 'Lay flat', 'Auto orient', 'Rotate X', 'Rotate Y', 'Scale', 'Edit values', 'Duplicate', 'Delete', 'Reset', 'Deselect']) {
     expect(screen.getByRole('button', { name })).toBeTruthy();
   }
 });
@@ -191,4 +197,92 @@ it('uses the sheet-open size as the absolute 100 percent baseline', () => {
   commitSize(50);
 
   expect(plate.state.objects[0]!.transform.scale).toEqual([0.5, 0.5, 0.5]);
+});
+
+describe('the numeric Position/Rotation/Scale fields (TransformFields)', () => {
+  const openTransformFields = () => fireEvent.click(screen.getByRole('button', { name: 'Edit values' }));
+  const numberField = (name: string) => screen.getByRole('spinbutton', { name }) as HTMLInputElement;
+  const commit = (name: string, value: number) => fireEvent.change(numberField(name), { target: { value: String(value) } });
+
+  it('moves the object to exactly the typed Position value without re-seating X/Y', () => {
+    plate.addObject(object('a'));
+    render(() => <PlateObjectToolbar labels={labels} />);
+    openTransformFields();
+
+    commit('Position X', 12.5);
+    commit('Position Y', -3);
+
+    expect(plate.state.objects[0]!.transform.position[0]).toBeCloseTo(12.5, 6);
+    expect(plate.state.objects[0]!.transform.position[1]).toBeCloseTo(-3, 6);
+  });
+
+  it('never lets a typed Position Z go below the plate', () => {
+    plate.addObject(object('a'));
+    render(() => <PlateObjectToolbar labels={labels} />);
+    openTransformFields();
+
+    commit('Position Z', -50);
+
+    expect(plate.state.objects[0]!.transform.position[2]).toBeCloseTo(0, 6);
+  });
+
+  it('sets an absolute Rotation value, not a delta compounded onto the previous one', () => {
+    plate.addObject(object('a'));
+    render(() => <PlateObjectToolbar labels={labels} />);
+    openTransformFields();
+
+    commit('Rotation X', 30);
+    expect(plate.state.objects[0]!.transform.rotation[0]).toBeCloseTo(Math.PI / 6, 5);
+
+    commit('Rotation X', 45);
+    expect(plate.state.objects[0]!.transform.rotation[0]).toBeCloseTo(Math.PI / 4, 5);
+  });
+
+  it('rejects an invalid typed value and reverts the field instead of committing it', () => {
+    plate.addObject(object('a'));
+    render(() => <PlateObjectToolbar labels={labels} />);
+    openTransformFields();
+    const update = vi.spyOn(plate, 'updateTransform');
+
+    commit('Rotation Y', NaN);
+
+    expect(update).not.toHaveBeenCalled();
+    expect(numberField('Rotation Y').value).toBe('0.0');
+  });
+
+  it('keeps X/Y/Z scale proportional while the link toggle is on, and independent once turned off', () => {
+    plate.addObject(object('a'));
+    render(() => <PlateObjectToolbar labels={labels} />);
+    openTransformFields();
+
+    commit('Scale X', 50);
+    expect(plate.state.objects[0]!.transform.scale).toEqual([0.5, 0.5, 0.5]);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Keep scale proportional' }));
+    commit('Scale Y', 25);
+    expect(plate.state.objects[0]!.transform.scale).toEqual([0.5, 0.25, 0.5]);
+  });
+
+  it('reads back the same live Reset action already wired to the toolbar', () => {
+    plate.addObject({ ...object('a'), transform: { position: [5, 5, 5], rotation: [0.1, 0.1, 0.1], scale: [2, 2, 2], mirror: [false, false, false] } });
+    render(() => <PlateObjectToolbar labels={labels} />);
+    openTransformFields();
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Reset' })[0]!);
+
+    expect(plate.state.objects[0]!.transform.scale).toEqual([1, 1, 1]);
+    expect(plate.state.objects[0]!.transform.rotation).toEqual([0, 0, 0]);
+  });
+
+  it('shows read-only computed Dimensions that follow the current transform', () => {
+    plate.addObject(object('a', 10));
+    render(() => <PlateObjectToolbar labels={labels} />);
+    openTransformFields();
+
+    expect(numberField('Width (X)').value).toBe('10.00');
+    expect(numberField('Width (X)').readOnly).toBe(true);
+
+    commit('Scale X', 200);
+    expect(numberField('Width (X)').value).toBe('20.00');
+  });
 });
