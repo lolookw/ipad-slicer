@@ -1,6 +1,7 @@
 import { Euler, PerspectiveCamera, Quaternion, Vector3 } from 'three';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { plate } from '../app/stores/plate';
+import { canUndo, clear, redo, undo } from '../app/stores/history';
 import { rayFromNdc } from './drag-math';
 import { createGizmo } from './gizmo';
 import { IDENTITY_TRANSFORM, type ObjectTransform } from './transforms';
@@ -224,6 +225,86 @@ describe('createGizmo sessions', () => {
       gizmo.update(rayTo(at(35)), false);
       expect(readout).toHaveBeenLastCalledWith('Z 35.0°'); // resumes the same accumulator
       gizmo.end();
+    });
+  });
+
+  describe('group move (body drag with 2+ objects in the group selection)', () => {
+    it('applies the identical delta to every other selected object, but not to an object outside the group', () => {
+      const primary = seedObject('a');
+      seedObject('b', { ...IDENTITY_TRANSFORM, position: [20, 0, 0] });
+      seedObject('c', { ...IDENTITY_TRANSFORM, position: [0, 20, 0] }); // not in the group: must stay untouched
+      const gizmo = createGizmo(undefined, () => new Set(['a', 'b']));
+
+      gizmo.begin(primary, { kind: 'body', hitPoint: new Vector3(0, 0, 10) }, rayTo([0, 0, 10]));
+      gizmo.update(rayTo([20, 8, 10]), false);
+
+      expect(current('a').position[0]).toBeCloseTo(20, 4);
+      expect(current('a').position[1]).toBeCloseTo(8, 4);
+      expect(current('b').position[0]).toBeCloseTo(40, 4); // 20 (start) + 20 (delta)
+      expect(current('b').position[1]).toBeCloseTo(8, 4);
+      expect(current('c').position).toEqual([0, 20, 0]); // untouched
+      gizmo.end();
+    });
+
+    it('never applies a group delta for an arrow or ring drag, only a body drag', () => {
+      const primary = seedObject('a');
+      seedObject('b', { ...IDENTITY_TRANSFORM, position: [20, 0, 0] });
+      const gizmo = createGizmo(undefined, () => new Set(['a', 'b']));
+
+      gizmo.begin(primary, { kind: 'arrow', axis: 'x' }, rayTo([30, 0, 5]));
+      gizmo.update(rayTo([52, 0, 5]), true);
+
+      expect(current('a').position[0]).not.toBe(0);
+      expect(current('b').position).toEqual([20, 0, 0]); // untouched: arrow drags stay single-object
+      gizmo.end();
+    });
+
+    it('a single-member group (no other selected object) behaves exactly like a solo drag', () => {
+      const primary = seedObject('a');
+      const gizmo = createGizmo(undefined, () => new Set(['a']));
+
+      gizmo.begin(primary, { kind: 'body', hitPoint: new Vector3(0, 0, 10) }, rayTo([0, 0, 10]));
+      gizmo.update(rayTo([20, 8, 10]), false);
+
+      expect(current('a').position[0]).toBeCloseTo(20, 4);
+      gizmo.end();
+    });
+
+    it('cancel() reverts every group member back to its pre-drag transform, not just the primary', () => {
+      const primary = seedObject('a');
+      seedObject('b', { ...IDENTITY_TRANSFORM, position: [20, 0, 0] });
+      const beforeB = JSON.stringify(current('b'));
+      const gizmo = createGizmo(undefined, () => new Set(['a', 'b']));
+
+      gizmo.begin(primary, { kind: 'body', hitPoint: new Vector3(0, 0, 10) }, rayTo([0, 0, 10]));
+      gizmo.update(rayTo([20, 8, 10]), false);
+      expect(JSON.stringify(current('b'))).not.toBe(beforeB);
+
+      gizmo.cancel();
+
+      expect(JSON.stringify(current('b'))).toBe(beforeB);
+    });
+
+    it('brackets a whole group-move drag into one history entry covering every moved object', () => {
+      const primary = seedObject('a');
+      seedObject('b', { ...IDENTITY_TRANSFORM, position: [20, 0, 0] });
+      clear();
+      const gizmo = createGizmo(undefined, () => new Set(['a', 'b']));
+
+      gizmo.begin(primary, { kind: 'body', hitPoint: new Vector3(0, 0, 10) }, rayTo([0, 0, 10]));
+      gizmo.update(rayTo([10, 4, 10]), false);
+      gizmo.update(rayTo([20, 8, 10]), false);
+      gizmo.end();
+
+      expect(canUndo()).toBe(true);
+      const movedA = { ...current('a') };
+      const movedB = { ...current('b') };
+      undo();
+      expect(current('a').position[0]).toBeCloseTo(0, 4);
+      expect(current('b').position[0]).toBeCloseTo(20, 4);
+      redo();
+      expect(current('a').position[0]).toBeCloseTo(movedA.position[0]!, 4);
+      expect(current('b').position[0]).toBeCloseTo(movedB.position[0]!, 4);
     });
   });
 

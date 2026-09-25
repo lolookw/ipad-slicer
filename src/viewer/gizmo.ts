@@ -37,6 +37,12 @@ interface Session {
    */
   lastRingAngle?: number;
   accumulatedRingAngle?: number;
+  /**
+   * Group move only (body drag with 2+ objects in the group selection): every OTHER selected
+   * object's transform as it was at `begin()`, so `update()` can apply the identical position delta
+   * to all of them, not just the primary — see createGizmo's `groupIds` param.
+   */
+  groupStart?: Map<string, ObjectTransform>;
 }
 
 export interface Gizmo {
@@ -74,7 +80,14 @@ const copy = (transform: ObjectTransform): ObjectTransform => ({
  * (transforms.ts), never the engine's stride-11 encoding. Every update recomputes from the snapshot
  * taken at `begin`, so a live store reference can never drift mid-gesture.
  */
-export function createGizmo(onReadout?: (value: string | undefined) => void): Gizmo {
+export function createGizmo(
+  onReadout?: (value: string | undefined) => void,
+  /** Group move: the current group selection, so a body drag on the primary can carry the rest of
+   * the group along by the identical delta. Optional and only consulted for `kind: 'body'` — arrow
+   * and ring drags stay single-object, exactly as before this feature (see the design note on why
+   * only the primary ever drives the gizmo). */
+  groupIds?: () => ReadonlySet<string>,
+): Gizmo {
   let session: Session | undefined;
   // Brackets the whole drag (begin..end/cancel) into ONE history entry, never one per pointer-move
   // frame: commit() below fires on every update() call, but the transaction only captures "before" at
@@ -94,7 +107,19 @@ export function createGizmo(onReadout?: (value: string | undefined) => void): Gi
       const startTransform = copy(object.transform);
       const center = objectCenter(object.bounds, startTransform);
       session = { objectId: object.id, target, bounds: object.bounds, startTransform, center, wasOnPlate: restsOnPlate(object.bounds, startTransform) };
-      if (target.kind === 'body') session.startPoint = intersectHorizontalPlane(ray, target.hitPoint.z) ?? target.hitPoint.clone();
+      if (target.kind === 'body') {
+        session.startPoint = intersectHorizontalPlane(ray, target.hitPoint.z) ?? target.hitPoint.clone();
+        const group = groupIds?.();
+        if (group && group.size > 1) {
+          const starts = new Map<string, ObjectTransform>();
+          for (const id of group) {
+            if (id === object.id) continue;
+            const other = plate.state.objects.find(candidate => candidate.id === id);
+            if (other) starts.set(id, copy(other.transform));
+          }
+          if (starts.size) session.groupStart = starts;
+        }
+      }
       else if (target.kind === 'arrow') session.startParam = closestParamOnAxis(ray, center, axisVector(target.axis));
       else {
         session.startVector = ringVector(ray, center, axisVector(target.axis));
@@ -112,6 +137,13 @@ export function createGizmo(onReadout?: (value: string | undefined) => void): Gi
         let dy = point.y - session.startPoint.y;
         if (snap) { dx = snapValue(dx, MOVE_SNAP_MM); dy = snapValue(dy, MOVE_SNAP_MM); }
         commit({ ...startTransform, position: [startTransform.position[0] + dx, startTransform.position[1] + dy, startTransform.position[2]] });
+        // Group move: every other currently-selected object rides along by the identical (dx, dy),
+        // committed every frame just like the primary — beginTransaction/commit() at end() still
+        // brackets the whole gesture into exactly one history entry, since it diffs the whole plate.
+        if (session.groupStart) for (const [id, groupTransform] of session.groupStart) {
+          plate.updateTransform(id, { ...groupTransform,
+            position: [groupTransform.position[0] + dx, groupTransform.position[1] + dy, groupTransform.position[2]] }, { dropToBed: false });
+        }
         onReadout?.(`${formatMoveReadout('x', dx)}  ${formatMoveReadout('y', dy)}`);
       } else if (target.kind === 'arrow') {
         const t = closestParamOnAxis(ray, session.center, axisVector(target.axis));
@@ -141,7 +173,10 @@ export function createGizmo(onReadout?: (value: string | undefined) => void): Gi
       }
     },
     cancel() {
-      if (session) commit(session.startTransform);
+      if (session) {
+        commit(session.startTransform);
+        if (session.groupStart) for (const [id, groupTransform] of session.groupStart) plate.updateTransform(id, groupTransform, { dropToBed: false });
+      }
       session = undefined;
       historyTx?.discard();
       historyTx = undefined;

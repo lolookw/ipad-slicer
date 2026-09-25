@@ -1042,3 +1042,136 @@ test('the Import step reads a 3MF into one plate object per build item', async (
   await expect(page.getByRole('alert')).toContainText('not a valid 3MF archive');
   await expect(objects).toHaveCount(2);
 });
+
+// ---------- Multi-select: group move / duplicate / delete ----------
+// "Select multiple" is the touch-first stand-in for desktop slicers' Ctrl/Shift+click: turning it on
+// makes a Models-list row tap an additive toggle (see ModelsList.tsx/ViewerWorkspace.tsx) instead of
+// today's plain replace-selection tap, which stays the default everywhere else in this file.
+
+/** Repositions `name` via the numeric Position X field (same technique the "undo after deleting"
+ * test above uses) so two otherwise-coincident default-import objects are never ambiguous to a
+ * canvas pick or drag. Selects `name` first (plain single-select, group mode must be off). */
+async function moveObjectToX(page: Page, name: string, x: number) {
+  await page.getByRole('button', { name, exact: true }).click();
+  await page.getByRole('button', { name: 'Edit values', exact: true }).click();
+  const positionX = page.getByRole('spinbutton', { name: 'Position X', exact: true });
+  await positionX.fill(String(x));
+  await positionX.blur();
+  await expect.poll(async () => (await readTransform(page, name)).position[0]).toBeCloseTo(x, 1);
+  await page.getByRole('button', { name: 'Close', exact: true }).click();
+}
+
+test('turning on Select multiple and tapping two Models-list rows groups both, shown by the checkbox indicators and the count', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'group-tap-a.stl', binaryBoxStl());
+  await importStl(page, 'group-tap-b.stl', binaryBoxStl());
+
+  // Deselect first: enabling Select multiple auto-includes whatever is currently the primary
+  // selection (the group is always a superset of the primary), so starting from nothing selected
+  // keeps this test's "tap two rows -> 2 selected" reasoning simple and explicit.
+  await page.getByRole('button', { name: 'Deselect', exact: true }).click();
+  await page.getByRole('button', { name: 'Select multiple', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Select multiple', exact: true })).toHaveAttribute('aria-pressed', 'true');
+
+  await page.getByRole('button', { name: 'group-tap-a.stl', exact: true }).click();
+  await page.getByRole('button', { name: 'group-tap-b.stl', exact: true }).click();
+
+  await expect(page.getByText('2 selected', { exact: true })).toBeVisible();
+  await expect(page.locator('.models-item-checkbox[data-checked="true"]')).toHaveCount(2);
+});
+
+test('dragging the primary object\'s gizmo body in Select multiple mode moves every grouped object by the identical delta', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'group-move-a.stl', binaryBoxStl());
+  await importStl(page, 'group-move-b.stl', binaryBoxStl());
+  // Kept 80mm apart (well past the 20mm box footprint) so a canvas pick/drag at either object's own
+  // gizmo center can never ambiguously land on the other, coincident, default-import mesh.
+  await moveObjectToX(page, 'group-move-a.stl', -40);
+  await moveObjectToX(page, 'group-move-b.stl', 40);
+
+  // See the note in the previous test: deselect first so enabling group mode starts from an empty group.
+  await page.getByRole('button', { name: 'Deselect', exact: true }).click();
+  await page.getByRole('button', { name: 'Select multiple', exact: true }).click();
+  await page.getByRole('button', { name: 'group-move-a.stl', exact: true }).click();
+  await page.getByRole('button', { name: 'group-move-b.stl', exact: true }).click(); // becomes primary
+  await expect(page.getByText('2 selected', { exact: true })).toBeVisible();
+
+  const beforeA = await readTransform(page, 'group-move-a.stl');
+  const beforeB = await readTransform(page, 'group-move-b.stl');
+  const { center } = await gizmoScreen(page); // the primary's (b's) own on-canvas position
+
+  await dragTo(page, center, { x: center.x + 60, y: center.y + 20 });
+
+  const afterA = await readTransform(page, 'group-move-a.stl');
+  const afterB = await readTransform(page, 'group-move-b.stl');
+  const dxA = afterA.position[0]! - beforeA.position[0]!; const dyA = afterA.position[1]! - beforeA.position[1]!;
+  const dxB = afterB.position[0]! - beforeB.position[0]!; const dyB = afterB.position[1]! - beforeB.position[1]!;
+  expect(Math.hypot(dxB, dyB)).toBeGreaterThan(5); // the primary actually moved
+  expect(dxA).toBeCloseTo(dxB, 1); // every grouped object rode along by the identical delta
+  expect(dyA).toBeCloseTo(dyB, 1);
+  expect(afterA.position[2]).toBe(beforeA.position[2]);
+  expect(afterB.position[2]).toBe(beforeB.position[2]);
+  expect(afterA.rotation).toEqual(beforeA.rotation);
+  expect(afterB.rotation).toEqual(beforeB.rotation);
+});
+
+test('Group Delete removes every selected object in one action, and one Undo restores both as real, pickable meshes', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'group-delete-a.stl', binaryBoxStl());
+  await importStl(page, 'group-delete-b.stl', binaryBoxStl());
+  await moveObjectToX(page, 'group-delete-a.stl', -40);
+  await moveObjectToX(page, 'group-delete-b.stl', 40);
+  const beforeA = await readTransform(page, 'group-delete-a.stl');
+  const beforeB = await readTransform(page, 'group-delete-b.stl');
+
+  await page.getByRole('button', { name: 'Deselect', exact: true }).click();
+  await page.getByRole('button', { name: 'Select multiple', exact: true }).click();
+  await page.getByRole('button', { name: 'group-delete-a.stl', exact: true }).click();
+  await page.getByRole('button', { name: 'group-delete-b.stl', exact: true }).click();
+  await expect(page.getByText('2 selected', { exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Delete selected', exact: true }).click();
+  await expect(modelsItemNames(page)).toHaveCount(0);
+
+  await page.getByRole('button', { name: 'Undo', exact: true }).click(); // ONE undo restores both
+
+  await expect(modelsItemNames(page)).toHaveCount(2);
+  expect(await readTransform(page, 'group-delete-a.stl')).toEqual(beforeA);
+  expect(await readTransform(page, 'group-delete-b.stl')).toEqual(beforeB);
+
+  // Real pickable meshes, not just list rows reappearing (same regression technique the single-object
+  // "undo after deleting" test above uses) — checked for BOTH restored objects.
+  await page.getByRole('button', { name: 'Select multiple', exact: true }).click(); // back to plain single-select
+  for (const name of ['group-delete-a.stl', 'group-delete-b.stl']) {
+    await page.getByRole('button', { name, exact: true }).click();
+    const { center } = await gizmoScreen(page);
+    await page.getByRole('button', { name: 'Deselect', exact: true }).click();
+    await expect(page.getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'false');
+    await page.mouse.click(center.x, center.y);
+    await expect(page.getByRole('button', { name, exact: true })).toHaveAttribute('aria-pressed', 'true');
+  }
+});
+
+test('Group Duplicate creates exactly one copy per selected object, as one undoable action', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'group-dup-a.stl', binaryBoxStl());
+  await importStl(page, 'group-dup-b.stl', binaryBoxStl());
+
+  await page.getByRole('button', { name: 'Deselect', exact: true }).click();
+  await page.getByRole('button', { name: 'Select multiple', exact: true }).click();
+  await page.getByRole('button', { name: 'group-dup-a.stl', exact: true }).click();
+  await page.getByRole('button', { name: 'group-dup-b.stl', exact: true }).click();
+  await expect(page.getByText('2 selected', { exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Duplicate selected', exact: true }).click();
+
+  await expect(modelsItemNames(page)).toHaveCount(4);
+  await expect(page.getByRole('button', { name: 'group-dup-a.stl copy', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'group-dup-b.stl copy', exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Undo', exact: true }).click();
+
+  await expect(modelsItemNames(page)).toHaveCount(2);
+  await expect(page.getByRole('button', { name: 'group-dup-a.stl', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'group-dup-b.stl', exact: true })).toBeVisible();
+});
