@@ -2,10 +2,11 @@ import { Show, createEffect, createSignal, on, onCleanup, onMount, type Accessor
 import type { TierDecision } from '../app/tier/decide';
 import { binaries, flow } from '../app/stores';
 import { plate } from '../app/stores/plate';
-import { canRedo, canUndo, record, recordAsync } from '../app/stores/history';
+import { canRedo, canUndo, record, recordAsync, redo, undo } from '../app/stores/history';
 import {
-  clearGroupSelection, groupSelectedIds, groupSelectMode, setGroupSelectMode, setGroupSelection, toggleGroupSelection,
+  clearGroupSelection, groupSelectedIds, groupSelectMode, selectAll, setGroupSelectMode, setGroupSelection, toggleGroupSelection,
 } from '../app/stores/group-selection';
+import { classifyShortcut, isEditableTarget } from './keyboard-shortcuts';
 import { Vector3 } from 'three';
 import { attachCameraControls, type ViewerCameraControls } from './camera';
 import { ModelsList, type ModelsListLabels } from './components/ModelsList';
@@ -188,6 +189,42 @@ export function ViewerWorkspace(props: {
     record(() => { for (const id of ids) plate.removeObject(id); });
     clearGroupSelection(); // those ids are gone; collapse back to whatever primary survived
   };
+
+  /** Deletes whatever is currently selected — the group if 2+ objects are grouped, otherwise just
+   * the single primary — through the exact same record()-wrapped paths the Delete buttons use. */
+  const deleteSelection = () => {
+    if (groupSelectedIds().size >= 2) { groupDelete(); return; }
+    const id = plate.state.selectedId;
+    if (id) record(() => plate.removeObject(id));
+  };
+
+  /** Duplicates whatever is currently selected — same group-vs-single split as deleteSelection(). */
+  const duplicateSelection = () => {
+    if (groupSelectedIds().size >= 2) { groupDuplicate(); return; }
+    const id = plate.state.selectedId;
+    if (!id) return;
+    const newId = globalThis.crypto.randomUUID();
+    record(() => { duplicateMeshBuffers(id, newId); plate.duplicateObject(id, newId); });
+  };
+
+  // Global shortcuts: Cmd/Ctrl+Z undo, +Shift+Z or +Y redo, +A select all, +D duplicate, Delete/
+  // Backspace remove. isEditableTarget() is the hard guard — without it, editing a Position field
+  // (Backspace) or selecting a text field's contents (Cmd+A) would be reinterpreted as plate edits.
+  onMount(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (isEditableTarget(event.target as HTMLElement | null)) return;
+      const action = classifyShortcut(event);
+      if (!action) return;
+      event.preventDefault();
+      if (action === 'undo') undo();
+      else if (action === 'redo') redo();
+      else if (action === 'selectAll') { setGroupSelectMode(true); selectAll(); }
+      else if (action === 'delete') deleteSelection();
+      else if (action === 'duplicate') duplicateSelection();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    onCleanup(() => window.removeEventListener('keydown', onKeyDown));
+  });
 
   return <section class="viewer-workspace" aria-label={app.t('viewer.workspace')}>
     <header class="viewer-import">

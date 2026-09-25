@@ -1175,3 +1175,50 @@ test('Group Duplicate creates exactly one copy per selected object, as one undoa
   await expect(page.getByRole('button', { name: 'group-dup-a.stl', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'group-dup-b.stl', exact: true })).toBeVisible();
 });
+
+test('Cmd/Ctrl+Z and +Shift+Z undo and redo a move, matching the Undo/Redo buttons', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'kbd-undo.stl', binaryBoxStl());
+  const before = await readTransform(page, 'kbd-undo.stl');
+  const { center } = await gizmoScreen(page);
+  await dragTo(page, center, { x: center.x + 60, y: center.y + 20 });
+  const moved = await readTransform(page, 'kbd-undo.stl');
+  expect(moved.position).not.toEqual(before.position);
+
+  await page.keyboard.press('ControlOrMeta+z');
+  await expect.poll(async () => (await readTransform(page, 'kbd-undo.stl')).position).toEqual(before.position);
+
+  await page.keyboard.press('ControlOrMeta+Shift+z');
+  await expect.poll(async () => (await readTransform(page, 'kbd-undo.stl')).position).toEqual(moved.position);
+});
+
+test('the Delete key removes the selected object, and Cmd/Ctrl+D duplicates it', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'kbd-delete.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'kbd-delete.stl', exact: true }).click();
+
+  await page.keyboard.press('ControlOrMeta+d');
+  await expect(page.getByRole('button', { name: 'kbd-delete.stl copy', exact: true })).toBeVisible();
+
+  await page.getByRole('button', { name: 'kbd-delete.stl copy', exact: true }).click();
+  await page.keyboard.press('Delete');
+  await expect(page.getByRole('button', { name: 'kbd-delete.stl copy', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'kbd-delete.stl', exact: true })).toBeVisible();
+});
+
+test('typing in a numeric transform field never triggers a keyboard shortcut', async ({ page }) => {
+  // The critical hazard this guards against: Backspace while editing Position X must edit the
+  // number, never delete the model; Cmd/Ctrl+A while a field is focused must select its text, not
+  // every object on the plate.
+  await page.goto('/');
+  await importStl(page, 'kbd-guard.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'kbd-guard.stl', exact: true }).click();
+  await page.getByRole('button', { name: 'Edit values', exact: true }).click();
+
+  const positionX = page.getByLabel('Position X', { exact: true });
+  await positionX.fill('12');
+  await positionX.press('Backspace');
+  await expect(page.getByRole('button', { name: 'kbd-guard.stl', exact: true })).toBeVisible(); // not deleted
+  await positionX.press('ControlOrMeta+a');
+  await expect(page.getByText('2 selected', { exact: true })).toHaveCount(0); // group-select was not triggered
+});
