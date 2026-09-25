@@ -514,6 +514,31 @@ test('the Models list "..." menu duplicates, renames and deletes an object', asy
   await expect(page.getByRole('button', { name: 'menu-target.stl copy', exact: true })).toHaveCount(0);
 });
 
+test('a duplicated object is a real, pickable mesh at its own position, not just a list row', async ({ page }) => {
+  // Regression test: duplicateObject() used to copy only the plate-store record, never the
+  // renderable geometry registered separately by id, so the new row appeared in the Models list
+  // (proving the object "existed") but had no mesh to draw or pick — it silently never rendered,
+  // which is exactly what a user sees as "it duplicated, but then I couldn't find it on the plate."
+  await page.goto('/');
+  await importStl(page, 'dup-target.stl', binaryBoxStl());
+  const before = await readTransform(page, 'dup-target.stl');
+
+  await page.getByRole('button', { name: 'Duplicate', exact: true }).click();
+  const copy = page.getByRole('button', { name: 'dup-target.stl copy', exact: true });
+  await expect(copy).toBeVisible();
+  const after = await readTransform(page, 'dup-target.stl copy');
+  expect(after.position[0]).not.toBe(before.position[0]); // offset from the source, per duplicateObject()
+
+  await copy.click();
+  const { center } = await gizmoScreen(page); // the duplicate's own on-canvas position
+  await page.getByRole('button', { name: 'Deselect', exact: true }).click();
+  await expect(copy).toHaveAttribute('aria-pressed', 'false');
+
+  // Click precisely where the duplicate's own mesh should be: a real render, not just store state.
+  await page.mouse.click(center.x, center.y);
+  await expect(copy).toHaveAttribute('aria-pressed', 'true');
+});
+
 test('the Models list shows every object with five or more on the plate', async ({ page }) => {
   await page.goto('/');
   for (let i = 1; i <= 5; i += 1) await importStl(page, `bulk-${i}.stl`, binaryBoxStl());

@@ -22,6 +22,21 @@ export function getMeshBuffers(id: string): MeshBuffers | undefined {
   return buffers.get(id);
 }
 
+/**
+ * Registers `newId` under the same mesh data as `sourceId` (a plate-object duplicate). The typed
+ * arrays are shared, not copied: nothing ever mutates them after import (transforms live on the
+ * Object3D, never on the geometry attributes), and each id still gets its own lazily-built
+ * BufferGeometry/GPU buffer in `getGeometry`, so releasing one id's mesh never affects the other's.
+ * A no-op, reported via the return value, when `sourceId` has no buffers (still loading, or the
+ * duplicate button was pressed on an id whose geometry was never registered).
+ */
+export function duplicateMeshBuffers(sourceId: string, newId: string): boolean {
+  const source = buffers.get(sourceId);
+  if (!source) return false;
+  putMeshBuffers(newId, source);
+  return true;
+}
+
 /** Lazily builds (and caches) the renderable BufferGeometry for an id. Non-indexed, per design. */
 export function getGeometry(id: string): BufferGeometry | undefined {
   const cached = geometries.get(id);

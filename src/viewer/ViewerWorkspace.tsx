@@ -7,7 +7,7 @@ import { attachCameraControls, type ViewerCameraControls } from './camera';
 import { ModelsList, type ModelsListLabels } from './components/ModelsList';
 import { ViewPresets, type ViewCommand } from './components/ViewPresets';
 import { ViewerToolbarContainer } from './components/ViewerToolbarContainer';
-import { releaseMesh } from './geometry-cache';
+import { duplicateMeshBuffers, releaseMesh } from './geometry-cache';
 import { createGizmo } from './gizmo';
 import type { GizmoMode } from './gizmo-handles';
 import { objectCenter, orbitPivot } from './drag-math';
@@ -175,7 +175,11 @@ export function ViewerWorkspace(props: {
           const current = plate.state.objects.find(object => object.id === id);
           if (current) plate.setVisible(id, current.visible === false);
         }}
-        onDuplicate={id => plate.duplicateObject(id, globalThis.crypto.randomUUID())}
+        onDuplicate={id => {
+          const newId = globalThis.crypto.randomUUID();
+          duplicateMeshBuffers(id, newId); // mesh data must exist before the store's syncObjects effect looks for it
+          plate.duplicateObject(id, newId);
+        }}
         onDelete={id => plate.removeObject(id)}
         onRename={(id, name) => plate.renameObject(id, name)} />
     </Show>

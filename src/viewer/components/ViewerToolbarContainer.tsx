@@ -7,7 +7,7 @@ import { TransformToolbar, type TransformToolbarLabels } from './TransformToolba
 import { prepareCurrentPlate } from '../gizmo';
 import { findBestOrientation, resolveAutoOrientPlacement } from '../auto-orient';
 import { bedSizeFromSettings } from '../bed';
-import { getMeshBuffers } from '../geometry-cache';
+import { duplicateMeshBuffers, getMeshBuffers } from '../geometry-cache';
 import { EngineClientError } from '../../engine/client';
 import type { CodedError } from '../../i18n/en';
 
@@ -42,7 +42,13 @@ export function PlateObjectToolbar(props: {
     mode={props.mode ?? 'select'} onModeChange={props.onModeChange ?? (() => undefined)}
     onScaleOpen={() => setScaleOpen(true)} onScaleClose={() => setScaleOpen(false)}
     onRotate={axis => { const selected = object(); if (selected) plate.rotate90(selected.id, axis); }}
-    onDuplicate={() => { const selected = object(); if (selected) plate.duplicateObject(selected.id, globalThis.crypto.randomUUID()); }}
+    onDuplicate={() => {
+      const selected = object();
+      if (!selected) return;
+      const newId = globalThis.crypto.randomUUID();
+      duplicateMeshBuffers(selected.id, newId); // mesh data must exist before the store's syncObjects effect looks for it
+      plate.duplicateObject(selected.id, newId);
+    }}
     onDelete={() => { const selected = object(); if (selected) { plate.removeObject(selected.id); setScaleOpen(false); } }}
     onReset={() => { const selected = object(); if (selected) plate.resetTransform(selected.id); }}
     onTransform={transform => { const selected = object(); if (selected) plate.updateTransform(selected.id, transform); }}
