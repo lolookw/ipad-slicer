@@ -629,6 +629,46 @@ test('changing scale display units preserves the physical millimeter size', asyn
   await expect(dimension).toHaveValue('25.4');
 });
 
+test('typing a Position X value moves the object to exactly that value', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'position-field.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Edit values', exact: true }).click();
+  const positionX = page.getByRole('spinbutton', { name: 'Position X', exact: true });
+
+  await positionX.fill('37.5');
+  await positionX.blur();
+
+  await expect.poll(async () => (await readTransform(page, 'position-field.stl')).position[0]).toBeCloseTo(37.5, 1);
+});
+
+test('typing a Rotation value sets that exact rotation, not additive drift from repeated edits', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'rotation-field.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Edit values', exact: true }).click();
+  const rotationX = page.getByRole('spinbutton', { name: 'Rotation X', exact: true });
+
+  await rotationX.fill('30');
+  await rotationX.blur();
+  await expect.poll(async () => (await readTransform(page, 'rotation-field.stl')).rotation[0]).toBeCloseTo(Math.PI / 6, 3);
+
+  // A second, different absolute value must land exactly there too, never compounded onto the first.
+  await rotationX.fill('45');
+  await rotationX.blur();
+  await expect.poll(async () => (await readTransform(page, 'rotation-field.stl')).rotation[0]).toBeCloseTo(Math.PI / 4, 3);
+});
+
+test('Scale fields keep X/Y/Z proportional while the link toggle is on', async ({ page }) => {
+  await page.goto('/');
+  await importStl(page, 'scale-link.stl', binaryBoxStl());
+  await page.getByRole('button', { name: 'Edit values', exact: true }).click();
+  const scaleX = page.getByRole('spinbutton', { name: 'Scale X', exact: true });
+
+  await scaleX.fill('50');
+  await scaleX.blur();
+
+  await expect.poll(async () => (await readTransform(page, 'scale-link.stl')).scale).toEqual([0.5, 0.5, 0.5]);
+});
+
 test('two imported objects round-trip through real engine orient and arrange', async ({ page }) => {
   test.setTimeout(60_000);
   await page.goto('/'); await configureEngine(page);

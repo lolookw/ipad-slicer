@@ -4,9 +4,10 @@ import { Button } from '../../ui/Button';
 import type { GizmoMode } from '../gizmo-handles';
 import type { ObjectTransform } from '../transforms';
 import { ScaleSheet, type ScaleSheetLabels } from './ScaleSheet';
+import { TransformFields, type TransformFieldsLabels } from './TransformFields';
 import './viewer-components.css';
 
-export interface TransformToolbarLabels extends ScaleSheetLabels {
+export interface TransformToolbarLabels extends ScaleSheetLabels, TransformFieldsLabels {
   toolbar: string;
   mode: string;
   select: string;
@@ -27,6 +28,7 @@ export interface TransformToolbarLabels extends ScaleSheetLabels {
 export interface TransformToolbarProps {
   object?: PlateObject;
   scaleOpen: boolean;
+  transformFieldsOpen: boolean;
   labels: TransformToolbarLabels;
   readout?: string;
   snapEnabled: boolean;
@@ -36,11 +38,14 @@ export interface TransformToolbarProps {
   onModeChange: (mode: 'select' | 'move' | 'rotate') => void;
   onScaleOpen: () => void;
   onScaleClose: () => void;
+  onTransformFieldsOpen: () => void;
+  onTransformFieldsClose: () => void;
   onRotate: (axis: 'x' | 'y') => void;
   onDuplicate: () => void;
   onDelete: () => void;
   onReset: () => void;
   onTransform: (transform: ObjectTransform) => void;
+  onTransformNoReseat: (transform: ObjectTransform) => void;
   onDeselect: () => void;
   onLayFlat: () => void;
   onAutoOrient: () => void;
@@ -57,6 +62,7 @@ const ICONS = {
   rotX: 'M4 12h16M15 7l5 5-5 5',
   rotY: 'M12 4v16M7 9l5-5 5 5',
   scale: 'M15 4h5v5M9 20H4v-5M20 4l-6 6M4 20l6-6',
+  values: 'M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z',
   duplicate: 'M9 9h11v11H9zM5 15V5h10',
   delete: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
   reset: 'M4 12a8 8 0 1 0 2.5-5.8M4 4v5h5',
@@ -83,6 +89,7 @@ export function TransformToolbar(props: TransformToolbarProps) {
       {/* Frequent actions. */}
       <div class="viewer-secondary-actions">
         <Button variant="secondary" icon={<Svg d={ICONS.scale} />} onClick={props.onScaleOpen}>{props.labels.scale}</Button>
+        <Button variant="secondary" icon={<Svg d={ICONS.values} />} onClick={props.onTransformFieldsOpen}>{props.labels.editValues}</Button>
         <Button variant="secondary" icon={<Svg d={ICONS.duplicate} />} onClick={props.onDuplicate}>{props.labels.duplicate}</Button>
         <Button variant="danger" icon={<Svg d={ICONS.delete} />} onClick={props.onDelete}>{props.labels.delete}</Button>
         <Button variant="secondary" icon={<Svg d={ICONS.reset} />} onClick={props.onReset}>{props.labels.reset}</Button>
@@ -101,5 +108,7 @@ export function TransformToolbar(props: TransformToolbarProps) {
     </div>
     <Show when={props.readout}>{value => <output class="viewer-transform-readout">{value()}</output>}</Show>
     <ScaleSheet open={props.scaleOpen} object={object()} labels={props.labels} onClose={props.onScaleClose} onTransform={props.onTransform} />
+    <TransformFields open={props.transformFieldsOpen} object={object()} labels={props.labels} onClose={props.onTransformFieldsClose}
+      onTransform={props.onTransform} onTransformNoReseat={props.onTransformNoReseat} onReset={props.onReset} />
   </>}</Show>;
 }

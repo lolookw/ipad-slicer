@@ -130,3 +130,24 @@ export function toMillimeters(value: number, unit: DisplayUnit): number {
 export function fromMillimeters(valueMm: number, unit: DisplayUnit): number {
   return valueMm / UNITS_TO_MM[unit];
 }
+
+/** Degrees for display <-> the radians ObjectTransform.rotation stores (three.js intrinsic XYZ Euler). */
+export function toDegrees(radians: number): number {
+  return radians * 180 / Math.PI;
+}
+export function toRadians(degrees: number): number {
+  return degrees * Math.PI / 180;
+}
+
+/** Inclusive numeric range a typed field value must fall in to be accepted. */
+export interface NumericFieldBounds { min: number; max: number }
+
+/** Parses a typed field value: rejects NaN/Infinity and anything outside `bounds`, returns undefined instead of throwing. */
+export function parseBoundedNumber(value: number, bounds: NumericFieldBounds): number | undefined {
+  return Number.isFinite(value) && value >= bounds.min && value <= bounds.max ? value : undefined;
+}
+
+/** Sane typed-field bounds for the Position/Rotation/Scale numeric panel (TransformFields.tsx). */
+export const POSITION_BOUNDS_MM: NumericFieldBounds = { min: -100000, max: 100000 };
+export const ROTATION_BOUNDS_DEG: NumericFieldBounds = { min: -3600, max: 3600 };
+export const SCALE_BOUNDS_PERCENT: NumericFieldBounds = { min: 0.1, max: 100000 };

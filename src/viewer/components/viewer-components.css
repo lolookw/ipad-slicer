@@ -63,6 +63,23 @@
 .viewer-size-suggestion { border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: var(--space-2); }
 .viewer-size-suggestion div { flex-wrap: wrap; }
 
+/* Numeric Position/Rotation/Scale panel (TransformFields.tsx) — same Sheet visual language as the
+ * scale sheet above, so typing a value and quick-resizing by largest dimension read as one family of
+ * tool instead of two competing panel designs. */
+.viewer-transform-fields { display: flex; flex-direction: column; gap: var(--space-2); }
+.viewer-transform-fields header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); }
+.viewer-transform-fields h2 { margin: 0; font-size: 1.125rem; }
+.viewer-transform-fields section { display: flex; flex-direction: column; gap: var(--space-1); }
+.viewer-transform-fields h3 { margin: 0; font-size: .8125rem; font-weight: 600; color: var(--color-muted); }
+.viewer-transform-section-heading { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); }
+.viewer-transform-section-heading .ui-button { min-width: 44px; padding-inline: var(--space-1); }
+.viewer-transform-section-heading .ui-button svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.viewer-transform-section-heading .ui-button[aria-pressed='true'] { background: var(--color-primary-soft); color: var(--color-primary); }
+.viewer-transform-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-1); }
+.viewer-transform-grid label { display: flex; flex-direction: column; gap: 4px; font-size: .8125rem; color: var(--color-muted); }
+.viewer-transform-grid input { width: 100%; }
+.viewer-transform-dimensions input { color: var(--color-muted); background: var(--color-surface-sunken); }
+
 /* View presets: a small floating group on the right edge of the stage. */
 .viewer-view-presets {
   position: absolute; top: 12px; right: 12px; z-index: 10; display: flex; flex-direction: column; gap: 4px; padding: 4px;
