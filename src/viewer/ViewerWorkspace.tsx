@@ -235,6 +235,15 @@ export function ViewerWorkspace(props: {
       <span>{objectCount()}</span>
     </header>
     <Show when={error()}>{failure => <p class="viewer-error" role="alert">{app.translateError(failure())}</p>}</Show>
+    <Show when={importSession.repairNotices().length}>
+      <p class="viewer-repair-notice" role="status">
+        {importSession.repairNotices().map(({ name, report }) => {
+          const count = report.trianglesRemoved + report.holesFilled + report.facesFlipped;
+          const key = report.holesRemaining > 0 ? 'import.meshRepairedWithRemaining' : 'import.meshRepaired';
+          return app.t(key).replace('{count}', String(count)).replace('{name}', name).replace('{remaining}', String(report.holesRemaining));
+        }).join(' ')}
+      </p>
+    </Show>
     <div class="viewer-stage" style={{ position: 'relative' }}>
       <canvas ref={canvas} data-testid="viewer-canvas" aria-label={app.t('viewer.buildPlate')} />
       {/* Undo can be the only way back after deleting the plate's last object, and Redo must stay

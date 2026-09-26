@@ -4,12 +4,15 @@ import { plate } from '../app/stores/plate';
 import { putMeshBuffers } from './geometry-cache';
 import type { ImportedObject, ImportModelResult } from './import-types';
 import { importModelFile, type ImportOptions, type ImportStlResult } from './mesh.worker';
+import type { MeshRepairReport } from './mesh-repair';
 import { encodeBinaryStl } from './stl-encode';
 import { IDENTITY_TRANSFORM } from './transforms';
 import type { CodedError } from '../i18n/en';
 
 export type ImportLimits = TierDecision['limits'];
-export type PlateImportResult = { ok: true; id: string; ids: string[] } | { ok: false; error: CodedError };
+export type PlateImportResult =
+  | { ok: true; id: string; ids: string[]; repairs: { name: string; report: MeshRepairReport }[] }
+  | { ok: false; error: CodedError };
 /** A parser may return the multi-object result or the legacy single-mesh STL shape. */
 export type ModelParser = (file: File, options?: ImportOptions) => Promise<ImportModelResult | ImportStlResult>;
 
@@ -52,20 +55,28 @@ export async function importFileToPlate(
   if (budgetError) return { ok: false, error: budgetError };
 
   const ids: string[] = [];
+  const repairs: { name: string; report: MeshRepairReport }[] = [];
   result.objects.forEach((object, index) => {
     const id = globalThis.crypto.randomUUID();
     const { meshBuffers } = object;
     putMeshBuffers(id, meshBuffers);
-    // The engine consumes STL bytes: an STL keeps its original file, a 3MF object gets its baked geometry re-encoded.
-    binaries.putMesh(id, result.format === '3mf' ? encodeBinaryStl(meshBuffers) : file);
+    // The engine consumes STL bytes: a 3MF object always gets its baked geometry re-encoded, and so
+    // does an STL that repair actually changed — otherwise the engine would still slice the original,
+    // unrepaired file even though the viewer (and the plate's own geometry) show the repaired mesh.
+    // An untouched STL keeps its original file bytes, avoiding a needless re-encode of the common case.
+    const needsReencode = result.format === '3mf' || (object.repairReport?.wasModified ?? false);
+    binaries.putMesh(id, needsReencode ? encodeBinaryStl(meshBuffers) : file);
+    const name = objectName(object, file, index, result.objects.length);
     plate.addObject({
-      id, name: objectName(object, file, index, result.objects.length), triangleCount: meshBuffers.triangleCount,
+      id, name, triangleCount: meshBuffers.triangleCount,
       bounds: meshBuffers.bounds, transform: IDENTITY_TRANSFORM,
       ...(object.extruder !== undefined ? { extruder: object.extruder } : {}),
       ...(object.materials ? { materials: object.materials } : {}),
     });
     ids.push(id);
+    const { repairReport } = object;
+    if (repairReport && (repairReport.wasModified || repairReport.holesRemaining > 0)) repairs.push({ name, report: repairReport });
   });
   flow.hasModel.set(true);
-  return { ok: true, id: ids[0]!, ids };
+  return { ok: true, id: ids[0]!, ids, repairs };
 }

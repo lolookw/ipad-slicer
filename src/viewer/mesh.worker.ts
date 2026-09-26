@@ -1,5 +1,6 @@
 
 import type { ImportedObject, ImportModelResult, ModelFormat } from './import-types';
+import { repairMesh } from './mesh-repair';
 import { parseStlBuffer, type ImportStlResult } from './stl-parse';
 
 export type { MeshBuffers } from './geometry-cache';
@@ -20,14 +21,24 @@ export function detectModelFormat(name: string, buffer: ArrayBuffer): ModelForma
   return head.length === 4 && head[0] === 0x50 && head[1] === 0x4b && head[2] === 3 && head[3] === 4 ? '3mf' : 'stl';
 }
 
+/** Runs automatic mesh repair on every object's buffers, the single choke point both STL and 3MF
+ * imports converge through — the engine and viewer only ever see the repaired result. */
+function repairObjects(objects: ImportedObject[]): ImportedObject[] {
+  return objects.map(object => {
+    const { meshBuffers, report } = repairMesh(object.meshBuffers);
+    return { ...object, meshBuffers, repairReport: report };
+  });
+}
+
 async function parseBuffer(request: WorkerRequest): Promise<ImportModelResult> {
   if (request.format === '3mf') {
     // Lazy chunk: the zip library only loads when a 3MF is actually imported.
     const { parse3mfBuffer } = await import('./threemf-parse');
-    return parse3mfBuffer(request.buffer, { maxTriangles: request.maxTriangles });
+    const result = parse3mfBuffer(request.buffer, { maxTriangles: request.maxTriangles });
+    return result.ok ? { ...result, objects: repairObjects(result.objects) } : result;
   }
   const result = parseStlBuffer(request.buffer);
-  return result.ok ? { ok: true, format: 'stl', objects: [{ meshBuffers: result.meshBuffers }] } : result;
+  return result.ok ? { ok: true, format: 'stl', objects: repairObjects([{ meshBuffers: result.meshBuffers }]) } : result;
 }
 
 function parseInWorker(request: WorkerRequest): Promise<ImportModelResult> {

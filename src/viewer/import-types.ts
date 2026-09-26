@@ -1,4 +1,5 @@
 import type { MeshBuffers } from './geometry-cache';
+import type { MeshRepairReport } from './mesh-repair';
 import type { CodedError } from '../i18n/en';
 
 /**
@@ -19,6 +20,8 @@ export interface ImportedObject {
   /** 1-based extruder/filament slot from slicer metadata, when present. */
   extruder?: number;
   materials?: ObjectMaterial[];
+  /** Set by mesh.worker.ts's parseBuffer() after automatic mesh repair runs on this object. */
+  repairReport?: MeshRepairReport;
 }
 
 export type ModelFormat = 'stl' | '3mf';
