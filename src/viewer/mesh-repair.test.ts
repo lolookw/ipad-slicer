@@ -108,6 +108,7 @@ describe('repairMesh', () => {
     expect(report.holesRemaining).toBe(0);
     expect(meshBuffers.triangleCount).toBe(4); // 3 original + 1 new cap
     expect(isClosedManifold(meshBuffers)).toBe(true);
+    expect(isConsistentlyOriented(meshBuffers)).toBe(true); // the cap itself must wind the right way, not just close the gap
   });
 
   it('flips one inconsistently wound face on an otherwise closed tetrahedron', () => {
@@ -130,6 +131,21 @@ describe('repairMesh', () => {
     expect(meshBuffers.bounds).toEqual({ min: [0, 0, 0], max: [1, 1, 1] });
   });
 
+  it('caps a hole whose own bordering face was also inconsistently wound', () => {
+    // Regression case: a naive implementation records each boundary edge's direction once, before
+    // winding gets fixed — if the hole's own neighboring face is the one that gets flipped, that
+    // recorded direction goes stale and the loop walk (or the resulting cap's winding) breaks.
+    const flippedFaceOppositeB: [Point, Point, Point] = [A, C, D]; // two vertices swapped
+    const mesh = buildMesh([flippedFaceOppositeB, faceOppositeC, faceOppositeD]); // face opposite A dropped
+    const { meshBuffers, report } = repairMesh(mesh);
+
+    expect(report.facesFlipped).toBe(1);
+    expect(report.holesFilled).toBe(1);
+    expect(report.holesRemaining).toBe(0);
+    expect(meshBuffers.triangleCount).toBe(4);
+    expect(isConsistentlyOriented(meshBuffers)).toBe(true);
+  });
+
   it('caps a 4-vertex square hole left by a missing cube face via ear-clipping', () => {
     const withoutTop = cubeTriangles.slice(2); // drop the top face's 2 triangles
     const mesh = buildMesh(withoutTop);
@@ -139,5 +155,6 @@ describe('repairMesh', () => {
     expect(report.holesRemaining).toBe(0);
     expect(meshBuffers.triangleCount).toBe(10 + 2);
     expect(isClosedManifold(meshBuffers)).toBe(true);
+    expect(isConsistentlyOriented(meshBuffers)).toBe(true);
   });
 });

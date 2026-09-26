@@ -201,13 +201,21 @@ export function repairMesh(mesh: MeshBuffers): { meshBuffers: MeshBuffers; repor
     }
   }
 
-  // --- Step 4: fix inconsistent winding within each connected shell ---
-  const flippedInStep4 = new Set<number>();
+  // --- Step 4: fix inconsistent winding within each connected shell, RELATIVE only ---
+  // This only makes every face agree with its neighbors — it deliberately does NOT yet decide
+  // whether the whole shell is outward- or inward-facing. An open shell (one with a hole) has no
+  // well-defined enclosed volume, so that global "which way is outward" check is only meaningful
+  // once any holes are closed (Step 6, after Step 5 fills them). Doing it here instead would give
+  // an arbitrary, reference-point-dependent answer for any shell that still has an open boundary.
+  const flippedByConsistency = new Set<number>(); // may later gain/lose entries via Step 6's XOR-toggle
   const flipTriangle = (t: number) => { const tri = triangles[t]!; const tmp = tri[1]!; tri[1] = tri[2]!; tri[2] = tmp; };
   const visited = new Array<boolean>(triangles.length).fill(false);
   const currentlyFlipped = new Array<boolean>(triangles.length).fill(false);
+  const shellOf = new Array<number>(triangles.length).fill(-1);
+  const shells: number[][] = [];
   for (let start = 0; start < triangles.length; start++) {
     if (visited[start]) continue;
+    const shellId = shells.length;
     const shellMembers: number[] = [];
     const queue: number[] = [start];
     visited[start] = true;
@@ -215,48 +223,47 @@ export function repairMesh(mesh: MeshBuffers): { meshBuffers: MeshBuffers; repor
     while (head < queue.length) {
       const t = queue[head++]!;
       shellMembers.push(t);
+      shellOf[t] = shellId;
       for (const edge of adjacency[t]!) {
         if (visited[edge.neighbor]) continue;
         // Consistent orientation needs the shared edge stored in OPPOSITE directions by the two
         // triangles; `sameDirection` (fixed at build time) XOR this triangle's current flip state
         // tells us whether the neighbor needs flipping to achieve that, relative to `t`.
         const needsFlip = edge.sameDirection !== currentlyFlipped[t]!;
-        if (needsFlip) { flipTriangle(edge.neighbor); currentlyFlipped[edge.neighbor] = true; flippedInStep4.add(edge.neighbor); }
+        if (needsFlip) { flipTriangle(edge.neighbor); currentlyFlipped[edge.neighbor] = true; flippedByConsistency.add(edge.neighbor); }
         visited[edge.neighbor] = true;
         queue.push(edge.neighbor);
       }
     }
-    let signedVolumeX6 = 0;
-    for (const t of shellMembers) {
-      const tri = triangles[t]!;
-      signedVolumeX6 += dot(vx(tri[0]!), cross(vx(tri[1]!), vx(tri[2]!)));
-    }
-    if (signedVolumeX6 < 0) {
-      for (const t of shellMembers) {
-        flipTriangle(t);
-        if (flippedInStep4.has(t)) flippedInStep4.delete(t); else flippedInStep4.add(t);
-      }
-    }
+    shells.push(shellMembers);
   }
-  const facesFlipped = flippedInStep4.size;
+  const preHoleFillCount = triangles.length; // only triangles below this existed in the original input
 
   // --- Step 5: fill small holes ---
+  // Boundary edges were recorded in Step 3, before Step 4 flipped some triangles to fix their
+  // winding — flipping a triangle reverses the direction of ALL its edges, so a boundary edge
+  // belonging to a triangle that got flipped now points the opposite way from what was recorded.
+  // Reading direction through these two helpers (instead of edge.from/edge.to directly) keeps the
+  // loop walk correct even when the hole's own bordering triangle had its winding fixed.
+  const currentFrom = (edge: EdgeUse): number => flippedByConsistency.has(edge.triangle) ? edge.to : edge.from;
+  const currentTo = (edge: EdgeUse): number => flippedByConsistency.has(edge.triangle) ? edge.from : edge.to;
   let holesFilled = 0;
   let holesRemaining = 0;
   const boundaryStart = new Map<number, EdgeUse[]>();
   for (const edge of boundaryEdges) {
     if (nonManifoldVertices.has(edge.from) || nonManifoldVertices.has(edge.to)) continue;
-    const list = boundaryStart.get(edge.from);
-    if (list) list.push(edge); else boundaryStart.set(edge.from, [edge]);
+    const from = currentFrom(edge);
+    const list = boundaryStart.get(from);
+    if (list) list.push(edge); else boundaryStart.set(from, [edge]);
   }
   const usedBoundaryEdge = new Set<EdgeUse>();
   for (const startEdge of boundaryEdges) {
     if (usedBoundaryEdge.has(startEdge)) continue;
     if (nonManifoldVertices.has(startEdge.from) || nonManifoldVertices.has(startEdge.to)) continue;
-    const startVertex = startEdge.from;
+    const startVertex = currentFrom(startEdge);
     const loop: number[] = [startVertex];
     usedBoundaryEdge.add(startEdge);
-    let current = startEdge.to;
+    let current = currentTo(startEdge);
     let closed = false;
     const guardLimit = boundaryEdges.length + 1;
     let steps = 0;
@@ -266,17 +273,46 @@ export function repairMesh(mesh: MeshBuffers): { meshBuffers: MeshBuffers; repor
       if (!next) break; // dead end: abandon
       usedBoundaryEdge.add(next);
       loop.push(current);
-      current = next.to;
+      current = currentTo(next);
     }
     if (current === startVertex && loop.length >= 3) closed = true;
     if (!closed) continue; // don't count or fill an unclosable loop
 
     if (loop.length > MAX_HOLE_VERTICES) { holesRemaining++; continue; }
-    for (const tri of triangulateLoop(loop, vx)) triangles.push(tri);
+    // `loop` was walked in the SAME direction each bordering triangle stores its own copy of that
+    // boundary edge (that's what makes the chain link up at all: each step's `to` is the next
+    // edge's `from`). But consistent winding means adjacent faces traverse a SHARED edge in
+    // OPPOSITE directions — so the cap, which borders every edge in this loop, must traverse the
+    // loop in the opposite direction from how the loop was walked, hence the reverse() here.
+    const shellId = shellOf[startEdge.triangle]!; // every edge in one loop belongs to the same shell
+    for (const tri of triangulateLoop(loop.slice().reverse(), vx)) { shells[shellId]!.push(triangles.length); triangles.push(tri); }
     holesFilled++;
   }
 
-  // --- Step 6 + 7: recompute flat per-triangle normals and de-index to non-indexed triangle soup ---
+  // --- Step 6: now that any holes are closed, each shell has a well-defined enclosed volume — flip
+  // a whole shell (including any caps just added to it) if it reads inward instead of outward. Uses
+  // the divergence-theorem identity (sum of signed tetrahedron volumes against a fixed reference
+  // point, here the origin) which is exact for a CLOSED, consistently-wound shell; that is exactly
+  // what Step 4 + this hole-filling guarantee going into this step. ---
+  for (const shellMembers of shells) {
+    let signedVolumeX6 = 0;
+    for (const t of shellMembers) {
+      const tri = triangles[t]!;
+      signedVolumeX6 += dot(vx(tri[0]!), cross(vx(tri[1]!), vx(tri[2]!)));
+    }
+    if (signedVolumeX6 < 0) {
+      for (const t of shellMembers) {
+        flipTriangle(t);
+        if (flippedByConsistency.has(t)) flippedByConsistency.delete(t); else flippedByConsistency.add(t);
+      }
+    }
+  }
+  // Only count original input triangles toward the report — a newly-created cap triangle has no
+  // "original" winding to have been corrected from, so flipping one to match its shell doesn't count.
+  let facesFlipped = 0;
+  for (const t of flippedByConsistency) if (t < preHoleFillCount) facesFlipped++;
+
+  // --- Step 7: recompute flat per-triangle normals and de-index to non-indexed triangle soup ---
   const finalTriangleCount = triangles.length;
   const positions = new Float32Array(finalTriangleCount * 9);
   const normals = new Float32Array(finalTriangleCount * 9);
