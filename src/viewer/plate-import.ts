@@ -60,8 +60,12 @@ export async function importFileToPlate(
     const id = globalThis.crypto.randomUUID();
     const { meshBuffers } = object;
     putMeshBuffers(id, meshBuffers);
-    // The engine consumes STL bytes: an STL keeps its original file, a 3MF object gets its baked geometry re-encoded.
-    binaries.putMesh(id, result.format === '3mf' ? encodeBinaryStl(meshBuffers) : file);
+    // The engine consumes STL bytes: a 3MF object always gets its baked geometry re-encoded, and so
+    // does an STL that repair actually changed — otherwise the engine would still slice the original,
+    // unrepaired file even though the viewer (and the plate's own geometry) show the repaired mesh.
+    // An untouched STL keeps its original file bytes, avoiding a needless re-encode of the common case.
+    const needsReencode = result.format === '3mf' || (object.repairReport?.wasModified ?? false);
+    binaries.putMesh(id, needsReencode ? encodeBinaryStl(meshBuffers) : file);
     const name = objectName(object, file, index, result.objects.length);
     plate.addObject({
       id, name, triangleCount: meshBuffers.triangleCount,

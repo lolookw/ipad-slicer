@@ -30,6 +30,17 @@ describe('plate import wiring', () => {
     releaseMesh(result.id); binaries.release(result.id);
   });
 
+  it('re-encodes a repaired STL instead of sending the engine the original, still-broken bytes', async () => {
+    const file = new File(['solid'], 'broken.stl');
+    const repairReport = { trianglesRemoved: 1, holesFilled: 0, holesRemaining: 0, facesFlipped: 0, nonManifoldEdges: 0, verticesWelded: 0, wasModified: true };
+    const result = await importFileToPlate(file, limits, async () => ({ ok: true, format: 'stl', objects: [{ meshBuffers: mesh, repairReport }] }));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(binaries.getMesh(result.id)).not.toBe(file); // the original bytes are still broken — must not reach the engine
+    expect(result.repairs).toEqual([{ name: 'broken.stl', report: repairReport }]);
+    releaseMesh(result.id); binaries.release(result.id);
+  });
+
   it('preserves every existing object when parsing or budget validation fails', async () => {
     const first = await importFileToPlate(new File(['ok'], 'first.stl'), limits, async () => ({ ok: true, meshBuffers: mesh }));
     expect(first.ok).toBe(true);
