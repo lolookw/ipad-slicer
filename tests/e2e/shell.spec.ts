@@ -43,6 +43,17 @@ function binaryFinStl(): Buffer {
 }
 const FIN_BOUNDS = { min: [0, 0, 0], max: [30, 2, 40] };
 
+/** The same box as binaryBoxStl(), missing one face — a real, if small, hole for mesh repair to find. */
+function brokenBoxStl(): Buffer {
+  const vertices = [[0, 0, 0], [20, 0, 0], [20, 20, 0], [0, 20, 0], [0, 0, 10], [20, 0, 10], [20, 20, 10], [0, 20, 10]];
+  const faces = [[0, 2, 1], [4, 5, 6], [4, 6, 7], [0, 1, 5], [0, 5, 4],
+    [1, 2, 6], [1, 6, 5], [2, 3, 7], [2, 7, 6], [3, 0, 4], [3, 4, 7]]; // dropped [0, 3, 2], the other half of the bottom face
+  const buffer = Buffer.alloc(84 + faces.length * 50); buffer.writeUInt32LE(faces.length, 80);
+  faces.forEach((face, index) => face.forEach((vertex, vertexIndex) => vertices[vertex]!.forEach((value, axis) =>
+    buffer.writeFloatLE(value!, 84 + index * 50 + 12 + vertexIndex * 12 + axis * 4))));
+  return buffer;
+}
+
 /** Rotated world-space AABB Z extent, mirroring src/viewer/transforms.ts's transformedSize — kept local so this spec has no src import. */
 function boundingHeightMm(bounds: typeof FIN_BOUNDS, rotation: number[]): number {
   const matrix = new Matrix4().compose(new Vector3(), new Quaternion().setFromEuler(new Euler(rotation[0]!, rotation[1]!, rotation[2]!)), new Vector3(1, 1, 1));
@@ -880,6 +891,16 @@ test('a configured imported plate slices, shows estimates and downloads G-code',
   expect((await download).suggestedFilename()).toBe('slice-round-trip.gcode');
   await expect(page.locator('.diagnostics-sheet')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeEnabled();
+});
+
+test('a broken STL (one missing face) is repaired on import and still slices to completion', async ({ page }) => {
+  test.setTimeout(60_000);
+  await page.goto('/'); await configureEngine(page); await importStl(page, 'broken-box.stl', brokenBoxStl());
+  await expect(page.getByText('Fixed 1 issue(s) in "broken-box.stl".')).toBeVisible();
+  // The notice alone would only prove the viewer's copy of the mesh was patched — slicing to
+  // completion is what proves the ENGINE actually received the repaired bytes, not the original file.
+  await page.getByRole('button', { name: 'Slice', exact: true }).click();
+  await expect(page.getByTestId('slice-result')).toContainText('Print time', { timeout: 45_000 });
 });
 
 test('the Preview step shows the toolpath canvas and the slider changes the visible layer while Save keeps working', async ({ page }) => {
