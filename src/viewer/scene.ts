@@ -1,6 +1,7 @@
-import { AmbientLight, AxesHelper, Box3, Color, DirectionalLight, Group, Mesh, MeshStandardMaterial, PerspectiveCamera, Raycaster, Scene, Vector2, Vector3 } from 'three';
+import { AmbientLight, Box3, Color, DirectionalLight, Group, Mesh, MeshStandardMaterial, PerspectiveCamera, Raycaster, Scene, Vector2, Vector3 } from 'three';
 import type { PlateObject } from '../app/stores/plate';
 import { createBed, type BedSize } from './bed';
+import { createFatLine } from './fat-lines';
 import { getGeometry } from './geometry-cache';
 import { createRenderer, rendererLimits, type ViewerRenderer } from './renderer';
 import { objectCenter, pickOffsets } from './drag-math';
@@ -63,9 +64,15 @@ export async function createViewer(canvas: HTMLCanvasElement, bedSize: BedSize, 
   const key = new DirectionalLight(0xffffff, 0.8); key.position.set(200, -200, 400); scene.add(key);
 
   const bed = createBed(bedSize); scene.add(bed);
-  const origin = new AxesHelper(30); // X red, Y green, Z blue, at the plate corner
-  origin.position.set(-bedSize.widthMm / 2, -bedSize.depthMm / 2, 0);
+  const origin = new Group(); // X red, Y green, Z blue, at the plate corner
   origin.name = 'origin-axes';
+  origin.position.set(-bedSize.widthMm / 2, -bedSize.depthMm / 2, 0);
+  const AXIS_LENGTH = 30;
+  origin.add(
+    createFatLine([0, 0, 0, AXIS_LENGTH, 0, 0], 0xff0000, 2),
+    createFatLine([0, 0, 0, 0, AXIS_LENGTH, 0], 0x00ff00, 2),
+    createFatLine([0, 0, 0, 0, 0, AXIS_LENGTH], 0x0000ff, 2),
+  );
   scene.add(origin);
   const gizmo = createGizmoView(); scene.add(gizmo.root);
   const bedBox = new Box3(new Vector3(-bedSize.widthMm / 2, -bedSize.depthMm / 2, 0), new Vector3(bedSize.widthMm / 2, bedSize.depthMm / 2, 1));
