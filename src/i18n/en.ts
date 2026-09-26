@@ -49,6 +49,8 @@ export const en = {
     sourcesNote: 'Download an STL or 3MF there, then upload it here.',
     licenseNote: 'Models keep their own licenses. Check the terms before printing or sharing.',
     opensNewTab: 'opens in a new tab',
+    meshRepaired: 'Fixed {count} issue(s) in "{name}".',
+    meshRepairedWithRemaining: 'Fixed {count} issue(s) in "{name}", but {remaining} hole(s) could not be closed automatically.',
   },
   results: {
     time: 'Print time', mass: 'Filament mass', cost: 'Estimated cost', layers: 'Layers', unavailable: 'Unavailable',

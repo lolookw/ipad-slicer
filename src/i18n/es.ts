@@ -41,6 +41,8 @@ export const es = {
     sourcesNote: 'Descarga un STL o 3MF allí y luego súbelo aquí.',
     licenseNote: 'Cada modelo conserva su propia licencia. Revisa las condiciones antes de imprimirlo o compartirlo.',
     opensNewTab: 'se abre en una pestaña nueva',
+    meshRepaired: 'Se corrigieron {count} problema(s) en "{name}".',
+    meshRepairedWithRemaining: 'Se corrigieron {count} problema(s) en "{name}", pero {remaining} agujero(s) no se pudieron cerrar automáticamente.',
   },
   results: {
     time: 'Tiempo de impresión', mass: 'Masa de filamento', cost: 'Costo estimado', layers: 'Capas', unavailable: 'No disponible',
